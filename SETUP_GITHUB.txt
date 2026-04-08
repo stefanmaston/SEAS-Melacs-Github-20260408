@@ -2,7 +2,7 @@ Melacs — eget repo (inte fork)
 ================================
 
 Det här projektet är kopplat till:
-  https://github.com/stefanmaston/Melacs
+  https://github.com/stefanmaston/SEAS-Melacs-Github-20260408
 
 I git finns bara remote "origin" (inga upstream-remotes). Det är rätt för ett eget repo.
 
@@ -20,7 +20,7 @@ Om GitHub frågar om inloggning:
   • GitHub Desktop, eller
   • Terminal:  gh auth login
   • Eller byt till SSH och lägg till nyckel i GitHub:
-      git remote set-url origin git@github.com:stefanmaston/Melacs.git
+      git remote set-url origin git@github.com:stefanmaston/SEAS-Melacs-Github-20260408.git
       git push -u origin main
 
 Efter lyckad push ska GitHub visa koden utan "forked from …".
