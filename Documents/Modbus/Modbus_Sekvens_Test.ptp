@@ -1,0 +1,62 @@
+VERSION
+8
+
+COMMSETTINGS
+0
+COM5
+COM3
+115200
+2
+0
+4
+0
+0
+
+COMMDISPLAY
+0
+
+VERSATAP
+0
+
+CHANNELALIAS
+
+
+
+SEND
+0
+Answer Write Multi Coil OFF
+01 0F 07 D0 00 04 54 85
+0
+5
+
+SEND
+1
+Answer Multi Coil On
+01 0F 07 D0 00 04 54 85
+0
+5
+
+RECEIVE
+0
+Write Multi Coil
+01 0F 07 D0 00 04 01 00 FE F3
+0
+0
+COMMENT 
+0
+1
+0
+0
+
+RECEIVE
+1
+Write Multi Coil ON
+01 0F 07 D0 00 04 01 0F BE F7
+0
+0
+COMMENT 
+0
+1
+0
+0
+

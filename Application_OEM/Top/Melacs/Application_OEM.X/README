@@ -1,0 +1,12 @@
+README for Example "fatfs-sd"
+-----------------------------
+
+PICtail Daughter Board for SD and MMC Cards may be installed in SPI1 or SPI2 ports on Explorer16.
+
+Make following for select SPI port:
+1) to select SPI1
+    - install PICtail Dauther Board to SPI1 connector (see Explorer16 documentation);
+    - in file "main.h" set define SD_SPI1 (SPI1 port).
+2) to select SPI2
+    - install PICtail Dauther Board to SPI2 connector (see Explorer16 documentation);
+    - in file "main.h" set define SD_SPI2 (SPI2 port).

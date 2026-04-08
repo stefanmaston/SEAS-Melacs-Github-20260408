@@ -1,0 +1,87 @@
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\bin\Debug\InresolGUI.exe.config
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\bin\Debug\InresolGUI.exe
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\bin\Debug\InresolGUI.pdb
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\MainWindow.g.cs
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\App.g.cs
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.cache
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.lref
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\MainWindow.baml
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\InresolGUI.g.resources
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\InresolGUI.Properties.Resources.resources
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\InresolGUI.csproj.GenerateResource.Cache
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\InresolGUI.exe
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\InresolGUI.pdb
+C:\Users\Bala\Documents\Visual Studio 2015\Projects\InresolGUI\InresolGUI\obj\Debug\InresolGUI.csprojResolveAssemblyReference.cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_log_development\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe.config
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_log_development\inresolgui\InresolGUI\obj\Debug\InresolGUI.exe
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_log_development\inresolgui\InresolGUI\obj\Debug\InresolGUI.pdb
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe.config
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\bin\Debug\InresolGUI.pdb
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\MainWindow.g.cs
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\App.g.cs
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.lref
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\MainWindow.baml
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\InresolGUI.g.resources
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\InresolGUI.Properties.Resources.resources
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\InresolGUI.csproj.GenerateResource.Cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\InresolGUI.exe
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\InresolGUI.pdb
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI\inresolgui\InresolGUI\obj\Debug\InresolGUI.csprojResolveAssemblyReference.cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe.config
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\bin\Debug\InresolGUI.pdb
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\MainWindow.g.cs
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\App.g.cs
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.lref
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\MainWindow.baml
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\InresolGUI.g.resources
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\InresolGUI.Properties.Resources.resources
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\InresolGUI.csproj.GenerateResource.Cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\InresolGUI.exe
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\InresolGUI.pdb
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig\inresolgui\InresolGUI\obj\Debug\InresolGUI.csprojResolveAssemblyReference.cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe.config
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\bin\Debug\InresolGUI.pdb
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\MainWindow.g.cs
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\App.g.cs
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.lref
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\MainWindow.baml
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.g.resources
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.Properties.Resources.resources
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.csproj.GenerateResource.Cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.exe
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.pdb
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_TestRig_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.csprojResolveAssemblyReference.cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\MainWindow.g.cs
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\App.g.cs
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.lref
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe.config
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\bin\Debug\InresolGUI.pdb
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\MainWindow.baml
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.g.resources
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.Properties.Resources.resources
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.csproj.GenerateResource.Cache
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.exe
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.pdb
+C:\Users\Balachander\Documents\Visual Studio 2015\Projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.csprojResolveAssemblyReference.cache
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe.config
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.exe
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.pdb
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\bin\Debug\InresolGUI.exe
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\bin\Debug\InresolGUI.pdb
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.csprojResolveAssemblyReference.cache
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\MainWindow.g.cs
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\App.g.cs
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.cache
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI_MarkupCompile.lref
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\MainWindow.baml
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.g.resources
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.Properties.Resources.resources
+D:\Work\workspace\VS_projects\InresolGUI_Automation_USB\inresolgui\InresolGUI\obj\Debug\InresolGUI.csproj.GenerateResource.Cache

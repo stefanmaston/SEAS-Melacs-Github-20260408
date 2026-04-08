@@ -1,0 +1,234 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Timers;
+
+namespace InresolGUI
+{
+
+
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        private Thread thrMessaging;
+        private Socket connection;
+        private delegate void UpdateLogCallBack(byte[] byteMsg);
+        private delegate void UpdateStatusCallBack(int bytesReceived);
+        private static System.Timers.Timer myTimer;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+
+        // Implement a call with the right signature for events going off
+        private void myEvent(object source, ElapsedEventArgs e)
+        {
+            if (connection.Connected)
+            {
+                //string clientMessage = textBoxMsgSend_M1.Text.ToString();
+                //byte[] b = { 0x1F, 0x1F, 0x16, 0x25, 0x36, 0x49, 0x01, 0x00, 0x01, 0x00};
+                byte[] b = new byte[10];
+                Dispatcher.Invoke(new Action(() => {
+                b[0] = (byte)sliderJP19_M1.Value;
+                b[1] = (byte)sliderJP18_M1.Value;
+                b[2] = (byte)(sliderJP10_M1.Value * 10);
+                b[3] = (byte)(sliderJP9_M1.Value * 10);
+                b[4] = (byte)(sliderJP8_M1.Value * 10);
+                b[5] = (byte)(sliderJP7_M1.Value * 10);
+                b[6] = Convert.ToByte(checkBox_JP6_M1.IsChecked.Value);
+                b[7] = Convert.ToByte(checkBox_JP5_M1.IsChecked.Value);
+                b[8] = Convert.ToByte(checkBox_JP4_M1.IsChecked.Value);
+                b[9] = Convert.ToByte(checkBox_JP3_M1.IsChecked.Value);
+
+                //byte[] b = System.Text.ASCIIEncoding.ASCII.GetBytes(clientMessage);
+                //Console.WriteLine("TX: " + System.Text.ASCIIEncoding.ASCII.GetString(b));
+                connection.Send(b);
+                textBoxStatus_M1.Clear();
+                textBoxStatus_M1.AppendText("Sent : " + b.Length.ToString() + " bytes");
+                }));
+            }
+        }
+
+        private void buttonConnect_Click(object sender, RoutedEventArgs e)
+        {
+     
+            int PORT = Int32.Parse(textBoxPort_M1.Text);
+            string IPv6_ADDR = textBoxIPAddress_M1.Text.ToString();
+
+            textBoxStatus_M1.Clear();
+            textBoxStatus_M1.AppendText("Connecting..");
+
+            if (!Socket.OSSupportsIPv6)
+            {
+                Console.Error.WriteLine("Your system does not support IPv6\r\n" +
+                    "Check you have IPv6 enabled and have changed machine.config");
+                return;
+            }
+
+            IPAddress ipa = IPAddress.Parse(IPv6_ADDR);
+            IPEndPoint ipeh = new IPEndPoint(ipa, PORT);
+            connection = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+            connection.Connect(ipeh);
+            textBoxStatus_M1.Clear();
+            textBoxStatus_M1.AppendText("Connected..");
+            thrMessaging = new Thread(new ThreadStart(ReceiveMessages));
+            thrMessaging.Start();
+
+            // Create a timer
+            myTimer = new System.Timers.Timer();
+            // Tell the timer what to do when it elapses
+            myTimer.Elapsed += new ElapsedEventHandler(myEvent);
+            // Set it to go off every five seconds
+            myTimer.Interval = 500;
+            // And start it        
+            myTimer.Enabled = true;
+
+        }
+
+        private void ReceiveMessages()
+        {
+            int bytesReceived = 0;
+            byte[] rcv = new byte[100];
+
+            //string received;
+            while (true)
+            {
+                bytesReceived = connection.Receive(rcv);
+                if(bytesReceived > 0)
+                {
+                    //received = System.Text.Encoding.UTF8.GetString(rcv).TrimEnd('\0');
+                    //textBoxMsgRecv_M1.Dispatcher.Invoke(new UpdateLogCallBack(this.UpdateLog), new object[] { rcv });
+                    UpdateLog(rcv);
+                    textBoxStatus_M1.Dispatcher.Invoke(new UpdateStatusCallBack(this.UpdateStatus), new object[] { bytesReceived });
+                    bytesReceived = 0;
+                }
+            }
+        }
+
+        private void UpdateLog(byte[] byteMsg)
+        {
+            //textBoxMsgRecv_M1.Clear();
+            //textBoxMsgRecv_M1.AppendText(strMessage);
+            Dispatcher.Invoke(new Action(() => {
+            int value = 0;
+            value = (byteMsg[0] << 8) | byteMsg[1];
+            textBox_AD7_M1.Clear();
+            textBox_AD7_M1.AppendText(value.ToString());
+            value = (byteMsg[2] << 8) | byteMsg[3];
+            textBox_AD6_M1.Clear();
+            textBox_AD6_M1.AppendText(value.ToString());
+            value = (byteMsg[4] << 8) | byteMsg[5];
+            textBox_AD5_M1.Clear();
+            textBox_AD5_M1.AppendText(value.ToString());
+            value = (byteMsg[6] << 8) | byteMsg[7];
+            textBox_AD4_M1.Clear();
+            textBox_AD4_M1.AppendText(value.ToString());
+            value = (byteMsg[8] << 8) | byteMsg[9];
+            textBox_AD3_M1.Clear();
+            textBox_AD3_M1.AppendText(value.ToString());
+            value = (byteMsg[10] << 8) | byteMsg[11];
+            textBox_AD2_M1.Clear();
+            textBox_AD2_M1.AppendText(value.ToString());
+            value = (byteMsg[12] << 8) | byteMsg[13];
+            textBox_AD1_M1.Clear();
+            textBox_AD1_M1.AppendText(value.ToString());
+            value = (byteMsg[14] << 8) | byteMsg[15];
+            textBox_AD0_M1.Clear();
+            textBox_AD0_M1.AppendText(value.ToString());
+            value = (byteMsg[16] << 8) | byteMsg[17];
+            textBox_DIO7_M1.Clear();
+            textBox_DIO7_M1.AppendText(value.ToString());
+            value = (byteMsg[18] << 8) | byteMsg[19];
+            textBox_DIO6_M1.Clear();
+            textBox_DIO6_M1.AppendText(value.ToString());
+            value = (byteMsg[20] << 8) | byteMsg[21];
+            textBox_DIO5_M1.Clear();
+            textBox_DIO5_M1.AppendText(value.ToString());
+             
+            textBox_DIO4_M1.Clear();
+            textBox_DIO4_M1.AppendText(byteMsg[22].ToString());
+            textBox_DIO3_M1.Clear();
+            textBox_DIO3_M1.AppendText(byteMsg[23].ToString());
+            textBox_DIO2_M1.Clear();
+            textBox_DIO2_M1.AppendText(byteMsg[24].ToString());
+            textBox_DIO1_M1.Clear();
+            textBox_DIO1_M1.AppendText(byteMsg[25].ToString());
+            textBox_DIO0_M1.Clear();
+            textBox_DIO0_M1.AppendText(byteMsg[26].ToString());
+            }));
+        }
+
+        private void UpdateStatus(int bytesReceived)
+        {
+            textBoxStatus_M1.Clear();
+            textBoxStatus_M1.AppendText("Received : " + bytesReceived.ToString() + " bytes");
+        }
+
+        private void buttonDisconnect_Click(object sender, RoutedEventArgs e)
+        {
+            if(null != connection)
+            { 
+                if (connection.Connected)
+                {
+                    thrMessaging.Abort();
+                    connection.Close();
+                    textBoxStatus_M1.Clear();
+                    textBoxStatus_M1.AppendText("Disconnected..");
+                }
+            }
+        }
+
+        private void buttonSend_Click(object sender, RoutedEventArgs e)
+        {
+            if(connection.Connected)
+            {
+                //string clientMessage = textBoxMsgSend_M1.Text.ToString();
+                //byte[] b = { 0x1F, 0x1F, 0x16, 0x25, 0x36, 0x49, 0x01, 0x00, 0x01, 0x00};
+                byte[] b = new byte[10];
+                b[0] = (byte)sliderJP19_M1.Value; 
+                b[1] = (byte)sliderJP18_M1.Value;
+                b[2] = (byte)(sliderJP10_M1.Value * 10); 
+                b[3] = (byte)(sliderJP9_M1.Value * 10); 
+                b[4] = (byte)(sliderJP8_M1.Value * 10);
+                b[5] = (byte)(sliderJP7_M1.Value * 10);
+                b[6] = Convert.ToByte(checkBox_JP6_M1.IsChecked.Value); 
+                b[7] = Convert.ToByte(checkBox_JP5_M1.IsChecked.Value); 
+                b[8] = Convert.ToByte(checkBox_JP4_M1.IsChecked.Value);
+                b[9] = Convert.ToByte(checkBox_JP3_M1.IsChecked.Value);
+
+                //byte[] b = System.Text.ASCIIEncoding.ASCII.GetBytes(clientMessage);
+                //Console.WriteLine("TX: " + System.Text.ASCIIEncoding.ASCII.GetString(b));
+                connection.Send(b);
+                textBoxStatus_M1.Clear();
+                textBoxStatus_M1.AppendText("Sent : " + b.Length.ToString() + " bytes");
+            }
+        }
+
+        private void Slider_ValueChanged(
+            object sender,
+            RoutedPropertyChangedEventArgs<double> e)
+        {
+                sliderJP18_M1.Value = e.NewValue;
+        }
+
+    }
+}

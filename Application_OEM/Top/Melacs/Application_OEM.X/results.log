@@ -1,0 +1,141 @@
+Start Main
+fsys-fatfs: 1.5.4
+starting fsys main loop
+..FAT File server is now created..
+SD card driver has number 0
+..Attempting to mkfs ...
+Card capacity = 31116288 x 512
+<fsys-fatfs>:Initialize FAT area 
+Area = 0
+FAT entries (cnt= 3799) filled by zero
+Done 0 %
+Done 1 %
+Done 2 %
+Done 3 %
+Done 4 %
+Done 5 %
+Done 6 %
+Done 7 %
+Done 8 %
+Done 9 %
+Done 10 %
+Done 11 %
+Done 12 %
+Done 13 %
+Done 14 %
+Done 15 %
+Done 16 %
+Done 17 %
+Done 18 %
+Done 19 %
+Done 20 %
+Done 21 %
+Done 22 %
+Done 23 %
+Done 24 %
+Done 25 %
+Done 26 %
+Done 27 %
+Done 28 %
+Done 29 %
+Done 30 %
+Done 31 %
+Done 32 %
+Done 33 %
+Done 34 %
+Done 35 %
+Done 36 %
+Done 37 %
+Done 38 %
+Done 39 %
+Done 40 %
+Done 41 %
+Done 42 %
+Done 43 %
+Done 44 %
+Done 45 %
+Done 46 %
+Done 47 %
+Done 48 %
+Done 49 %
+Done 50 %
+Done 51 %
+Done 52 %
+Done 53 %
+Done 54 %
+Done 55 %
+Done 56 %
+Done 57 %
+Done 58 %
+Done 59 %
+Done 60 %
+Done 61 %
+Done 62 %
+Done 63 %
+Done 64 %
+Done 65 %
+Done 66 %
+Done 67 %
+Done 68 %
+Done 69 %
+Done 70 %
+Done 71 %
+Done 72 %
+Done 73 %
+Done 74 %
+Done 75 %
+Done 76 %
+Done 77 %
+Done 78 %
+Done 79 %
+Done 80 %
+Done 81 %
+Done 82 %
+Done 83 %
+Done 84 %
+Done 85 %
+Done 86 %
+Done 87 %
+Done 88 %
+Done 89 %
+Done 90 %
+Done 91 %
+Done 92 %
+Done 93 %
+Done 94 %
+Done 95 %
+Done 96 %
+Done 97 %
+Done 98 %
+Done 99 %
+Done 100 %
+
+..Attempting to mount it...
+..done fsys initialization..
+mkdir ok /dev/sd/d1/d2
+opening /dev/sd/d1/d2/ftest0
+writing /dev/sd/d1/d2/ftest0
+number of bytes written = 20, file = 0
+opening /dev/sd/d1/d2/ftest1
+writing /dev/sd/d1/d2/ftest1
+number of bytes written = 20, file = 1
+opening /dev/sd/d1/d2/ftest2
+writing /dev/sd/d1/d2/ftest2
+number of bytes written = 20, file = 2
+opening /dev/sd/d1/d2/ftest3
+writing /dev/sd/d1/d2/ftest3
+number of bytes written = 20, file = 3
+/dev/sd/d1/d2/ftest0
+/dev/sd/d1/d2/ftest1
+/dev/sd/d1/d2/ftest2
+/dev/sd/d1/d2/ftest3
+  direntry ftest0
+  direntry ftest1
+  direntry ftest2
+  direntry ftest3
+rmdir should fail /dev/sd/d1/d2, 53
+ rm ok /dev/sd/d1/d2/ftest0
+ rm ok /dev/sd/d1/d2/ftest1
+ rm ok /dev/sd/d1/d2/ftest2
+ rm ok /dev/sd/d1/d2/ftest3
+last directory removed 

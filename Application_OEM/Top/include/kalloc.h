@@ -1,0 +1,76 @@
+/******************************************************************************
+*
+*                            Unison and DSPnano
+*  Copyright 1987-2012 Multiprocessor Toolsmiths, Inc., RoweBots Research Inc.
+*                           ALL RIGHTS RESERVED
+*
+*   This computer program is the property of RoweBots Research Inc.,
+*   Kitchener, Ontario Canada. and may not be copied or redistributed in any 
+*   form or by any means, whether in part or in whole, except under license 
+*   granted by RoweBots Research Inc.
+*
+*   All copies of this program, whether in part or in whole, and whether 
+*   modified or not, must display this and all other embedded copyright and 
+*   ownership notices in full.  This notice may not be modified.
+*
+*   All source code is protected by international copyright laws and license
+*   agreements.  Do not break the law.  You can obtain a license and source
+*   code at rowebots.com subject to licensing conditions and restrictions.
+*   Free development, free source code and free non commercial licenses may
+*   be obtained in a few seconds on line without any difficult process.
+*
+*   All demonstration programs may be redistributed as source code to others  
+*   as a small part of a Unison or DSPnano application. 
+*
+* ******************************************************************************   
+*
+*
+*   Save Time and Money.  If you need modifications to the software to support
+*   specific processors or peripherals, RoweBots Research can do this for you
+*   quickly and easily at low cost.  If you need help with application develop-
+*   ment, again we can solve your embedded development problems quickly and 
+*   easily at very attractive prices.  We are tiny tiny embedded Linux* experts,
+*   let us reduce your risk, accelerate your development and slash your time 
+*   to market.  See rowebots.com - contact us.
+*
+*
+*******************************************************************************/
+
+#ifndef _kalloc_h_
+#define _kalloc_h_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* These are the types that are passed to kalloc and kfree */
+#define KA_TD       1       /* thread struct */
+#define KA_STACK    2       /* thread stack */
+#define KA_RD       3       /* rendezvous ports */
+#define KA_QCB      4       /* posix message queue struct */
+#define KA_QD       5       /* posix message queue struct */
+#define KA_MSGB     6       /* posix message queue buffers */
+#define KA_SEM      7       /* for sem_open */
+#define KA_TIMER    8       /* timer_create */
+#define KA_PT       9       /* pt_create */
+#define KA_PTHRATTR 10      /* pthread_attr_init */
+#define KA_DIR      11      /* dirs functions */
+
+/* Multiprocessor only */
+#define KA_SHARED   100
+#define KA_MP       101
+
+/* Used by bridge only */
+#define KA_BRIDGE   100
+
+/* for default xputchar */
+#define KA_XPUTCHAR 200
+
+void *kalloc(int type, size_t size);
+void kfree(int type, void *ptr);
+
+#ifdef __cplusplus
+} //extern "C" {
+#endif
+
+#endif /* _kalloc_h_ */

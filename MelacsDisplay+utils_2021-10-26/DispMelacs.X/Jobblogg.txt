@@ -1,0 +1,46 @@
+
+Gjorde här en kopia av projekt Disp_Marcus
+Tog bort loadable hex-fil ur projektet
+
+Kopierade hela hela katalogen C:\Utdelat\Produkter\Melacs\Display\DisplayFilesWithKeyForScancraft\Genius Display\SW\Source
+
+Lade in alla .h-filer i headers och alla .c-filer i source
+Lade in core.asm i source
+
+Lade in Image_tetris.c, Font_Courier.c och Font_Icons.c från source\data i projektet under source
+
+Ändrade path till headers i Font_Courier.c och Font_Icons.c
+
+Ändrade i Display.h 
+från	#	define DISP_REG(num)    REVERSE(DISP_##reg)
+till	#	define DISP_REG(reg)    REVERSE(DISP_##reg)
+
+Adderade tidigt i Common.h raden
+	#define HW_REVISION 1
+
+Ändrade i IFlash.c
+från	len = FLASH_WRITE_BLOCK;
+till	len = IFLASH_WRITE_BLOCK;
+
+För att lägga in ny text lade jag efter raderna
+		Put_String("Display Working",0, 1);
+		Win_Refresh();
+till raderna
+		Put_String("Again!",3, 3);
+		Win_Refresh();
+
+static void Put_String(const char rom *name, uint8_t col, uint8_t row);
+
+===========
+För att ändra logotypen öppnade jag Image_Tetris.bmp från source-katalogen i Windows Paint
+Öppnade nya Melacsbilden också i Paint oc klippte ut delen med loggan och kopirade in den i Image_Tetris.bmp
+
+Letade upp lämplig ImageConverter.exe (C:\Utdelat\Produkter\Melacs\Display\DisplayFilesWithKey\Utilities\)
+I ett kommandofönster körde jag kommandot
+	ImageConverter Image_Tetris.bmp 1
+som skapade en ny version av Image_Tetris.c
+
+Fick ta bort Image_Tetris.c ur projektet och lägga in den igen innan kompilering ändrade resultatet
+
+Programmerade displayen med PICKIT v.4 och MPLAB IPE v.5.45 (som jag hade installerad, fungerar nog med valfri version)
+

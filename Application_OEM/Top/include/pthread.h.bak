@@ -1,0 +1,237 @@
+******************************************************************************
+*
+*                            Unison and DSPnano
+*  Copyright 1987-2012 Multiprocessor Toolsmiths, Inc., RoweBots Research Inc.
+*                           ALL RIGHTS RESERVED
+*
+*   This computer program is the property of RoweBots Research Inc.,
+*   Kitchener, Ontario Canada. and may not be copied or redistributed in any 
+*   form or by any means, whether in part or in whole, except under license 
+*   granted by RoweBots Research Inc.
+*
+*   All copies of this program, whether in part or in whole, and whether 
+*   modified or not, must display this and all other embedded copyright and 
+*   ownership notices in full.  This notice may not be modified.
+*
+*   All source code is protected by international copyright laws and license
+*   agreements.  Do not break the law.  You can obtain a license and source
+*   code at rowebots.com subject to licensing conditions and restrictions.
+*   Free development, free source code and free non commercial licenses may
+*   be obtained in a few seconds on line without any difficult process.
+*
+*   All demonstration programs may be redistributed as source code to others  
+*   as a small part of a Unison or DSPnano application. 
+*
+* ******************************************************************************   
+*
+*
+*   Save Time and Money.  If you need modifications to the software to support
+*   specific processors or peripherals, RoweBots Research can do this for you
+*   quickly and easily at low cost.  If you need help with application develop-
+*   ment, again we can solve your embedded development problems quickly and 
+*   easily at very attractive prices.  We are tiny tiny embedded Linux* experts,
+*   let us reduce your risk, accelerate your development and slash your time 
+*   to market.  See rowebots.com - contact us.
+*
+*
+*******************************************************************************/
+
+#ifndef _pthread_h_
+#define _pthread_h_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef unsigned int pthread_t;
+typedef void *THREAD;
+
+extern size_t pthreadStackDefault;
+extern int pthreadStackFill;
+extern int _isrStackFill;
+#include <bits/local_lim.h>
+
+
+typedef struct
+{
+  void *attrp;
+} pthread_attr_t;
+
+struct sched_param
+{
+  int sched_priority;
+};
+
+#ifndef _queue_struct
+#define _queue_struct
+struct Gqueue
+{
+  struct Gqueue *q_head;
+  struct Gqueue *q_tail;
+};
+#endif
+
+
+// Structures and defines for support mutex functions
+typedef struct
+{
+  struct Gqueue queue;
+  unsigned locked;
+} pthread_mutex_t;
+
+typedef pthread_attr_t pthread_mutexattr_t;
+
+#define PTHREAD_MUTEX_INITIALIZER(mutex)	{{(struct Gqueue *)&mutex, (struct Gqueue *)&mutex}, 0} 
+#define PTHREAD_MUTEX_RECURSIVE		1
+
+
+// Structures and defines for support barrier functions 
+typedef struct {
+    struct Gqueue queue;
+    unsigned count;    
+    unsigned int id;
+} pthread_barrier_t;
+
+typedef struct {
+    int pshared;
+} pthread_barrierattr_t;
+
+#define PTHREAD_BARRIER_SERIAL_THREAD   20
+
+
+// Defines for posix support pthread_join()
+#define PTHREAD_CREATE_JOINABLE 0
+#define PTHREAD_CREATE_DETACHED 1
+
+
+// Structures and defines for support condvar functions
+typedef struct
+{
+  struct Gqueue queue;
+  unsigned int id;
+} pthread_cond_t;
+
+typedef pthread_attr_t pthread_condattr_t;
+
+#define PTHREAD_COND_INITIALIZER(cond)	{{(struct Gqueue *)&cond, (struct Gqueue *)&cond}, (unsigned int)&cond}
+
+
+/* Cleanup buffer */
+struct _pthread_cleanup_handler
+{
+  void (*routine) (void *);              /* Function to call */
+  void *arg;                             /* Argument */
+  struct _pthread_cleanup_handler *prev; /* Prev cleanup functions */
+};
+
+/* Cancellation */
+#define PTHREAD_CANCEL_ENABLE	0
+#define PTHREAD_CANCEL_DISABLE	1
+
+#define PTHREAD_CANCEL_DEFERRED		0
+#define PTHREAD_CANCEL_ASYNCHRONOUS	1
+
+#define PTHREAD_CANCELED ((void *) -1)
+
+
+/* pthread functions */
+int pthread_create (pthread_t * new_thread, const pthread_attr_t * attr,
+                    void *(*start_routine) (void *), void *arg);
+void pthread_exit (void *status);
+pthread_t pthread_self (void);
+int pthread_equal (pthread_t t1, pthread_t t2);
+int sched_yield (void);
+int pthread_setschedparam (pthread_t target_thread, int policy,
+                           const struct sched_param *param);
+int pthread_getschedparam (pthread_t target_thread, int *policy,
+                           struct sched_param *param);
+int pthread_join(pthread_t thread, void **value_ptr);   
+int pthread_detach(pthread_t thread);                   
+
+/* pthread attribute functions */
+int pthread_attr_init (pthread_attr_t * attr);
+int pthread_attr_destroy (pthread_attr_t * attr);
+int pthread_attr_setstacksize (pthread_attr_t * attr, size_t stacksize);
+int pthread_attr_getstacksize (const pthread_attr_t * attr,
+                               size_t * stacksize);
+int pthread_attr_setstackaddr (pthread_attr_t * attr, void *stackaddr);
+int pthread_attr_getstackaddr (const pthread_attr_t * attr, void **stackaddr);
+int pthread_attr_setschedparam (pthread_attr_t * attr,
+                                const struct sched_param *param);
+int pthread_attr_getschedparam (const pthread_attr_t * attr,
+                                struct sched_param *param);
+int pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate);
+int pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachstate);
+int pthread_getattr_np (pthread_t thread_id, pthread_attr_t *attr);
+
+/* pthread mutex functions */
+int pthread_mutex_init (pthread_mutex_t * mp,
+                        const pthread_mutexattr_t * attr);
+int pthread_mutex_destroy (pthread_mutex_t * mp);
+int pthread_mutex_lock (pthread_mutex_t * mp);
+int pthread_mutex_trylock (pthread_mutex_t * mp);
+int pthread_mutex_unlock (pthread_mutex_t * mp);
+int pthread_mutexattr_init (pthread_mutexattr_t *attr);
+int pthread_mutexattr_destroy (pthread_mutexattr_t *attr);
+
+/* pthread barrier functions */
+int pthread_barrier_init (pthread_barrier_t *barrier,
+                          const pthread_barrierattr_t *attr,
+                          unsigned count);
+int pthread_barrier_destroy (pthread_barrier_t *barrier);
+int pthread_barrier_wait (pthread_barrier_t *barrier);
+
+/* pthread cond functions */
+int pthread_cond_init (pthread_cond_t *cond, const pthread_condattr_t *attr);
+int pthread_cond_destroy (pthread_cond_t *cond);
+int pthread_cond_wait (pthread_cond_t *cond, pthread_mutex_t *mutex);
+int pthread_cond_timedwait (pthread_cond_t *cond, pthread_mutex_t *mutex,
+                            const struct timespec *abstime);
+int pthread_cond_signal (pthread_cond_t *cond);
+int pthread_cond_broadcast (pthread_cond_t *cond);
+
+int pthread_condattr_init(pthread_condattr_t *attr);
+int pthread_condattr_destroy(pthread_condattr_t *attr);
+
+int pthread_setprio (pthread_t thread, int prio);
+int pthread_getprio(pthread_t thread, int *prio);
+
+/* pthread cancel functions */
+int pthread_setcancelstate(int state, int *oldstate);
+int pthread_setcanceltype(int type, int *oldtype);
+int pthread_cancel(pthread_t thread);
+void pthread_testcancel(void);
+
+/* pthread cleanup functions */
+#define pthread_cleanup_push(routine, arg)				\
+	{													\
+		struct _pthread_cleanup_handler _handler;		\
+		__pthread_cleanup_push((routine), (arg), &_handler);
+
+#define pthread_cleanup_pop(execute)					\
+		__pthread_cleanup_pop((execute), &_handler);	\
+	}
+
+void __pthread_cleanup_push(void (*)(void *), void *, struct _pthread_cleanup_handler *);
+void __pthread_cleanup_pop(int,	struct _pthread_cleanup_handler *);
+
+
+/* extensions */
+
+/* stack info returned by pthread_stackinfo */
+typedef struct
+{
+  void *si_current;             /* current stack pointer */
+  void *si_base;                /* stack base */
+  size_t si_size;               /* stack size */
+  size_t si_used;               /* high water mark. Only valid if FillStack
+                                   was set. */
+} stackinfo_t;
+
+int pthread_stackinfo (pthread_t tid, stackinfo_t * info);
+
+#ifdef __cplusplus
+} //extern "C" {
+#endif
+
+#endif /* _pthread_h_ */

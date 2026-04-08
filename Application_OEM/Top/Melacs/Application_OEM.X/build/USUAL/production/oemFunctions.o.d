@@ -1,0 +1,23 @@
+build/USUAL/production/oemFunctions.o:  \
+oemFunctions.c  \
+main.h  \
+ ../../include/device.h  \
+../../include/sys/types.h  \
+ ../../include/bits/wordsize.h  \
+../../include/endian.h  \
+ ../../include/bits/local_lim.h  \
+../../include/stddef.h  \
+ ../../include/errno.h  \
+onBoardADC.h  \
+../../include/stdint.h  \
+ ../../include/nano_limits.h  \
+sd_spi.h  \
+display.h  \
+pinDefines.h  \
+ ../../include/stdbool.h  \
+delay.h  \
+log.h  \
+../../include/string.h  \
+ readConfig.h  \
+onBoardRTCC.h  \
+appOEM.h 

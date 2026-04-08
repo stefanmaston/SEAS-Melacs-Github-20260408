@@ -1,0 +1,46 @@
+Knappar:
+T0 -> RA0
+T1 -> RA1
+T2 -> RA2
+T3 -> RA3
+
+Komm. mot Melacs:
+D_ACK2 -> RB1
+D_CLK  -> RB2 Ej använd
+D_ATN  -> RB3
+D_ACK1 -> RB4
+
+DATA0 -> RG0
+DATA1 -> RG1
+DATA2 -> RG2
+DATA3 -> RG3
+
+Från kod:
+
+if (D_ATN == 1) {
+	read_data();
+} else {
+	Set_data_output();
+	Data0 = T0;
+	Data1 = T1;
+	Data2 = T2;
+	Data3 = T3;
+}
+
+read_data() {
+	Set_data_input();
+	D_ACK2 = 0;
+	Wait_for_D_ACK1_Hi();
+	if (nibbleNo == 1) {
+		nibble = (nibble <<4) + (portG & 0xf); // lo
+	} else {
+		nibble = portG & 0xf; // hi
+	}
+	nibbleNo++;
+	D_ACK2 = 1;
+	Wait_for_D_ACK1_Lo();
+	if (nibble == 10) { // LF
+		nibbleNo = 0;
+
+	}
+}

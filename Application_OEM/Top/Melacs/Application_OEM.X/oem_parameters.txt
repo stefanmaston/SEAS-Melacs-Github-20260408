@@ -1,0 +1,14 @@
+Write_Date = 1
+yr = 15
+mt = 1
+dy = 26
+hr = 12
+mn = 0
+sc = 0
+wd = 3
+lowest_cooler_temp = 3
+highest_cooler_temp = 93
+lowest_heater_temp  = 2
+highest_heater_temp = 1030
+lowest_gas_pressure = 7
+highest_gas_pressure = 49

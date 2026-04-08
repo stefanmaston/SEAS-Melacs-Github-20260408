@@ -1,0 +1,118 @@
+/******************************************************************************
+*
+*                            Unison and DSPnano
+*  Copyright 1987-2013 Multiprocessor Toolsmiths, Inc., RoweBots Research Inc.
+*                           ALL RIGHTS RESERVED
+*
+*   This computer program is the property of RoweBots Research Inc.,
+*   Kitchener, Ontario Canada. and may not be copied or redistributed in any 
+*   form or by any means, whether in part or in whole, except under license 
+*   granted by RoweBots Research Inc.
+*
+*   All copies of this program, whether in part or in whole, and whether 
+*   modified or not, must display this and all other embedded copyright and 
+*   ownership notices in full.  This notice may not be modified.
+*
+*   All source code is protected by international copyright laws and license
+*   agreements.  Do not break the law.  You can obtain a license and source
+*   code at rowebots.com subject to licensing conditions and restrictions.
+*   Free development, free source code and free non commercial licenses may
+*   be obtained in a few seconds on line without any difficult process.
+*
+*   All demonstration programs may be redistributed as source code to others  
+*   as a small part of a Unison or DSPnano application. 
+*
+* ******************************************************************************   
+*
+*
+*   Save Time and Money.  If you need modifications to the software to support
+*   specific processors or peripherals, RoweBots Research can do this for you
+*   quickly and easily at low cost.  If you need help with application develop-
+*   ment, again we can solve your embedded development problems quickly and 
+*   easily at very attractive prices.  We are tiny tiny embedded Linux* experts,
+*   let us reduce your risk, accelerate your development and slash your time 
+*   to market.  See rowebots.com - contact us.
+*
+*
+*******************************************************************************/
+
+#ifndef __U_CXX_CSTDLIB__
+#define __U_CXX_CSTDLIB__
+
+#include <stdlib.h>
+
+namespace std
+{
+  using ::size_t;
+  using ::div_t;
+  using ::ldiv_t;
+  using ::lldiv_t;
+  using ::_Exit;
+  using ::a64l;
+  using ::abort;
+  using ::abs;
+  using ::atexit;
+  using ::atof;
+  using ::atoi;
+  using ::atol;
+  using ::atoll;
+  using ::bsearch;
+  using ::calloc;
+  using ::div;
+  using ::drand48;
+  using ::erand48;
+  using ::exit;
+  using ::free;
+  using ::getenv;
+  using ::getsubopt;
+  using ::grantpt;
+  using ::initstate;
+  using ::jrand48;
+  using ::l64a;
+  using ::labs;
+  using ::lcong48;
+  using ::ldiv;
+  using ::llabs;
+  using ::lldiv;
+  using ::lrand48;
+  using ::malloc;
+  using ::mblen;
+  using ::mbstowcs;
+  using ::mbtowc;
+  using ::mkdtemp;
+  using ::mkstemp;
+  using ::mrand48;
+  using ::nrand48;
+  using ::posix_memalign;
+  using ::posix_openpt;
+  using ::ptsname;
+  using ::putenv;
+  using ::qsort;
+  using ::rand;
+  using ::rand_r;
+  using ::random;
+  using ::realloc;
+  using ::realpath;
+  using ::seed48;
+  using ::setenv;
+  using ::setkey;
+  using ::setstate;
+  using ::srand;
+  using ::srand48;
+  using ::srandom;
+  using ::strtod;
+  using ::strtof;
+  using ::strtol;
+  using ::strtold;
+  using ::strtoll;
+  using ::strtoul;
+  using ::strtoull;
+  using ::system;
+  using ::unlockpt;
+  using ::unsetenv;
+  using ::wcstombs;
+  using ::wctomb;
+  using ::malloc_init;  
+}
+
+#endif // __U_CXX_CSTDLIB__

@@ -1,0 +1,464 @@
+﻿<Window x:Name="MainWindow1" x:Class="InresolGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:InresolGUI"
+        mc:Ignorable="d"
+        Title="Melacs7 GUI" Height="1180" Width="1532" Closing="Window_Closing">
+    <!-- Height="880"-->
+    <!-- Height="1163"-->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition Width="145*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="783*"/>
+            <RowDefinition Height="8*"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="3">
+            <TabControl x:Name="tabControl" HorizontalAlignment="Left" Height="1163" Margin="0,0,0,0" VerticalAlignment="Top" Width="1534" Grid.RowSpan="2">
+                <TabItem x:Name="TabItem1" Header="MELACS Automation Rev P1A V001 2021-11-23" HorizontalAlignment="Left" Margin="-2,-2,0,0" Width="366">
+                    <Grid Background="#FFE5E5E5" Margin="-1,-4,0.8,-165.8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="87*"/>
+                            <ColumnDefinition Width="1424*"/>
+                            <ColumnDefinition Width="15*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.Effect>
+                            <DropShadowEffect/>
+                        </Grid.Effect>
+                        <Button x:Name="buttonConnect" Content="Connect" HorizontalAlignment="Left" Margin="9,18,0,0" VerticalAlignment="Top" Width="75" Click="buttonConnect_Click" Height="26"/>
+                        <Button x:Name="buttonDisconnect" Content="Disconnect" HorizontalAlignment="Left" Margin="17,18,0,0" VerticalAlignment="Top" Width="75" Click="buttonDisconnect_Click" Height="26" Grid.Column="1"/>
+                        <Button x:Name="buttonShutdown" Content="Shutdown" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Width="75" Click="buttonShutdown_Click" Height="26"/>
+                        <TextBox x:Name="textBoxStatus" HorizontalAlignment="Left" Height="113" Margin="0,140,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="360" IsReadOnly="True" Grid.ColumnSpan="2"/>
+                        <TextBox x:Name="textBox_AD7" HorizontalAlignment="Left" Height="23" Margin="1197,38,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_AD6" HorizontalAlignment="Left" Height="23" Margin="1197,66,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_AD5" HorizontalAlignment="Left" Height="23" Margin="1197,94,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_AD4" HorizontalAlignment="Left" Height="23" Margin="1197,122,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_AD3" HorizontalAlignment="Left" Height="23" Margin="1197,151,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_AD2" HorizontalAlignment="Left" Height="23" Margin="1197,179,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_AD1" HorizontalAlignment="Left" Height="23" Margin="1197,207,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_AD0" HorizontalAlignment="Left" Height="23" Margin="1197,235,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_DIO7" HorizontalAlignment="Left" Height="23" Margin="1324,39,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_DIO6" HorizontalAlignment="Left" Height="23" Margin="1324,67,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_DIO5" HorizontalAlignment="Left" Height="23" Margin="1324,95,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_DIO4" HorizontalAlignment="Left" Height="23" Margin="1324,123,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_DIO3" HorizontalAlignment="Left" Height="23" Margin="1324,151,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_DIO2" HorizontalAlignment="Left" Height="23" Margin="1324,179,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_DIO1" HorizontalAlignment="Left" Height="23" Margin="1324,207,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_DIO0" HorizontalAlignment="Left" Height="23" Margin="1324,235,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <Label x:Name="label_AD7" Content="AD7" HorizontalAlignment="Left" Margin="1161,39,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_AD6" Content="AD6" HorizontalAlignment="Left" Margin="1161,65,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_AD5" Content="AD5" HorizontalAlignment="Left" Margin="1161,91,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_AD4" Content="AD4" HorizontalAlignment="Left" Margin="1161,119,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_AD3" Content="AD3" HorizontalAlignment="Left" Margin="1161,150,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_AD2" Content="AD2" HorizontalAlignment="Left" Margin="1161,178,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_AD1" Content="AD1" HorizontalAlignment="Left" Margin="1161,206,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_AD0" Content="AD0" HorizontalAlignment="Left" Margin="1161,234,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_DIO7" Content="DIO7" HorizontalAlignment="Left" Margin="1284,39,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_DIO6" Content="DIO6" HorizontalAlignment="Left" Margin="1284,65,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_DIO5" Content="DIO5" HorizontalAlignment="Left" Margin="1284,91,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_DIO4" Content="DIO4" HorizontalAlignment="Left" Margin="1284,119,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_DIO3" Content="DIO3" HorizontalAlignment="Left" Margin="1284,147,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_DIO2" Content="DIO2" HorizontalAlignment="Left" Margin="1284,176,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_DIO1" Content="DIO1" HorizontalAlignment="Left" Margin="1284,203,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_DIO0" Content="DIO0" HorizontalAlignment="Left" Margin="1284,231,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_JP18" Content="JP18" HorizontalAlignment="Left" Margin="1161,273,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_JP19" Content="JP19" HorizontalAlignment="Left" Margin="1161,302,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_JP7" Content="JP7" HorizontalAlignment="Left" Margin="1161,333,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_JP8" Content="JP8" HorizontalAlignment="Left" Margin="1161,362,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_JP9" Content="JP9" HorizontalAlignment="Left" Margin="1161,392,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_JP10" Content="JP10" HorizontalAlignment="Left" Margin="1161,423,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBoxRefreshTime" Height="23" Margin="5,52,0,0" TextWrapping="Wrap" Text="2000" HorizontalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1"/>
+                        <Label x:Name="labelRefreshTime" Content="Refresh Time" Margin="8,49,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                        <Button x:Name="buttonSetRefreshTime" Content="Set" Margin="48,52,0,0" VerticalAlignment="Top" Click="buttonSetRefreshTime_Click" HorizontalAlignment="Left" Width="37" RenderTransformOrigin="-0.114,0.51" Grid.Column="1"/>
+                        <Button x:Name="buttonSaveSettings" Content="Save Settings" Margin="11,81,0,0" VerticalAlignment="Top" Click="buttonSaveSettings_Click" HorizontalAlignment="Left"/>
+                        <Button x:Name="buttonLoadSettings" Content="Load Settings" Margin="26,82,0,0" VerticalAlignment="Top" Click="buttonLoadSettings_Click" HorizontalAlignment="Left" Grid.Column="1"/>
+                        <Label x:Name="LabelKeyStatus" Content="Key Status" HorizontalAlignment="Left" Margin="304,32,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelHeaterTemperature" Content="Heater Temperature" HorizontalAlignment="Left" Margin="304,62,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelEngineTemperature" Content="Engine Temperature" HorizontalAlignment="Left" Margin="304,92,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelEnginePressure" Content="Engine Pressure" HorizontalAlignment="Left" Margin="304,122,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelValvePosition" Content="Valve Position" HorizontalAlignment="Left" Margin="533,30,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelRadiatorFan" Content="Radiator Fan" HorizontalAlignment="Left" Margin="533,58,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelBurnerFan" Content="Burner Fan" HorizontalAlignment="Left" Margin="533,88,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelFeederStatus" Content="Feeder Status" HorizontalAlignment="Left" Margin="533,116,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelFeedOnTime" Content="Feed On Time" HorizontalAlignment="Left" Margin="984,751,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelInputPelletPowerKW" Content="Input Pellet Power kW" HorizontalAlignment="Left" Margin="852,323,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelError" Content="Error" HorizontalAlignment="Left" Margin="748,34,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelErrorCode" Content="Error Code" HorizontalAlignment="Left" Margin="748,64,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelFuelFeed" Content="Ignitor Status" HorizontalAlignment="Left" Margin="533,144,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelInverterStatus" Content="Inverter Status" HorizontalAlignment="Left" Margin="533,172,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelInverterOnCounter" Content="Inverter On Counter" HorizontalAlignment="Left" Margin="927,28,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelInverterOffCounter" Content="Inverter Off Counter" HorizontalAlignment="Left" Margin="927,58,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelSDCard" Content="SD card Status" HorizontalAlignment="Left" Margin="533,228,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.604,-6.164" Grid.Column="1"/>
+                        <Label x:Name="LabelBoardTemperature" Content="Board Temperature" HorizontalAlignment="Left" Margin="1161,462,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelBoardDegreeCelsius" Content="All Temperatures in °C" HorizontalAlignment="Left" Margin="1200,840,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelMaxTopPressure" Content="DebugVariableHigh" HorizontalAlignment="Left" Margin="304,147,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelMinTopPressure" Content="DebugVariableLow" HorizontalAlignment="Left" Margin="304,177,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelLogReturn" Content="Log Return" HorizontalAlignment="Left" Margin="927,89,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelLastLogReturn" Content="Last Log Return" HorizontalAlignment="Left" Margin="927,119,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelStage" Content="Stage" HorizontalAlignment="Left" Margin="927,144,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelSystemStatus" Content="System Status" HorizontalAlignment="Left" Margin="927,172,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelPelletFeedKW" Content="Pellet Feed kW" HorizontalAlignment="Left" Margin="927,200,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelProcessMinHeaterTemperature" Content="Process Min Heater Temperature" HorizontalAlignment="Left" Margin="852,353,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelProcessMaxHeaterTemperature" Content="Process Max Heater Temperature" HorizontalAlignment="Left" Margin="852,381,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelInverterDelayCounter" Content="Inverter Delay Counter" HorizontalAlignment="Left" Margin="852,898,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelCompressor" Content="Compressor Status" HorizontalAlignment="Left" Margin="533,201,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelM1CUR" Content="M1CUR" HorizontalAlignment="Left" Margin="1271,273,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelM2CUR" Content="M2CUR" HorizontalAlignment="Left" Margin="1271,303,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelBurstPeriod" Content="Burst Period" HorizontalAlignment="Left" Margin="4,375,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="LabelBurstLength" Content="Burst Length" HorizontalAlignment="Center" Margin="0,400,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="LabelAvgLengthBurst" Content="Averaging Burst Length" HorizontalAlignment="Left" Margin="4,427,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                        <Label x:Name="LabelBurstDelay" Content="Burst Delay" HorizontalAlignment="Left" Margin="4,456,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="LabelConstBurnerSpeed" Content="Burner Speed" HorizontalAlignment="Left" Margin="848,750,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <Label x:Name="LabelInitialDoseTime" Content="Initial Dose Time" HorizontalAlignment="Left" Margin="206,430,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelInitialStartBurnerFanDelay" Content="Initial Start Burner Fan Delay" HorizontalAlignment="Left" Margin="206,488,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelInitialStartBurnerTemp" Content="Initial Start Burner Temp" HorizontalAlignment="Left" Margin="206,516,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelCombustionSuccessfullTemperature" Content="Combustion Successfull Temperature" HorizontalAlignment="Left" Margin="522,447,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelMaximumRadiatorFanVoltage" Content="Maximum Radiator Fan Voltage" HorizontalAlignment="Left" Margin="198,285,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelMinimumRadiatorFanVoltage" Content="Minimum Radiator Fan Voltage" HorizontalAlignment="Left" Margin="198,315,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelMaximumRadiatorTemperature" Content="Maximum Radiator Fan Temperature" HorizontalAlignment="Left" Margin="198,346,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelMinimumRadiatorTemperature" Content="Minimum Radiator Fan Temperature" HorizontalAlignment="Left" Margin="198,376,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelSwitchOffRadiatorTemperature" Content="Switch Off Radiator Fan Temperature" HorizontalAlignment="Left" Margin="513,290,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelMaximumValvePositionTemperature" Content="Maximum Valve Position Temperature" HorizontalAlignment="Left" Margin="513,321,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelMinimumValvePositionTemperature" Content="Minimum Valve Position Temperature" HorizontalAlignment="Left" Margin="513,352,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelSwitchOffValvePositionTemperature" Content="Switch Off Valve Position Temperature" HorizontalAlignment="Left" Margin="513,381,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelInitialCombustionSequenceSettings" Content="Startup Combustion Sequence Settings " HorizontalAlignment="Left" Margin="180,408,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelAfterCombustionSettings" Content="Normal Combustion Settings" HorizontalAlignment="Left" Margin="838,261,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelBurnerFanSwitchOffTemperature" Content="Burner Fan Switch Off Temperature" HorizontalAlignment="Left" Margin="852,288,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelEngineTemperatureControlSettings" Content="Engine Temperature Control Settings" HorizontalAlignment="Left" Margin="182,259,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelDebugInfo" Content="Debug Info" HorizontalAlignment="Left" Margin="986,9,0,0" VerticalAlignment="Top"  FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelSensorInformation" Content="Sensor Information" HorizontalAlignment="Left" Margin="331,7,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelActuatorInformation" Content="Actuator Information" HorizontalAlignment="Left" Margin="555,6,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelPeripheralSettings" Content="Peripheral Settings" HorizontalAlignment="Left" Margin="6,268,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.ColumnSpan="2"/>
+                        <Label x:Name="LabelErrorInformation" Content="Error Information" HorizontalAlignment="Left" Margin="766,8,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelSDCardLogSettings" Content="-Log Settings-" HorizontalAlignment="Left" Margin="2,566,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelLogSamplePeriod" Content="Log Sample Period" HorizontalAlignment="Left" Margin="5,587,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                        <Label x:Name="LabelNumOfSamplesEachLog" Content="Num Of Sample Each Log" HorizontalAlignment="Left" Margin="67,613,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="LabelPressureBurstLogSettings" Content="-Pressure Burst Log Settings- " HorizontalAlignment="Left" Margin="53,648,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                        <Label x:Name="LabelTimeToBurstLog" Content="Time to Burst Log" HorizontalAlignment="Left" Margin="4,675,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                        <Label x:Name="LabelNumOfSamplesInBurstLog" Content="Num of Samples in Burst Log" HorizontalAlignment="Left" Margin="4,702,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                        <Label x:Name="LabelMelacsStatus" Content="Melacs Status" HorizontalAlignment="Left" Margin="1252,11,0,0" VerticalAlignment="Top"  FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelDateAndTimeSettings" Content="Date and Time Settings" HorizontalAlignment="Left" Margin="1151,511,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="label_JP1" Content="JP3" HorizontalAlignment="Left" Margin="1293,336,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_JP2" Content="JP4" HorizontalAlignment="Left" Margin="1293,364,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_JP5" Content="JP5" HorizontalAlignment="Left" Margin="1293,394,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="label_JP6" Content="JP6" HorizontalAlignment="Left" Margin="1293,424,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_JP18" HorizontalAlignment="Left" Height="23" Margin="1197,275,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_JP19" HorizontalAlignment="Left" Height="23" Margin="1197,304,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_JP7" HorizontalAlignment="Left" Height="23" Margin="1197,334,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_JP8" HorizontalAlignment="Left" Height="23" Margin="1197,363,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_JP9" HorizontalAlignment="Left" Height="23" Margin="1197,393,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_JP10" HorizontalAlignment="Left" Height="23" Margin="1197,422,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_M1CUR" HorizontalAlignment="Left" Height="23" Margin="1324,277,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_M2CUR" HorizontalAlignment="Left" Height="23" Margin="1324,306,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_JP3" HorizontalAlignment="Left" Height="23" Margin="1324,336,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_JP4" HorizontalAlignment="Left" Height="23" Margin="1324,365,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_JP5" HorizontalAlignment="Left" Height="23" Margin="1324,395,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_JP6" HorizontalAlignment="Left" Height="23" Margin="1324,425,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_BoardTemperature" HorizontalAlignment="Left" Height="23" Margin="1278,462,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_KeyStatus" HorizontalAlignment="Left" Height="23" Margin="421,35,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_HeaterTemperature" HorizontalAlignment="Left" Height="23" Margin="421,63,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_EngineTemperature" HorizontalAlignment="Left" Height="23" Margin="421,91,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_EnginePressure" HorizontalAlignment="Left" Height="23" Margin="421,119,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_MaxTopPressure" HorizontalAlignment="Left" Height="23" Margin="421,147,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_MinTopPressure" HorizontalAlignment="Left" Height="23" Margin="421,175,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_ValvePosition" HorizontalAlignment="Left" Height="23" Margin="642,34,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_RadiatorFan" HorizontalAlignment="Left" Height="23" Margin="642,62,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_BurnerFan" HorizontalAlignment="Left" Height="23" Margin="642,90,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_FeederStatus" HorizontalAlignment="Left" Height="23" Margin="642,118,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_IgnitorStatus" HorizontalAlignment="Left" Height="23" Margin="642,146,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_InverterStatus" HorizontalAlignment="Left" Height="23" Margin="642,174,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_CompressorStatus" HorizontalAlignment="Left" Height="23" Margin="642,202,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_SDCardStatus" HorizontalAlignment="Left" Height="23" Margin="642,230,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <Label x:Name="LabelErrorString" Content="Error String" HorizontalAlignment="Left" Margin="748,95,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_Error" HorizontalAlignment="Left" Height="23" Margin="823,40,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_ErrorCode" HorizontalAlignment="Left" Height="23" Margin="823,68,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_ErrorString" HorizontalAlignment="Left" Height="74" Margin="750,123,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="144" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_InverterOnCounter" HorizontalAlignment="Left" Height="23" Margin="1045,32,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_InverterOffCounter" HorizontalAlignment="Left" Height="23" Margin="1045,61,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_LogReturn" HorizontalAlignment="Left" Height="23" Margin="1045,89,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_LastLogReturn" HorizontalAlignment="Left" Height="23" Margin="1045,117,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_Stage" HorizontalAlignment="Left" Height="23" Margin="1045,145,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_SystemStatus" HorizontalAlignment="Left" Height="23" Margin="1045,173,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_PelletFeedKW" HorizontalAlignment="Left" Height="23" Margin="1045,202,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" IsReadOnly="True" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBoxSDCardMount" Content="SD Card Mount" HorizontalAlignment="Left" Margin="9,300,0,0" VerticalAlignment="Top"  Checked="checkBoxSDCardMount_Checked" Unchecked="checkBoxSDCardMount_Unchecked" Grid.ColumnSpan="2"/>
+                        <CheckBox x:Name="checkBoxPageChangeEnable" Content="Page Change Enable" HorizontalAlignment="Left" Margin="8,329,0,0" VerticalAlignment="Top" Checked="checkBoxPageChangeEnable_Checked" Unchecked="checkBoxPageChangeEnable_Unchecked" Grid.ColumnSpan="2"/>
+                        <CheckBox x:Name="checkBoxResetErrorAndWarnings" Content="Reset Error And Warnings" HorizontalAlignment="Left" Margin="8,354,0,0" VerticalAlignment="Top" Checked="checkBoxResetErrorAndWarnings_Checked" Unchecked="checkBoxResetErrorAndWarnings_Unchecked" Grid.ColumnSpan="2"/>
+                        <TextBox x:Name="textBox_BurstPeriod" HorizontalAlignment="Left" Height="23" Margin="66,374,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_BurstPeriod_KeyDown" LostFocus="textBox_BurstPeriod_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_BurstLength" HorizontalAlignment="Left" Height="23" Margin="66,403,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_BurstLength_KeyDown" LostFocus="textBox_BurstLength_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_AveragingBurstLength" HorizontalAlignment="Left" Height="23" Margin="66,432,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_AveragingBurstLength_KeyDown" LostFocus="textBox_AveragingBurstLength_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_BurstDelay" HorizontalAlignment="Left" Height="23" Margin="66,461,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_BurstDelay_KeyDown" LostFocus="textBox_BurstDelay_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_MaxRadiatorFanVoltage" HorizontalAlignment="Left" Height="23" Margin="414,291,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_MaxRadiatorFanVoltage_KeyDown" LostFocus="textBox_MaxRadiatorFanVoltage_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_MinRadiatorFanVoltage" HorizontalAlignment="Left" Height="23" Margin="414,320,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_MinRadiatorFanVoltage_KeyDown" LostFocus="textBox_MinRadiatorFanVoltage_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_MaxRadiatorFanTemp" HorizontalAlignment="Left" Height="23" Margin="414,349,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_MaxRadiatorFanTemp_KeyDown" LostFocus="textBox_MaxRadiatorFanTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_MinRadiatorFanTemp" HorizontalAlignment="Left" Height="23" Margin="414,378,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_MinRadiatorFanTemp_KeyDown" LostFocus="textBox_MinRadiatorFanTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_SwitchOffRadiatorFanTemp" HorizontalAlignment="Left" Height="23" Margin="729,291,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_SwitchOffRadiatorFanTemp_KeyDown" LostFocus="textBox_SwitchOffRadiatorFanTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_MaxValvePosTemp" HorizontalAlignment="Left" Height="23" Margin="729,320,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_MaxValvePosTemp_KeyDown" LostFocus="textBox_MaxValvePosTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_MinValvePosTemp" HorizontalAlignment="Left" Height="23" Margin="729,350,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_MinValvePosTemp_KeyDown" LostFocus="textBox_MinValvePosTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_SwitchOffValvePositionTemp" HorizontalAlignment="Left" Height="23" Margin="729,379,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_SwitchOffValvePositionTemp_KeyDown" LostFocus="textBox_SwitchOffValvePositionTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_InitialDoseTime" HorizontalAlignment="Left" Height="23" Margin="412,434,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_InitialDoseTime_KeyDown" LostFocus="textBox_InitialDoseTime_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_ExtraDoseTime" HorizontalAlignment="Left" Height="23" Margin="412,461,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_ExtraDoseTime_KeyDown" LostFocus="textBox_ExtraDoseTime_LostFocus" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_ExtraDoseEnable" Content="Extra Dose Enable" HorizontalAlignment="Left" Margin="211,463,0,0" VerticalAlignment="Top"  Checked="checkBoxExtraDoseEnable_Checked" Unchecked="checkBoxExtraDoseEnable_Unchecked" Grid.Column="1" />
+                        <TextBox x:Name="textBox_InitialStartBurnerFanDelay" HorizontalAlignment="Left" Height="23" Margin="412,490,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_InitialStartBurnerFanDelay_KeyDown" LostFocus="textBox_InitialStartBurnerFanDelay_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_InitialStartBurnerTemp" HorizontalAlignment="Left" Height="23" Margin="412,518,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_InitialStartBurnerTemp_KeyDown" LostFocus="textBox_InitialStartBurnerTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_CombustionSuccessTemp" HorizontalAlignment="Left" Height="23" Margin="728,450,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_CombustionSuccessTemp_KeyDown" LostFocus="textBox_CombustionSuccessTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_CombustionBuildUpTime" HorizontalAlignment="Left" Height="23" Margin="729,483,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_CombustionBuildUpTime_KeyDown" LostFocus="textBox_CombustionBuildUpTime_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_InputPelletPowerKWSt3" HorizontalAlignment="Left" Height="23" Margin="729,512,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_InputPelletPowerKWSt3_KeyDown" LostFocus="textBox_InputPelletPowerKWSt3_LostFocus" Grid.Column="1"/>
+                        <Label x:Name="LabelInputPelletPowerKWSt3" Content="Input Pellet Power kW" HorizontalAlignment="Left" Margin="526,508,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Slider x:Name="sliderBurnerSpeedStage2" HorizontalAlignment="Left" Margin="105,672,0,0" VerticalAlignment="Top" Width="200" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" Maximum="12" SmallChange="0.1" IsSnapToTickEnabled="True" ValueChanged="sliderBurnerSpeedStage2_ValueChanged" TickFrequency="0.1" LargeChange="1" Cursor="None" AutoToolTipPrecision="1" Grid.Column="1">
+                            <Slider.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="270"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Slider.RenderTransform>
+                            <Slider.Effect>
+                                <DropShadowEffect/>
+                            </Slider.Effect>
+                        </Slider>
+                        <Slider x:Name="sliderBurnerSpeedStage3" HorizontalAlignment="Left" Margin="478,667,0,0" VerticalAlignment="Top" Width="200" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" Maximum="12" SmallChange="0.1" IsSnapToTickEnabled="True" ValueChanged="sliderBurnerSpeedStage3_ValueChanged" TickFrequency="0.1" LargeChange="1" Cursor="None" AutoToolTipPrecision="1" Grid.Column="1">
+                            <Slider.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="270"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Slider.RenderTransform>
+                            <Slider.Effect>
+                                <DropShadowEffect/>
+                            </Slider.Effect>
+                        </Slider>
+                        <Slider x:Name="sliderFeedOnTimeStage3" HorizontalAlignment="Left" Margin="603,666,0,0" VerticalAlignment="Top" Width="200" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" Maximum="400" SmallChange="1" IsSnapToTickEnabled="True" ValueChanged="sliderFeedOnTimeStage3_ValueChanged" LargeChange="5" TickFrequency="1" Grid.Column="1">
+                            <Slider.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="270"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Slider.RenderTransform>
+                            <Slider.Effect>
+                                <DropShadowEffect/>
+                            </Slider.Effect>
+                        </Slider>
+                        <TextBox x:Name="textBox_BurnerSpeedStage2" HorizontalAlignment="Left" Height="23" Margin="263,750,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="46"  KeyDown="textBox_BurnerSpeedStage2_KeyDown" LostFocus="textBox_BurnerSpeedStage2_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_BurnerSpeedStage3" HorizontalAlignment="Left" Height="23" Margin="636,751,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="46"  KeyDown="textBox_BurnerSpeedStage3_KeyDown" LostFocus="textBox_BurnerSpeedStage3_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_FeedOnTimeStage3" HorizontalAlignment="Left" Height="23" Margin="779,751,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="46"  KeyDown="textBox_FeedOnTimeStage3_KeyDown" LostFocus="textBox_FeedOnTimeStage3_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_BurnerSpeedStage4" HorizontalAlignment="Left" Height="23" Margin="928,752,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="46"  KeyDown="textBox_BurnerSpeedStage4_KeyDown" LostFocus="textBox_BurnerSpeedStage4_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_FeedOnTimeStage4" HorizontalAlignment="Left" Height="23" Margin="1068,752,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="46"  KeyDown="textBox_FeedOnTimeStage4_KeyDown" LostFocus="textBox_FeedOnTimeStage4_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_BurnerFanSwitchOffTemperature" HorizontalAlignment="Left" Height="23" Margin="1049,294,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_BurnerFanSwitchOffTemperature_KeyDown" LostFocus="textBox_BurnerFanSwitchOffTemperature_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_InputPelletPowerKW" HorizontalAlignment="Left" Height="23" Margin="1049,324,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_InputPelletPowerKW_KeyDown" LostFocus="textBox_InputPelletPowerKW_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_InverterOnTemperature" HorizontalAlignment="Left" Height="23" Margin="1049,843,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_InverterOnTemperature_KeyDown" LostFocus="textBox_InverterOnTemperature_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_InverterOffTemperature" HorizontalAlignment="Left" Height="23" Margin="1049,872,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_InverterOffTemperature_KeyDown" LostFocus="textBox_InverterOffTemperature_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_InverterDelayCounter" HorizontalAlignment="Left" Height="23" Margin="1049,900,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_InverterDelayCounter_KeyDown" LostFocus="textBox_InverterDelayCounter_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_ProcessMinHeaterTemp" HorizontalAlignment="Left" Height="23" Margin="1049,355,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_ProcessMinHeaterTemp_KeyDown" LostFocus="textBox_ProcessMinHeaterTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_ProcessMaxHeaterTemp" HorizontalAlignment="Left" Height="23" Margin="1050,384,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_ProcessMaxHeaterTemp_KeyDown" LostFocus="textBox_ProcessMaxHeaterTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_ErrProcTempLowThresh" HorizontalAlignment="Left" Height="23" Margin="1050,413,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_ErrProcTempLowThresh_KeyDown" LostFocus="textBox_ErrProcTempLowThresh_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_FinalFeedRampUpTime" HorizontalAlignment="Left" Height="23" Margin="1050,443,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_FinalFeedRampUpTime_KeyDown" LostFocus="textBox_FinalFeedRampUpTime_LostFocus" Grid.Column="1"/>
+                        <Slider x:Name="sliderBurnerSpeedStage4" HorizontalAlignment="Left" Margin="765,668,0,0" VerticalAlignment="Top" Width="200" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" Maximum="12" SmallChange="0.1" IsSnapToTickEnabled="True" ValueChanged="sliderBurnerSpeedStage4_ValueChanged" TickFrequency="0.1" LargeChange="1" Cursor="None" AutoToolTipPrecision="1" Grid.Column="1">
+                            <Slider.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="270"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Slider.RenderTransform>
+                            <Slider.Effect>
+                                <DropShadowEffect/>
+                            </Slider.Effect>
+                        </Slider>
+                        <Slider x:Name="sliderFeedOnTimeStage4" HorizontalAlignment="Left" Margin="890,667,0,0" VerticalAlignment="Top" Width="200" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" Maximum="400" SmallChange="1" IsSnapToTickEnabled="True" ValueChanged="sliderFeedOnTimeStage4_ValueChanged" LargeChange="5" TickFrequency="1" Grid.Column="1">
+                            <Slider.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="270"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Slider.RenderTransform>
+                            <Slider.Effect>
+                                <DropShadowEffect/>
+                            </Slider.Effect>
+                        </Slider>
+                        <CheckBox x:Name="checkBoxSaveParaFile" Content="Save Parameter File" HorizontalAlignment="Left" Margin="9,548,0,0" VerticalAlignment="Top"  Checked="checkBoxSaveParaFile_Checked" Unchecked="checkBoxSaveParaFile_Unchecked" Grid.ColumnSpan="2" />
+                        <TextBox x:Name="textBox_LogSamplePeriod" HorizontalAlignment="Left" Height="23" Margin="81,589,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_LogSamplePeriod_KeyDown" LostFocus="textBox_LogSamplePeriod_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_NumOfSampleInEachLog" HorizontalAlignment="Left" Height="23" Margin="81,617,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_NumOfSampleInEachLog_KeyDown" LostFocus="textBox_NumOfSampleInEachLog_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_TimeToBurstLog" HorizontalAlignment="Left" Height="23" Margin="81,677,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_TimeToBurstLog_KeyDown" LostFocus="textBox_TimeToBurstLog_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_NumOfSamplesInBurstLog" HorizontalAlignment="Left" Height="23" Margin="81,705,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_NumOfSamplesInBurstLog_KeyDown" LostFocus="textBox_NumOfSamplesInBurstLog_LostFocus" Grid.Column="1"/>
+                        <Label x:Name="LabelSDLogSettings" Content="SD Card Log Settings" HorizontalAlignment="Left" Margin="8,509,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.ColumnSpan="2"/>
+                        <TextBox x:Name="textBoxSystemTime" HorizontalAlignment="Left" Height="23" Margin="1239,711,0,0" TextWrapping="Wrap" Text="System Time" VerticalAlignment="Top" Width="186" IsReadOnly="True" Grid.Column="1" Grid.ColumnSpan="2"/>
+                        <Label x:Name="labelSystemTime" Content="System Time" HorizontalAlignment="Left" Margin="1163,708,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBoxSynSystemTime" Content="Synchronize MELACS7 with System Time" HorizontalAlignment="Left" Margin="1170,686,0,0" VerticalAlignment="Top" Checked="checkBoxSynSystemTime_Checked" Unchecked="checkBoxSynSystemTime_Unchecked" Grid.Column="1"/>
+                        <Label x:Name="LabelYear" Content="Year" HorizontalAlignment="Left" Margin="1165,560,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelMonth" Content="Month" HorizontalAlignment="Left" Margin="1165,588,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelDay" Content="Day" HorizontalAlignment="Left" Margin="1165,618,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelHour" Content="Hour" HorizontalAlignment="Left" Margin="1296,564,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelMinute" Content="Minute" HorizontalAlignment="Left" Margin="1296,594,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelSecond" Content="Second" HorizontalAlignment="Left" Margin="1297,622,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelWeekday" Content="Weekday" HorizontalAlignment="Left" Margin="1165,650,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_Year" HorizontalAlignment="Left" Height="23" Margin="1229,563,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="51" HorizontalContentAlignment="Center" KeyDown="textBox_Year_KeyDown" LostFocus="textBox_Year_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_Month" HorizontalAlignment="Left" Height="23" Margin="1229,591,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="51" HorizontalContentAlignment="Center" KeyDown="textBox_Month_KeyDown" LostFocus="textBox_Month_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_Day" HorizontalAlignment="Left" Height="23" Margin="1229,621,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="51" HorizontalContentAlignment="Center" KeyDown="textBox_Day_KeyDown" LostFocus="textBox_Day_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_Hour" HorizontalAlignment="Left" Height="23" Margin="1360,566,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="51" HorizontalContentAlignment="Center" KeyDown="textBox_Hour_KeyDown" LostFocus="textBox_Hour_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_Minute" HorizontalAlignment="Left" Height="23" Margin="1360,595,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="51" HorizontalContentAlignment="Center" KeyDown="textBox_Minute_KeyDown" LostFocus="textBox_Minute_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_Second" HorizontalAlignment="Left" Height="23" Margin="1360,625,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="51" HorizontalContentAlignment="Center" KeyDown="textBox_Second_KeyDown" LostFocus="textBox_Second_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_Weekday" HorizontalAlignment="Left" Height="23" Margin="1229,652,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="51" HorizontalContentAlignment="Center" KeyDown="textBox_Weekday_KeyDown" LostFocus="textBox_Weekday_LostFocus" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBoxSynManualTime" Content="Synchronize MELACS7 With Manual Time" HorizontalAlignment="Left" Margin="1170,541,0,0" VerticalAlignment="Top"  Checked="checkBoxSynManualTime_Checked" Unchecked="checkBoxSynManualTime_Unchecked" Grid.Column="1"/>
+                        <ComboBox x:Name="comboBoxComPorts" HorizontalAlignment="Left" Margin="116,19,0,0" VerticalAlignment="Top" Width="74" Loaded="comboBoxComPorts_Loaded" Grid.Column="1"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="249" Margin="0,8,0,0" VerticalAlignment="Top" Width="360" CornerRadius="8,8,3,3" Grid.ColumnSpan="2"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="239" Margin="0,265,0,0" VerticalAlignment="Top" Width="249" CornerRadius="8,8,3,3" Grid.ColumnSpan="2"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Right" Height="374" Margin="0,413,593,0" VerticalAlignment="Top" Width="660" CornerRadius="8,8,3,3" Grid.Column="1"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="223" Margin="0,511,0,0" VerticalAlignment="Top" Width="249" CornerRadius="8,8,3,3" Grid.ColumnSpan="2"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="249" Margin="278,8,0,0" VerticalAlignment="Top" Width="226" CornerRadius="8,8,3,3" Grid.Column="1"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="146" Margin="171,262,0,0" VerticalAlignment="Top" Width="660" CornerRadius="8,8,3,3" Grid.Column="1"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="248" Margin="509,9,0,0" VerticalAlignment="Top" Width="224" CornerRadius="8,8,3,3" Grid.Column="1"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="247" Margin="738,9,0,0" VerticalAlignment="Top" Width="166" CornerRadius="8,8,3,3" Grid.Column="1"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="248" Margin="909,8,0,0" VerticalAlignment="Top" Width="232" CornerRadius="8,8,3,3" Grid.Column="1"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="525" Margin="839,262,0,0" VerticalAlignment="Top" Width="302" CornerRadius="8,8,3,3" Grid.Column="1"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="494" Margin="1148,9,0,0" VerticalAlignment="Top" Width="284" CornerRadius="8,8,3,3" Grid.Column="1" Grid.ColumnSpan="2"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="229" Margin="1149,511,0,0" VerticalAlignment="Top" Width="283" CornerRadius="8,8,3,3" Grid.Column="1" Grid.ColumnSpan="2"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="308" Margin="4,811,0,0" VerticalAlignment="Top" Width="669" CornerRadius="8,8,3,3" Grid.ColumnSpan="2"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="119" Margin="839,934,0,0" VerticalAlignment="Top" Width="305" CornerRadius="8,8,3,3" Grid.Column="1"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="117" Margin="839,813,0,0" VerticalAlignment="Top" Width="305" CornerRadius="8,8,3,3" Grid.Column="1"/>
+                        <Border BorderBrush="Silver" BorderThickness="2" HorizontalAlignment="Left" Height="270" Margin="591,811,0,0" VerticalAlignment="Top" Width="240" CornerRadius="8,8,3,3" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_UpdatePeripheralSettings" Content="Update" HorizontalAlignment="Left" Margin="96,276,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_UpdateEngineTemperatureControlSettings" Content="Update" HorizontalAlignment="Left" Margin="765,265,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_UpdatePreCombustionSequenceSettings" Content="Update" HorizontalAlignment="Left" Margin="765,418,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_UpdatePostCombustionSettings" Content="Update" HorizontalAlignment="Left" Margin="1077,267,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_UpdateDateTimeSettings" Content="Update MELACS7" HorizontalAlignment="Left" Margin="1302,518,0,0" VerticalAlignment="Top" Grid.Column="1" Width="118"/>
+                        <CheckBox x:Name="checkBox_UpdateSDCardLogSettings" Content="Update" HorizontalAlignment="Left" Margin="98,514,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_UpdateOverrides" Content="Update" HorizontalAlignment="Left" Margin="516,822,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_UpdateGasSystem" Content="Update" HorizontalAlignment="Left" Margin="1079,945,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_UpdateEngineSettings" Content="Update" HorizontalAlignment="Left" Margin="766,822,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_UpdateInverterSettings" Content="Update" HorizontalAlignment="Left" Margin="1079,823,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="Label_InverterOnTemperature" Content="Inverter On Temperature" HorizontalAlignment="Left" Margin="852,841,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="Label_InverterOffTemperature" Content="Inverter Off Temperature" HorizontalAlignment="Left" Margin="852,870,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelErrProcTempLowThresh" Content="Error Process Lower Temperature" HorizontalAlignment="Left" Margin="852,410,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelFinalFeedRampUpTime" Content="Final Feed Ramp Up Time" HorizontalAlignment="Left" Margin="852,440,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="Label_GasThermostatMinTemp" Content="Gas Thermostat Min Temperature" HorizontalAlignment="Left" Margin="852,989,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="Label_GasThermostatMaxTemp" Content="Gas Thermostat Max Temperature" HorizontalAlignment="Left" Margin="852,1019,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelFeedOnTimeStage3" Content="Feed On Time" HorizontalAlignment="Left" Margin="696,750,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelBurnerSpeedStage3" Content="Burner Speed" HorizontalAlignment="Left" Margin="554,750,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <Label x:Name="LabelConstBurnerStage2" Content="Burner Speed" HorizontalAlignment="Left" Margin="180,747,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Grid.Column="1"/>
+                        <Label x:Name="LabelCombustionBuildUpTime" Content="After Combustion Build Up Time" HorizontalAlignment="Left" Margin="526,479,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Label x:Name="LabelStage3" Content="Stage 3" HorizontalAlignment="Left" Margin="653,611,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelStage2" Content="Stage 2" HorizontalAlignment="Left" Margin="258,636,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelStage4" Content="Stage 4" HorizontalAlignment="Left" Margin="944,629,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Image x:Name="imageLogo" HorizontalAlignment="Left" Height="45" Margin="331,613,0,0" VerticalAlignment="Top" Width="227" Source="/Logo_MELACS.bmp" RenderTransformOrigin="0.478,-1.242" Grid.Column="1"/>
+                        <Image x:Name="imageGenerator" HorizontalAlignment="Left" Height="59" Margin="335,689,0,0" VerticalAlignment="Top" Source="/MELACS_Bild1.jpg" Width="215" RenderTransformOrigin="0.482,0.486" Grid.Column="1"/>
+                        <Slider x:Name="slider_OverrideBurnerFan" Margin="-77,968,1391,0" VerticalAlignment="Top" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" Maximum="12" SmallChange="0.1"  IsSnapToTickEnabled="True" ValueChanged="sliderOverrideBurnerFan_ValueChanged" TickFrequency="0.1" LargeChange="1" Cursor="None" AutoToolTipPrecision="1" Grid.ColumnSpan="2">
+                            <Slider.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="270"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Slider.RenderTransform>
+                            <Slider.Effect>
+                                <DropShadowEffect/>
+                            </Slider.Effect>
+                        </Slider>
+                        <TextBox x:Name="textBox_OverrideBurnerFan" HorizontalAlignment="Left" Height="23" Margin="44,1049,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="46"  KeyDown="textBox_OverrideBurnerFan_KeyDown" LostFocus="textBox_OverrideBurnerFan_LostFocus" RenderTransformOrigin="0.535,0.478" Grid.ColumnSpan="2"/>
+                        <Label x:Name="label_OverrideBurnerFan" Content="Override Burner Fan" HorizontalAlignment="Left" Margin="9,1070,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                        <CheckBox x:Name="checkBox_OverrideBurnerFan" Content="" HorizontalAlignment="Left" Margin="57,1095,0,0" VerticalAlignment="Top" Checked="checkBoxOverrideBurnerFan_Checked" Unchecked="checkBoxOverrideBurnerFan_Unchecked"/>
+                        <Slider x:Name="slider_OverrideRadiatorFan" HorizontalAlignment="Left" Margin="55,968,0,0" VerticalAlignment="Top" Width="200" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" Maximum="12" IsSnapToTickEnabled="True" ValueChanged="sliderOverrideRadiatorFan_ValueChanged" TickFrequency="0.1" LargeChange="0.1" Cursor="None" AutoToolTipPrecision="1" Grid.ColumnSpan="2">
+                            <Slider.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="270"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Slider.RenderTransform>
+                            <Slider.Effect>
+                                <DropShadowEffect/>
+                            </Slider.Effect>
+                        </Slider>
+                        <TextBox x:Name="textBox_OverrideRadiatorFan" HorizontalAlignment="Left" Height="23" Margin="85,1049,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="46"  KeyDown="textBox_OverrideRadiatorFan_KeyDown" LostFocus="textBox_OverrideRadiatorFan_LostFocus" RenderTransformOrigin="0.535,0.478" Grid.Column="1"/>
+                        <Label x:Name="label_OverrideRadiatorFan" Content="Override Raditor Fan" HorizontalAlignment="Left" Margin="46,1070,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_OverrideRadiatorFan" Content="" HorizontalAlignment="Left" Margin="98,1095,0,0" VerticalAlignment="Top" Checked="checkBoxOverrideRadiatorFan_Checked" Unchecked="checkBoxOverrideRadiatorFan_Unchecked" Grid.Column="1"/>
+                        <Slider x:Name="slider_OverrideValvePosition" HorizontalAlignment="Left" Margin="88,968,0,0" VerticalAlignment="Top" Width="200" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" SmallChange="1" IsSnapToTickEnabled="True" ValueChanged="sliderOverrideValvePosition_ValueChanged" Grid.Column="1">
+                            <Slider.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="270"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Slider.RenderTransform>
+                            <Slider.Effect>
+                                <DropShadowEffect/>
+                            </Slider.Effect>
+                        </Slider>
+                        <TextBox x:Name="textBox_OverrideValvePosition" HorizontalAlignment="Left" Height="23" Margin="207,1049,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="46"  KeyDown="textBox_OverrideValvePosition_KeyDown" LostFocus="textBox_OverrideValvePosition_LostFocus" RenderTransformOrigin="0.535,0.478" Grid.Column="1"/>
+                        <Label x:Name="label_OverrideValvePosition" Content="Override Valve Position" HorizontalAlignment="Left" Margin="171,1070,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_OverrideValvePosition" Content="" HorizontalAlignment="Left" Margin="222,1095,0,0" VerticalAlignment="Top" Checked="checkBoxOverrideValvePosition_Checked" Unchecked="checkBoxOverrideValvePosition_Unchecked" Grid.Column="1"/>
+
+                        <Label x:Name="label_OverrideCirculationPump" Content="Override CirculationPump" HorizontalAlignment="Left" Margin="318,835,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Slider x:Name="slider_OverrideCirculationPump" HorizontalAlignment="Left" Margin="346,859,0,0" VerticalAlignment="Top" Width="27" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" SmallChange="1" IsSnapToTickEnabled="True" ValueChanged="sliderOverrideCirculationPump_ValueChanged" Height="18" Maximum="1" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_EnableOverrideCirculationPump" Content="" HorizontalAlignment="Left" Margin="321,861,0,0" VerticalAlignment="Top" Checked="checkBoxOverrideCirculationPump_Checked" Unchecked="checkBoxOverrideCirculationPump_Unchecked" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_OverrideCirculationPump" HorizontalAlignment="Left" Height="23" Margin="377,856,0,0" TextWrapping="Wrap" Text="OFF" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="34" RenderTransformOrigin="0.535,0.478" IsReadOnly="True" Grid.Column="1"/>
+
+                        <Label x:Name="label_OverrideFeeder" Content="Override Feeder" HorizontalAlignment="Left" Margin="318,884,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Slider x:Name="slider_OverrideFeeder" HorizontalAlignment="Left" Margin="346,909,0,0" VerticalAlignment="Top" Width="27" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" SmallChange="1" IsSnapToTickEnabled="True" ValueChanged="sliderOverrideFeeder_ValueChanged" Height="18" Maximum="1" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_EnableOverrideFeeder" Content="" HorizontalAlignment="Left" Margin="321,911,0,0" VerticalAlignment="Top" Checked="checkBoxOverrideFeeder_Checked" Unchecked="checkBoxOverrideFeeder_Unchecked" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_OverrideFeeder" HorizontalAlignment="Left" Height="23" Margin="377,906,0,0" TextWrapping="Wrap" Text="OFF" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="34" RenderTransformOrigin="0.535,0.478" IsReadOnly="True" Grid.Column="1"/>
+
+                        <Label x:Name="label_OverrideIgnitor" Content="Override Ignitor" HorizontalAlignment="Left" Margin="318,938,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Slider x:Name="slider_OverrideIgnitor" HorizontalAlignment="Left" Margin="346,963,0,0" VerticalAlignment="Top" Width="27" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" SmallChange="1" IsSnapToTickEnabled="True" ValueChanged="sliderOverrideIgnitor_ValueChanged" Height="18" Maximum="1" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_EnableOverrideIgnitor" Content="" HorizontalAlignment="Left" Margin="321,965,0,0" VerticalAlignment="Top" Checked="checkBoxOverrideIgnitor_Checked" Unchecked="checkBoxOverrideIgnitor_Unchecked" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_OverrideIgnitor" HorizontalAlignment="Left" Height="23" Margin="377,961,0,0" TextWrapping="Wrap" Text="OFF" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="34" RenderTransformOrigin="0.535,0.478" IsReadOnly="True" Grid.Column="1"/>
+
+                        <Label x:Name="label_OverrideInverter" Content="Override Inverter" HorizontalAlignment="Left" Margin="318,996,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Slider x:Name="slider_OverrideInverter" HorizontalAlignment="Left" Margin="346,1021,0,0" VerticalAlignment="Top" Width="27" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" SmallChange="1" IsSnapToTickEnabled="True" ValueChanged="sliderOverrideInverter_ValueChanged" Height="18" Maximum="1" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_EnableOverrideInverter" Content="" HorizontalAlignment="Left" Margin="321,1023,0,0" VerticalAlignment="Top" Checked="checkBoxOverrideInverter_Checked" Unchecked="checkBoxOverrideInverter_Unchecked" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_OverrideInverter" HorizontalAlignment="Left" Height="23" Margin="377,1018,0,0" TextWrapping="Wrap" Text="OFF" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="34" RenderTransformOrigin="0.535,0.478" IsReadOnly="True" Grid.Column="1"/>
+
+                        <Label x:Name="label_OverrideKey" Content="Override Key" HorizontalAlignment="Left" Margin="476,885,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Slider x:Name="slider_OverrideKey" HorizontalAlignment="Left" Margin="504,910,0,0" VerticalAlignment="Top" Width="27" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" SmallChange="1" IsSnapToTickEnabled="True" ValueChanged="sliderOverrideKey_ValueChanged" Height="18" Maximum="1" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_EnableOverrideKey" Content="" HorizontalAlignment="Left" Margin="479,912,0,0" VerticalAlignment="Top" Checked="checkBoxOverrideKey_Checked" Unchecked="checkBoxOverrideKey_Unchecked" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_OverrideKey" HorizontalAlignment="Left" Height="23" Margin="535,907,0,0" TextWrapping="Wrap" Text="OFF" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="34" RenderTransformOrigin="0.535,0.478" IsReadOnly="True" Grid.Column="1"/>
+
+                        <Label x:Name="label_OverrideGas" Content="Override Gas" HorizontalAlignment="Left" Margin="476,939,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <Slider x:Name="slider_OverrideGas" HorizontalAlignment="Left" Margin="504,964,0,0" VerticalAlignment="Top" Width="27" RenderTransformOrigin="0.518,-1.523" AutoToolTipPlacement="BottomRight" SmallChange="1" IsSnapToTickEnabled="True" ValueChanged="sliderOverrideGas_ValueChanged" Height="18" Maximum="1" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBox_EnableOverrideGas" Content="" HorizontalAlignment="Left" Margin="479,966,0,0" VerticalAlignment="Top" Checked="checkBoxOverrideGas_Checked" Unchecked="checkBoxOverrideGas_Unchecked" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_OverrideGas" HorizontalAlignment="Left" Height="23" Margin="535,961,0,0" TextWrapping="Wrap" Text="OFF" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="34" RenderTransformOrigin="0.535,0.478" IsReadOnly="True" Grid.Column="1"/>
+                        <TextBox x:Name="textBoxAfterTime" HorizontalAlignment="Left" Height="23" Margin="132,113,0,0" TextWrapping="Wrap" Text="1200" VerticalAlignment="Top" Width="43" Grid.Column="1"/>
+                        <Label x:Name="labelAfterTime" Content="after Time(Seconds)" HorizontalAlignment="Left" Margin="11,111,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_GasThermostatMinTemp" HorizontalAlignment="Left" Height="23" Margin="1049,992,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_GasThermostatMinTemp_KeyDown" LostFocus="textBox_GasThermostatMinTemp_LostFocus" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_GasThermostatMaxTemp" HorizontalAlignment="Left" Height="23" Margin="1050,1021,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_GasThermostatMaxTemp_KeyDown" LostFocus="textBox_GasThermostatMaxTemp_LostFocus" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBoxEnableGas" Content="Enable Gas System" HorizontalAlignment="Left" Margin="856,968,0,0" VerticalAlignment="Top" Checked="checkBoxEnableGas_Checked" Unchecked="checkBoxEnableGas_Unchecked" Grid.Column="1"/>
+                        <Label x:Name="LabelSetPressure" Content="Set Pressure" HorizontalAlignment="Left" Margin="594,866,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_SetPressure" HorizontalAlignment="Left" Height="23" Margin="754,869,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_SetPressure_KeyDown" LostFocus="textBox_SetPressure_LostFocus" Grid.Column="1"/>
+                        <CheckBox x:Name="checkBoxEnableSettingPressure" Content="Enable Setting Pressure" HorizontalAlignment="Left" Margin="598,845,0,0" VerticalAlignment="Top" Checked="checkBoxEnableSettingPressure_Checked" Unchecked="checkBoxEnableSettingPressure_Unchecked" Grid.Column="1"/>
+                        <Label x:Name="LabelOverrides" Content="Overrides" HorizontalAlignment="Left" Margin="10,810,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue"/>
+                        <Label x:Name="LabelEngineSettings" Content="Engine Settings" HorizontalAlignment="Left" Margin="593,810,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelGasSystems" Content="Gas Systems" HorizontalAlignment="Left" Margin="843,933,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                        <Label x:Name="LabelLowestCoolerTemp" Content="Lowest Cooler Temperature" HorizontalAlignment="Left" Margin="594,897,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_LowestCoolerTemp" HorizontalAlignment="Left" Height="23" Margin="754,900,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_LowestCoolerTemp_KeyDown" LostFocus="textBox_LowestCoolerTemp_LostFocus" Grid.Column="1"/>
+                        <Label x:Name="LabelHighestCoolerTemp" Content="Highest Cooler Temperature" HorizontalAlignment="Left" Margin="594,927,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_HighestCoolerTemp" HorizontalAlignment="Left" Height="23" Margin="754,930,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_HighestCoolerTemp_KeyDown" LostFocus="textBox_HighestCoolerTemp_LostFocus" Grid.Column="1"/>
+                        <Label x:Name="LabelLowestHeaterTemp" Content="Lowest Heater Temperature" HorizontalAlignment="Left" Margin="594,957,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_LowestHeaterTemp" HorizontalAlignment="Left" Height="23" Margin="754,960,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_LowestHeaterTemp_KeyDown" LostFocus="textBox_LowestHeaterTemp_LostFocus" Grid.Column="1"/>
+                        <Label x:Name="LabelHighestHeaterTemp" Content="Highest Heater Temperature" HorizontalAlignment="Left" Margin="594,987,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_HighestHeaterTemp" HorizontalAlignment="Left" Height="23" Margin="754,990,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_HighestHeaterTemp_KeyDown" LostFocus="textBox_HighestHeaterTemp_LostFocus" Grid.Column="1"/>
+                        <Label x:Name="LabelLowestGasPressure" Content="Lowest Gas Pressure" HorizontalAlignment="Left" Margin="594,1017,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_LowestGasPressure" HorizontalAlignment="Left" Height="23" Margin="754,1020,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_LowestGasPressure_KeyDown" LostFocus="textBox_LowestGasPressure_LostFocus" Grid.Column="1"/>
+                        <Label x:Name="LabelHighestGasPressure" Content="Highest Gas Pressure" HorizontalAlignment="Left" Margin="594,1047,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                        <TextBox x:Name="textBox_HighestGasPressure" HorizontalAlignment="Left" Height="23" Margin="754,1050,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="71" HorizontalContentAlignment="Center" KeyDown="textBox_HighestGasPressure_KeyDown" LostFocus="textBox_HighestGasPressure_LostFocus" Grid.Column="1"/>
+                        <Label x:Name="LabelInverterSettings" Content="Inverter Settings" HorizontalAlignment="Left" Margin="843,813,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground= "CadetBlue" Grid.Column="1"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </ScrollViewer>
+    </Grid>
+</Window>

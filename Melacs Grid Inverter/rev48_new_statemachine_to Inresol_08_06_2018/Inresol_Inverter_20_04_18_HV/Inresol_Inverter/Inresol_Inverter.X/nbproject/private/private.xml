@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/bsp_inc/BSP_PWM.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_ADC.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_inc/App_OCP.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_MODBUS.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_OCP.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_inc/App_ADC.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_DataRec.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/config/global_includes.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/bsp_src/BSP_System.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/main.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/bsp_src/BSP_IO.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_SysTick.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/bsp_src/BSP_Timer.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_Debug.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_PWM.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_DPLL.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/config/config_uart.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/bsp_src/BSP_UART.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/lib_src/FreeMODBUS/modbus/mb.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/lib_src/FreeMODBUS/port/portevent.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/lib_inc/Free_MODBUS/modbus/include/mb.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_SM.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_TempSens.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_src/App_NVMemory.c</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_inc/App_MODBUS.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/config/config_system.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/config/config_sm.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/config/config_hardware.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/app_inc/App_SM.h</file>
+            <file>file:/C:/Melacs/Melacs%20Grid%20Inverter/rev48_new_statemachine_to%20Inresol_08_06_2018/Inresol_Inverter_20_04_18_HV/Inresol_Inverter/types/types_sm.h</file>
+        </group>
+    </open-files>
+</project-private>

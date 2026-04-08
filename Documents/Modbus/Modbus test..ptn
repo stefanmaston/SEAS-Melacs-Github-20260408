@@ -1,0 +1,271 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1053{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue0;\red208\green0\blue0;\red4\green129\blue6;}
+\viewkind4\uc1\pard\cf1\f0\fs20 
+\par \ul |~~~~ DOCKLIGHT PROJECT DOCUMENTATION
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 0    NAME=Hw test
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par \cf1\lang1031\f0 Typical response
+\par 
+\par \cf2\f1 Slave adress: 01 
+\par Function code: 03 
+\par Received byte: 08 
+\par Sys_HW_Info: 02 00 
+\par Sys_FW_Version: 01 18 
+\par Sys_FW_DATE_YEAR: 07 E2 
+\par Sys_FW_Date_Month_and_Day: 02 0F 
+\par CRC: D5 FB\cf1\f0 
+\par \cf0\lang1053\f1 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 1    NAME=RELAY_INV_PHASE ON
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 2    NAME=RELAY_INV_NEUTRAL
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 3    NAME=RELAY_INV_PHASE - OFF
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 4    NAME=Multicoil - ON
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 5    NAME=CALIB
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 6    NAME=MultiCOIL-OFF
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 7    NAME=Standalone 1 - Phase mode
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 8    NAME=Standalone 3-Phase mode
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 9    NAME=Test-mode
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 10    NAME=Read input register
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 11    NAME=MODE Readings
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par \cf1\lang1031\f0 PowerUp_Counter first 4 byte in second and last 2 byte is the system mode see the table.  Typical receive
+\par 
+\par \cf2\f1 Slave adress:01 
+\par Function code:03 
+\par Number of sent byte: 06 
+\par Power up counter 4 byte: 00 00 01 12 
+\par Null : 00 
+\par System mode 1 byte:  04 
+\par CRC: 81 4F \cf3  \cf1\f0 
+\par \cf0\lang1053\f1 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 12    NAME=ADC Reading
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par \cf1\lang1031\f0 Only ADC registers can be read by function code 04 Read input register 
+\par \cf0\lang1053\f1 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 13    NAME=DDS READINGS
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par \cf1\lang1031\f0 Typical receive
+\par \cf2\f1 Slave adress: 01 
+\par Function code: 03 
+\par Received byte: 0C
+\par Waves_FREQ: 01 F4 == 500 ==> 1/10Hz ==> 50
+\par 
+\par SHIFT_PHASE_CH2: 2A AA 
+\par SHIFT_PHASE_CH3: 55 54 
+\par GAIN_CH1 : 00 00 
+\par GAIN_CH2 : 00 00 
+\par GAIN_CH3 : 00 00 
+\par CRC: 0F AB \cf1\f0 
+\par \cf0\lang1053\f1 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 14    NAME=ITRIP Readings
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par \cf1\lang1031\f0 Typical receive:
+\par 
+\par \cf2\f1 Slave adress: 01 
+\par Function Code: 03 
+\par Received bytes: 04 
+\par ITRIP_INV_Upper: C0 00 
+\par ITRIP_GRID_LOWER: 40 00 
+\par CRC: F7 F3\cf1\f0 
+\par \cf0\lang1053\f1 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 15    NAME=DPLL Readings
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par \cf1\lang1031\f0 Typical receive
+\par \cf2\f1 Slave adress: 01 
+\par Function Code:03 
+\par Received byte : 0A 
+\par ID_SET : 00 00 
+\par IQ_SET : 00 00 
+\par VD_SET : 0A B4 
+\par VQ_SET : 00 00 
+\par OMEGA_L: 13 88 
+\par CRC: 99 50 \cf1\f0 
+\par 
+\par \pard\cf0\lang1053\f1\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 16    NAME=Temp Reading RAW
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 17    NAME=Temp Reading Celcius
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 18    NAME=SM Reading
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par \cf1\lang1031\f0 Typical receive
+\par 
+\par \cf2\f1 Slave adress: 01 
+\par Function Code: 03 
+\par Received byte: 0A 
+\par Sm_Rec_STATE : 00 00 
+\par SM_STATE_ERROR: 00 00 
+\par SM_TIME STAMP_MS: 02 2F 
+\par SM_TIMESTAMP_S: 00 00 00 5D
+\par CRC 31 6B \cf0 
+\par \cf1\f0 
+\par \pard\cf0\lang1053\f1\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 19    NAME=CALIB READING.
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par \cf1\lang1031\f0 Typical response:
+\par Slave adress: 01
+\par Function code 03
+\par Number of byte: 3C
+\par 
+\par 4000 +Off\tab\tab\tab\tab 
+\par \tab\tab\tab\tab 
+\par 00000\tab\tab L1_I_INV_RAW_ERR\tab FF F0 \tab 
+\par 00001\tab\tab L1_I_INV_UNIT_ERR\tab FF F3 \tab 
+\par 00002\tab\tab L2_I_INV_RAW_ERR\tab FF F0 \tab 
+\par 00003\tab\tab L2_I_INV_UNIT_ERR\tab FF F3 \tab 
+\par 00004\tab\tab L3_I_INV_RAW_ERR\tab FF E5 \tab 
+\par 00005\tab\tab L3_I_INV_UNIT_ERR\tab FF E9 \tab 
+\par 00006\tab\tab L1_I_GRID_RAW_ERR\tab 06 80 \tab 
+\par 00007\tab\tab L1_I_GRID_UNIT_ERR\tab 05 A9 \tab 
+\par 00008\tab\tab L2_I_GRID_RAW_ERR\tab 06 4E \tab 
+\par 00009\tab\tab L2_I_GRID_UNIT_ERR\tab 05 7D \tab 
+\par 00010\tab\tab L3_I_GRID_RAW_ERR\tab 06 84 \tab 
+\par 00011\tab\tab L3_I_GRID_UNIT_ERR\tab 05 AC \tab 
+\par 00012\tab\tab L1_U_INV_RAW_ERR\tab 00 05 \tab 
+\par 00013\tab\tab L1_U_INV_UNIT_ERR\tab 00 23 \tab 
+\par 00014\tab\tab L2_U_INV_RAW_ERR\tab 00 16 \tab 
+\par 00015\tab\tab L2_U_INV_UNIT_ERR\tab 00 9C \tab 
+\par 00016\tab\tab L3_U_INV_RAW_ERR\tab 00 22 \tab 
+\par 00017\tab\tab L3_U_INV_UNIT_ERR\tab 00 F2 \tab 
+\par 00018\tab\tab L1_U_MID_RAW_ERR\tab 00 0D \tab 
+\par 00019\tab\tab L1_U_MID_UNIT_ERR\tab 00 5C \tab 
+\par 00020\tab\tab L2_U_MID_RAW_ERR\tab 00 0C \tab 
+\par 00021\tab\tab L2_U_MID_UNIT_ERR\tab 00 55 \tab 
+\par 00022\tab\tab L3_U_MID_RAW_ERR\tab 00 08 \tab 
+\par 00023\tab\tab L3_U_MID_UNIT_ERR\tab 00 38 \tab 
+\par 00024\tab\tab L1_U_GRID_RAW_ERR\tab 06 93 \tab 
+\par 00025\tab\tab L1_U_GRID_UNIT_ERR\tab 4D A4 \tab 
+\par 00026\tab\tab L2_U_GRID_RAW_ERR\tab 06 92 \tab 
+\par 00027\tab\tab L2_U_GRID_UNIT_ERR\tab 4D 99 \tab 
+\par 00028\tab\tab L3_U_GRID_RAW_ERR\tab 06 97 \tab 
+\par 00029\tab\tab L3_U_GRID_UNIT_ERR\tab 4D D4 \tab 
+\par 
+\par \pard\cf0\lang1053\f1\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 20    NAME=Read OCP detector
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 21    NAME=Read RLY Output
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 22    NAME=READ RST Sources
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par \cf2\lang1031 Typical response
+\par Slave: 01 
+\par Function code 01 
+\par Received byte 02 
+\par Bool data from 2200 to 2215: HEX:4000 ==> bin 100000000000000.
+\par CRC88 3C \cf1\f0 
+\par \cf0\lang1053\f1 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 23    NAME=ad
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 24    NAME=
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 25    NAME=
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 26    NAME=Write Multi Register
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 27    NAME=Frequence
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 28    NAME=
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 29    NAME=01 10 10 CC 00 06 0C 02 8A 5B F6 37 6B FB A5 6E 97 3B E7 41 42
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 30    NAME=Read System Status
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 31    NAME=01 05 07 D0 FF 00 8C B7
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 32    NAME=
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT SEND SEQUENCE INDEX= 33    NAME=00
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT RECEIVE SEQUENCE INDEX= 0    NAME=Generic Frame detector
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT RECEIVE SEQUENCE INDEX= 1    NAME=Input Register Answer (2byte)
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT RECEIVE SEQUENCE INDEX= 2    NAME=DDS Reading
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT RECEIVE SEQUENCE INDEX= 3    NAME=TempReading
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT RECEIVE SEQUENCE INDEX= 4    NAME=01 03 10 04 00 04 01 08
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT RECEIVE SEQUENCE INDEX= 5    NAME=01 03 08 02 00 01 18 07 E2 02 0F D5 FB
+\par \cf0\ulnone\f1\fs20 
+\par \pard\fs20 
+\par 
+\par \pard\fs20 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT RECEIVE SEQUENCE INDEX= 6    NAME=
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par \cf1\ul\f0\fs20 |~~~~ DOCKLIGHT RECEIVE SEQUENCE INDEX= 7    NAME=
+\par \cf0\ulnone\f1\fs20 
+\par 
+\par }
+ 

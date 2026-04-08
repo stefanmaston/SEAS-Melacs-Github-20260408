@@ -1,0 +1,29 @@
+
+File			Comment
+----			-------
+main.h			Defines for MPU port use
+configurations.c	Sets fuses for frequencies
+configurations.h	Defines frequencies
+Makefile		
+melacs_spi.c		Handles SPI
+melacs_spi.h		SPI configuration
+main.c			Main program
+
+Methods in main.c
+int main(int argc, char** argv)
+    Prints "From Extension board!\n\r" to UART2
+    Blinks LED on port RG1
+
+void initPorts(int Melax_to_RS485)
+    Sets I/O för hardware, if parameter Melax_to_RS485 is true (> 0) sets MUX
+    to let MELACS7 handle RS485
+
+void UARTsendString( UART_MODULE selectedUart,char *str)
+    Sends the string str to the selectedUart
+
+void setUartBaud(int uart, uint32_t baudrate)
+    Sets baudrate for an UART
+
+void __ISR( _CHANGE_NOTICE_VECTOR, ipl1)
+CNInterrupt( void) {
+    Not used yet

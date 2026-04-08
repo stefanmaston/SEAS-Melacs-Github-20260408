@@ -1,0 +1,116 @@
+/******************************************************************************
+*
+*                            Unison and DSPnano
+*  Copyright 1987-2014 Multiprocessor Toolsmiths, Inc., RoweBots Research Inc.
+*                           ALL RIGHTS RESERVED
+*
+*   This computer program is the property of RoweBots Research Inc.,
+*   Kitchener, Ontario Canada. and may not be copied or redistributed in any
+*   form or by any means, whether in part or in whole, except under license
+*   granted by RoweBots Research Inc.
+*
+*   All copies of this program, whether in part or in whole, and whether
+*   modified or not, must display this and all other embedded copyright and
+*   ownership notices in full.  This notice may not be modified.
+*
+*   All source code is protected by international copyright laws and license
+*   agreements.  Do not break the law.  You can obtain a license and source
+*   code at rowebots.com subject to licensing conditions and restrictions.
+*   Free development, free source code and free non commercial licenses may
+*   be obtained in a few seconds on line without any difficult process.
+*
+*   All demonstration programs may be redistributed as source code to others
+*   as a small part of a Unison or DSPnano application.
+*
+* ******************************************************************************
+*
+*
+*   Save Time and Money.  If you need modifications to the software to support
+*   specific processors or peripherals, RoweBots Research can do this for you
+*   quickly and easily at low cost.  If you need help with application develop-
+*   ment, again we can solve your embedded development problems quickly and
+*   easily at very attractive prices.  We are tiny tiny embedded Linux* experts,
+*   let us reduce your risk, accelerate your development and slash your time
+*   to market.  See rowebots.com - contact us.
+*
+*
+*******************************************************************************/
+
+/*	$OpenBSD: ip_ipip.h,v 1.2 2000/09/19 03:20:58 angelos Exp $ */
+
+/*
+ * The authors of this code are John Ioannidis (ji@tla.org),
+ * Angelos D. Keromytis (kermit@csd.uch.gr) and 
+ * Niels Provos (provos@physnet.uni-hamburg.de).
+ *
+ * The original version of this code was written by John Ioannidis
+ * for BSD/OS in Athens, Greece, in November 1995.
+ *
+ * Ported to OpenBSD and NetBSD, with additional transforms, in December 1996,
+ * by Angelos D. Keromytis.
+ *
+ * Additional transforms and features in 1997 and 1998 by Angelos D. Keromytis
+ * and Niels Provos.
+ *
+ * Additional features in 1999 by Angelos D. Keromytis.
+ *
+ * Copyright (C) 1995, 1996, 1997, 1998, 1999 by John Ioannidis,
+ * Angelos D. Keromytis and Niels Provos.
+ *	
+ * Permission to use, copy, and modify this software without fee
+ * is hereby granted, provided that this entire notice is included in
+ * all copies of any software which is or includes a copy or
+ * modification of this software. 
+ * You may use this code under the GNU public license if you so wish. Please
+ * contribute changes back to the authors under this freer than GPL license
+ * so that we may further the use of strong encryption without limitations to
+ * all.
+ *
+ * THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR
+ * IMPLIED WARRANTY. IN PARTICULAR, NONE OF THE AUTHORS MAKES ANY
+ * REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE
+ * MERCHANTABILITY OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR
+ * PURPOSE.
+ */
+
+#ifndef _NETINET_IPIP_H_
+#define _NETINET_IPIP_H_
+
+/*
+ * IP-inside-IP processing.
+ * Not quite all the functionality of RFC-1853, but the main idea is there.
+ */
+
+struct ipipstat
+{
+    u_int32_t	ipips_ipackets;		/* total input packets */
+    u_int32_t	ipips_opackets;		/* total output packets */
+    u_int32_t	ipips_hdrops;		/* packet shorter than header shows */
+    u_int32_t	ipips_qfull;
+    u_int64_t   ipips_ibytes;
+    u_int64_t   ipips_obytes;
+    u_int32_t	ipips_pdrops;		/* packet dropped due to policy */
+    u_int32_t	ipips_spoof;		/* IP spoofing attempts */
+    u_int32_t   ipips_family;		/* Protocol family mismatch */
+    u_int32_t   ipips_unspec;            /* Missing tunnel endpoint address */
+};
+
+#define IP4_DEFAULT_TTL    0
+#define IP4_SAME_TTL	  -1
+
+/*
+ * Names for IPIP sysctl objects
+ */
+#define	IPIPCTL_ALLOW	1		/* accept incoming IP4 packets */
+#define IPIPCTL_MAXID	2
+
+#define IPIPCTL_NAMES { \
+	{ 0, 0 }, \
+	{ "allow", CTLTYPE_INT }, \
+}
+
+#ifdef _KERNEL
+extern int ipip_allow;
+extern struct ipipstat ipipstat;
+#endif /* _KERNEL */
+#endif /* _NETINET_IPIP_H_ */
