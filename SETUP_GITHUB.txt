@@ -1,4 +1,4 @@
-Melacs — eget repo (inte fork)
+Melacs — repo
 ================================
 
 Det här projektet är kopplat till:
