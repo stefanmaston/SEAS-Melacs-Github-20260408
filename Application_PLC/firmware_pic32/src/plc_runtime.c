@@ -23,6 +23,7 @@ void plc_runtime_init(void)
     g_st.log_count = 0;
     g_st.plc_loaded = plat_plc_program_present();
     g_st.plc_running = false;
+    plat_boot_check();
     safe_outputs(&g_out);
 }
 

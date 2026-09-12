@@ -47,8 +47,11 @@ void plat_read_inputs(PlcInputs *in);
 void plat_write_outputs(const PlcOutputs *out);
 void plat_logger_tick(const PlcInputs *in, const PlcStatus *st);
 bool plat_plc_program_present(void);
+void plat_boot_check(void);
+void plat_read_rtc(uint16_t *year, uint8_t *month, uint8_t *day,
+                   uint8_t *hour, uint8_t *minute, uint8_t *second);
 
-/* Optional MatIEC scan. Dummy in plc_scan_dummy.c. */
+/* OpenPLC/MatIEC scan (plc_scan.c + plc_generated). */
 void plc_scan(PlcInputs *in, PlcOutputs *out);
 
 void safe_outputs(PlcOutputs *out);

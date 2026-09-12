@@ -16,10 +16,21 @@ Ny, generell Melacs-linje. **Rör inte** `Application_OEM/` — den gamla OEM-fi
 4. Annars: `safe_outputs()`  
 5. Skriv utgångar + Modbus  
 
+## OpenPLC på PIC32
+
+Editorn skriver Structured Text. `tools/compile_st.sh` kör MatIEC (`iec2c`) till `firmware_pic32/plc_generated/`. Runtimen anropar `config_init__` / `config_run__` varje tick (samma konvention som OpenPLC).
+
+Program på SD (återanvänder OEM-mount `/dev/sd/d1`):
+
+- `plc/program.st` eller `plc/program.bin` eller `plc/LOADED`
+
+Utan fil: logger + RTC + bootloader-koll körs ändå, utgångar i safe-läge.
+
+OEM-moduler återanvänds **utan att ändras**: `logRun.c`, `onBoardRTCC.c`, `firmwareRecoveryUpdate.c`. Se `firmware_pic32/MPLAB.md`.
+
 ## Bygg host-test (utan XC32)
 
 ```bash
 cd Application_PLC/firmware_pic32
 make host-test
-./build/plc_host_test
 ```
