@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "slave_id": 1,
+  "comment": "Fryst kontrakt från melacsSend/melacsReceive. OEM-firmware oförändrad.",
+  "inputs": [
+    { "name": "AD0", "iec": "%IW0", "modbus": 0, "type": "uint16" },
+    { "name": "AD1", "iec": "%IW1", "modbus": 1, "type": "uint16" },
+    { "name": "AD2", "iec": "%IW2", "modbus": 2, "type": "uint16" },
+    { "name": "AD3", "iec": "%IW3", "modbus": 3, "type": "uint16" },
+    { "name": "AD4", "iec": "%IW4", "modbus": 4, "type": "uint16" },
+    { "name": "AD5", "iec": "%IW5", "modbus": 5, "type": "uint16" },
+    { "name": "AD6", "iec": "%IW6", "modbus": 6, "type": "uint16" },
+    { "name": "AD7", "iec": "%IW7", "modbus": 7, "type": "uint16" },
+    { "name": "DIO0", "iec": "%IX0.0", "modbus_coil": 0, "type": "bool" },
+    { "name": "DIO1", "iec": "%IX0.1", "modbus_coil": 1, "type": "bool" },
+    { "name": "DIO2", "iec": "%IX0.2", "modbus_coil": 2, "type": "bool" },
+    { "name": "DIO3", "iec": "%IX0.3", "modbus_coil": 3, "type": "bool" },
+    { "name": "heater_temp", "iec": "%IW10", "modbus": 10, "type": "uint16", "unit": "C" },
+    { "name": "engine_temp", "iec": "%IW11", "modbus": 11, "type": "uint16", "unit": "C" },
+    { "name": "engine_pressure", "iec": "%IW12", "modbus": 12, "type": "uint16" },
+    { "name": "board_temp", "iec": "%IW13", "modbus": 13, "type": "uint16", "unit": "C" },
+    { "name": "m1_current", "iec": "%IW14", "modbus": 14, "type": "uint16", "scale": 0.01, "unit": "A" },
+    { "name": "m2_current", "iec": "%IW15", "modbus": 15, "type": "uint16", "scale": 0.01, "unit": "A" },
+    { "name": "sd_ok", "iec": "%IX1.0", "modbus_coil": 8, "type": "bool" },
+    { "name": "logger_ok", "iec": "%IX1.1", "modbus_coil": 9, "type": "bool" },
+    { "name": "plc_loaded", "iec": "%IX1.2", "modbus_coil": 10, "type": "bool" },
+    { "name": "plc_running", "iec": "%IX1.3", "modbus_coil": 11, "type": "bool" },
+    { "name": "error_code", "iec": "%IW20", "modbus": 20, "type": "uint16" }
+  ],
+  "outputs": [
+    { "name": "DIO4", "iec": "%QX0.0", "modbus_coil": 16, "type": "bool" },
+    { "name": "DIO5", "iec": "%QX0.1", "modbus_coil": 17, "type": "bool" },
+    { "name": "DIO6", "iec": "%QX0.2", "modbus_coil": 18, "type": "bool" },
+    { "name": "DIO7", "iec": "%QX0.3", "modbus_coil": 19, "type": "bool" },
+    { "name": "burner_fan_sp", "iec": "%QW0", "modbus": 100, "type": "uint16", "scale": 0.01, "unit": "V" },
+    { "name": "radiator_fan_sp", "iec": "%QW1", "modbus": 101, "type": "uint16", "scale": 0.01, "unit": "V" },
+    { "name": "valve_pos", "iec": "%QW2", "modbus": 102, "type": "uint16" }
+  ],
+  "holding": [
+    { "name": "safe_mode", "iec": "%MW0", "modbus": 200, "type": "uint16", "comment": "0=PLC får styra, 1=safe_outputs" },
+    { "name": "log_period_s", "iec": "%MW1", "modbus": 201, "type": "uint16" }
+  ]
+}

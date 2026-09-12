@@ -1,0 +1,53 @@
+:root {
+  font-family: system-ui, sans-serif;
+  background: #111;
+  color: #eee;
+}
+
+body {
+  margin: 0;
+}
+
+.page {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.badge.ok {
+  background: #1b5e20;
+}
+
+.badge.off {
+  background: #5d4037;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+article {
+  background: #1c1c1c;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+h1,
+h2 {
+  margin-top: 0;
+}
