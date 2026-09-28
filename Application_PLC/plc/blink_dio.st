@@ -1,4 +1,5 @@
-(* Minimalt program mot register_map.json — DIO0 speglas till DIO4. *)
+(* Minimalt program mot shared/register_map.json och rock5b/openplc/modbus_master.json.
+   DIO0 (%IX0.0) speglas till DIO4 (%QX0.0). Ladda upp via OpenPLC-webbeditorn. *)
 PROGRAM blink
   VAR
     in0 AT %IX0.0 : BOOL;

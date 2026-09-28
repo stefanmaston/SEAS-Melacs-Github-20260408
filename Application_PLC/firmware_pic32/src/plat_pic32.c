@@ -1,31 +1,59 @@
-#if defined(__PIC32MX__)
+#include "pic32_board.h"
 #include "plc_runtime.h"
+#include "rtc.h"
 
-/*
- * Kopplas senare mot Application_OEM HAL (ADC, DIO, oemLog)
- * utan att ändra OEM-projektet. Den här filen byggs bara med XC32.
- */
+static uint32_t g_soft_ms;
+static int g_soft_ready;
 
 void plat_read_inputs(PlcInputs *in)
 {
-    (void)in;
+    io_read(in);
+    in->sd_ok = sd_ok();
+    in->error_code = 0;
+    if (!in->sd_ok) {
+        in->error_code |= 1u;
+    }
+    if (!rtc_chip_ok()) {
+        in->error_code |= 2u;
+    }
+    if (!net_up()) {
+        in->error_code |= 4u;
+    }
+}
+
+void plat_sample_mark(void)
+{
+    memled_pulse();
 }
 
 void plat_write_outputs(const PlcOutputs *out)
 {
-    (void)out;
+    io_write(out);
 }
 
-void plat_logger_tick(const PlcInputs *in, const PlcStatus *st)
+void plat_read_rtc(RtcClock *clk)
 {
-    (void)in;
-    (void)st;
-    /* Anropa befintlig Log()/logRunAvg från OEM när HAL-bryggan finns. */
+    if (rtc_chip_read(clk)) {
+        g_soft_ready = 0;
+        return;
+    }
+    if (!g_soft_ready) {
+        g_soft_ms = board_millis();
+        g_soft_ready = 1;
+        return;
+    }
+    if (board_millis() - g_soft_ms >= 1000u) {
+        g_soft_ms += 1000u;
+        rtc_add_second(clk);
+    }
 }
 
-bool plat_plc_program_present(void)
+void plat_write_rtc(const RtcClock *clk)
 {
-    return false;
+    (void)rtc_chip_write(clk);
 }
 
-#endif
+bool plat_log_append(const char *path, const char *text)
+{
+    return sd_append_line(path, text);
+}
