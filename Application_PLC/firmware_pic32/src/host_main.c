@@ -215,6 +215,47 @@ static const char *csv_field(const char *line, int index, char *buf, size_t n)
     return buf;
 }
 
+static int contains(const char *buf, size_t n, const char *needle)
+{
+    size_t m = strlen(needle);
+    size_t i;
+
+    if (m == 0 || n < m) {
+        return 0;
+    }
+    for (i = 0; i + m <= n; i++) {
+        if (memcmp(buf + i, needle, m) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int pack_ready(void)
+{
+    FILE *fp;
+    char buf[65536];
+    size_t n;
+
+    fp = fopen("build/MELACS.ZIP", "rb");
+    if (fp == NULL) {
+        return 0;
+    }
+    n = fread(buf, 1, sizeof(buf), fp);
+    fclose(fp);
+    if (n < 2 || buf[0] != 'P' || buf[1] != 'K' || !contains(buf, n, "project.json")) {
+        return 0;
+    }
+    fp = fopen("build/README.TXT", "rb");
+    if (fp == NULL) {
+        return 0;
+    }
+    n = fread(buf, 1, sizeof(buf) - 1, fp);
+    fclose(fp);
+    buf[n] = '\0';
+    return strstr(buf, "OpenPLC") != NULL;
+}
+
 static int outputs_are_safe(const PlcOutputs *out)
 {
     PlcOutputs safe;
@@ -245,6 +286,8 @@ static int run_tests(void)
     start.weekday = 0;
 
     unlink(LOG_PATH);
+    unlink("build/README.TXT");
+    unlink("build/MELACS.ZIP");
     plat_host_clock_step(&start);
     plc_runtime_init(LOG_PATH);
     g_mb_port = 1512;
@@ -259,6 +302,7 @@ static int run_tests(void)
     expect(plc_status()->log_count == 0, "ingen rad före sex sampel");
     plc_runtime_tick();
 
+    expect(pack_ready(), "hjälppaket bredvid loggen");
     expect(plc_status()->log_count == 1, "logger skriver medelvärde efter 6 s");
     expect(plc_status()->logger_ok, "logger_ok efter CSV");
     expect(!plc_status()->plc_loaded && !plc_status()->plc_running, "inget PLC-program");

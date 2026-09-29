@@ -1,0 +1,215 @@
+{
+  "name": "Melacs",
+  "protocol": "modbus-tcp",
+  "modbusTcpConfig": {
+    "host": "192.168.1.160",
+    "port": 502,
+    "timeout": 1000,
+    "slaveId": 1,
+    "ioGroups": [
+      {
+        "id": "dio-in",
+        "name": "DIO0-DIO3",
+        "functionCode": "2",
+        "cycleTime": 100,
+        "offset": "0",
+        "length": 4,
+        "errorHandling": "keep-last-value",
+        "ioPoints": [
+          { "id": "dio0", "name": "DIO0", "type": "BOOL", "iecLocation": "%IX0.0" },
+          { "id": "dio1", "name": "DIO1", "type": "BOOL", "iecLocation": "%IX0.1" },
+          { "id": "dio2", "name": "DIO2", "type": "BOOL", "iecLocation": "%IX0.2" },
+          { "id": "dio3", "name": "DIO3", "type": "BOOL", "iecLocation": "%IX0.3" }
+        ]
+      },
+      {
+        "id": "status-in",
+        "name": "Status",
+        "functionCode": "2",
+        "cycleTime": 100,
+        "offset": "8",
+        "length": 4,
+        "errorHandling": "keep-last-value",
+        "ioPoints": [
+          { "id": "sd-ok", "name": "sd_ok", "type": "BOOL", "iecLocation": "%IX1.0" },
+          { "id": "logger-ok", "name": "logger_ok", "type": "BOOL", "iecLocation": "%IX1.1" },
+          { "id": "plc-loaded", "name": "plc_loaded", "type": "BOOL", "iecLocation": "%IX1.2" },
+          { "id": "plc-running", "name": "plc_running", "type": "BOOL", "iecLocation": "%IX1.3" }
+        ]
+      },
+      {
+        "id": "ad",
+        "name": "AD0-AD7",
+        "functionCode": "4",
+        "cycleTime": 100,
+        "offset": "0",
+        "length": 8,
+        "errorHandling": "keep-last-value",
+        "ioPoints": [
+          { "id": "ad0", "name": "AD0", "type": "WORD", "iecLocation": "%IW0" },
+          { "id": "ad1", "name": "AD1", "type": "WORD", "iecLocation": "%IW1" },
+          { "id": "ad2", "name": "AD2", "type": "WORD", "iecLocation": "%IW2" },
+          { "id": "ad3", "name": "AD3", "type": "WORD", "iecLocation": "%IW3" },
+          { "id": "ad4", "name": "AD4", "type": "WORD", "iecLocation": "%IW4" },
+          { "id": "ad5", "name": "AD5", "type": "WORD", "iecLocation": "%IW5" },
+          { "id": "ad6", "name": "AD6", "type": "WORD", "iecLocation": "%IW6" },
+          { "id": "ad7", "name": "AD7", "type": "WORD", "iecLocation": "%IW7" }
+        ]
+      },
+      {
+        "id": "ai",
+        "name": "AI10-AI15",
+        "functionCode": "4",
+        "cycleTime": 100,
+        "offset": "10",
+        "length": 6,
+        "errorHandling": "keep-last-value",
+        "ioPoints": [
+          { "id": "ai10", "name": "AI10", "type": "WORD", "iecLocation": "%IW10" },
+          { "id": "ai11", "name": "AI11", "type": "WORD", "iecLocation": "%IW11" },
+          { "id": "ai12", "name": "AI12", "type": "WORD", "iecLocation": "%IW12" },
+          { "id": "ai13", "name": "AI13", "type": "WORD", "iecLocation": "%IW13" },
+          { "id": "ai14", "name": "AI14", "type": "WORD", "iecLocation": "%IW14" },
+          { "id": "ai15", "name": "AI15", "type": "WORD", "iecLocation": "%IW15" }
+        ]
+      },
+      {
+        "id": "error",
+        "name": "error_code",
+        "functionCode": "4",
+        "cycleTime": 100,
+        "offset": "20",
+        "length": 1,
+        "errorHandling": "keep-last-value",
+        "ioPoints": [
+          { "id": "error-code", "name": "error_code", "type": "WORD", "iecLocation": "%IW20" }
+        ]
+      },
+      {
+        "id": "temps",
+        "name": "Temperaturer",
+        "functionCode": "4",
+        "cycleTime": 100,
+        "offset": "30",
+        "length": 5,
+        "errorHandling": "keep-last-value",
+        "ioPoints": [
+          { "id": "t-board", "name": "T_BOARD", "type": "WORD", "iecLocation": "%IW30" },
+          { "id": "p", "name": "P", "type": "WORD", "iecLocation": "%IW31" },
+          { "id": "t1", "name": "T1", "type": "WORD", "iecLocation": "%IW32" },
+          { "id": "t2", "name": "T2", "type": "WORD", "iecLocation": "%IW33" },
+          { "id": "value", "name": "VALUE", "type": "WORD", "iecLocation": "%IW34" }
+        ]
+      },
+      {
+        "id": "holding-read",
+        "name": "Holding",
+        "functionCode": "3",
+        "cycleTime": 100,
+        "offset": "200",
+        "length": 10,
+        "errorHandling": "keep-last-value",
+        "ioPoints": [
+          { "id": "safe-mode", "name": "safe_mode", "type": "WORD", "iecLocation": "%MW0" },
+          { "id": "log-period", "name": "log_period_s", "type": "WORD", "iecLocation": "%MW1" },
+          { "id": "rtc-year", "name": "rtc_year", "type": "WORD", "iecLocation": "%MW2" },
+          { "id": "rtc-month", "name": "rtc_month", "type": "WORD", "iecLocation": "%MW3" },
+          { "id": "rtc-day", "name": "rtc_day", "type": "WORD", "iecLocation": "%MW4" },
+          { "id": "rtc-hour", "name": "rtc_hour", "type": "WORD", "iecLocation": "%MW5" },
+          { "id": "rtc-minute", "name": "rtc_minute", "type": "WORD", "iecLocation": "%MW6" },
+          { "id": "rtc-second", "name": "rtc_second", "type": "WORD", "iecLocation": "%MW7" },
+          { "id": "rtc-weekday", "name": "rtc_weekday", "type": "WORD", "iecLocation": "%MW8" },
+          { "id": "rtc-set", "name": "rtc_set", "type": "WORD", "iecLocation": "%MW9" }
+        ]
+      },
+      {
+        "id": "dio-out",
+        "name": "DIO4-DIO7",
+        "functionCode": "15",
+        "cycleTime": 100,
+        "offset": "16",
+        "length": 4,
+        "ioPoints": [
+          { "id": "dio4", "name": "DIO4", "type": "BOOL", "iecLocation": "%QX0.0" },
+          { "id": "dio5", "name": "DIO5", "type": "BOOL", "iecLocation": "%QX0.1" },
+          { "id": "dio6", "name": "DIO6", "type": "BOOL", "iecLocation": "%QX0.2" },
+          { "id": "dio7", "name": "DIO7", "type": "BOOL", "iecLocation": "%QX0.3" }
+        ]
+      },
+      {
+        "id": "ao",
+        "name": "AO0-AO2",
+        "functionCode": "16",
+        "cycleTime": 100,
+        "offset": "100",
+        "length": 3,
+        "ioPoints": [
+          { "id": "ao0", "name": "AO0", "type": "WORD", "iecLocation": "%QW0" },
+          { "id": "ao1", "name": "AO1", "type": "WORD", "iecLocation": "%QW1" },
+          { "id": "ao2", "name": "AO2", "type": "WORD", "iecLocation": "%QW2" }
+        ]
+      },
+      {
+        "id": "sip",
+        "name": "SIP0-SIP7",
+        "functionCode": "15",
+        "cycleTime": 100,
+        "offset": "32",
+        "length": 8,
+        "ioPoints": [
+          { "id": "sip0", "name": "SIP0", "type": "BOOL", "iecLocation": "%QX4.0" },
+          { "id": "sip1", "name": "SIP1", "type": "BOOL", "iecLocation": "%QX4.1" },
+          { "id": "sip2", "name": "SIP2", "type": "BOOL", "iecLocation": "%QX4.2" },
+          { "id": "sip3", "name": "SIP3", "type": "BOOL", "iecLocation": "%QX4.3" },
+          { "id": "sip4", "name": "SIP4", "type": "BOOL", "iecLocation": "%QX4.4" },
+          { "id": "sip5", "name": "SIP5", "type": "BOOL", "iecLocation": "%QX4.5" },
+          { "id": "sip6", "name": "SIP6", "type": "BOOL", "iecLocation": "%QX4.6" },
+          { "id": "sip7", "name": "SIP7", "type": "BOOL", "iecLocation": "%QX4.7" }
+        ]
+      },
+      {
+        "id": "bridge-coils",
+        "name": "H-bryggor",
+        "functionCode": "15",
+        "cycleTime": 100,
+        "offset": "40",
+        "length": 6,
+        "ioPoints": [
+          { "id": "h1-dis", "name": "H1_DIS", "type": "BOOL", "iecLocation": "%QX5.0" },
+          { "id": "h1-ali", "name": "H1_ALI", "type": "BOOL", "iecLocation": "%QX5.1" },
+          { "id": "h1-bli", "name": "H1_BLI", "type": "BOOL", "iecLocation": "%QX5.2" },
+          { "id": "h2-dis", "name": "H2_DIS", "type": "BOOL", "iecLocation": "%QX5.3" },
+          { "id": "h2-ali", "name": "H2_ALI", "type": "BOOL", "iecLocation": "%QX5.4" },
+          { "id": "h2-bli", "name": "H2_BLI", "type": "BOOL", "iecLocation": "%QX5.5" }
+        ]
+      },
+      {
+        "id": "bridge-pwm",
+        "name": "H-brygga PWM och NOTE",
+        "functionCode": "16",
+        "cycleTime": 100,
+        "offset": "110",
+        "length": 5,
+        "ioPoints": [
+          { "id": "h1-ahi", "name": "H1_AHI", "type": "WORD", "iecLocation": "%QW10" },
+          { "id": "h1-bhi", "name": "H1_BHI", "type": "WORD", "iecLocation": "%QW11" },
+          { "id": "h2-ahi", "name": "H2_AHI", "type": "WORD", "iecLocation": "%QW12" },
+          { "id": "h2-bhi", "name": "H2_BHI", "type": "WORD", "iecLocation": "%QW13" },
+          { "id": "note", "name": "NOTE", "type": "WORD", "iecLocation": "%QW14" }
+        ]
+      },
+      {
+        "id": "holding-write",
+        "name": "Holding skriv",
+        "functionCode": "16",
+        "cycleTime": 100,
+        "offset": "200",
+        "length": 2,
+        "ioPoints": [
+          { "id": "safe-mode-w", "name": "safe_mode", "type": "WORD", "iecLocation": "%MW0" },
+          { "id": "log-period-w", "name": "log_period_s", "type": "WORD", "iecLocation": "%MW1" }
+        ]
+      }
+    ]
+  }
+}

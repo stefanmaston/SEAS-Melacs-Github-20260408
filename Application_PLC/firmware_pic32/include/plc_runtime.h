@@ -54,6 +54,7 @@ const PlcStatus *plc_status(void);
 
 void plat_read_inputs(PlcInputs *in);
 void plat_write_outputs(const PlcOutputs *out);
+void plat_seed_pack(void);
 
 void safe_outputs(PlcOutputs *out);
 

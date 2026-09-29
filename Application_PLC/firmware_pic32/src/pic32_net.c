@@ -11,11 +11,14 @@ static const uint8_t g_ip[4] = {192, 168, 1, 160};
 static uint8_t g_mac[6];
 static int g_ready;
 
-enum { TCP_LISTEN = 0, TCP_SYN = 1, TCP_OPEN = 2 };
+enum { TCP_LISTEN = 0, TCP_SYN = 1, TCP_OPEN = 2, TCP_LAST_ACK = 3 };
 
 static int g_tcp = TCP_LISTEN;
 static uint32_t g_syn_ms;
 static uint32_t g_ann_ms;
+static int g_link_up;
+static uint32_t g_link_down_ms;
+static uint32_t g_quiet_ms;
 static int g_syn_retx;
 static uint8_t g_peer_mac[6];
 static uint8_t g_peer_ip[4];
@@ -24,6 +27,12 @@ static uint32_t g_snd;
 static uint32_t g_rcv;
 static uint8_t g_acc[320];
 static int g_acc_len;
+static uint8_t g_retx_pkt[560];
+static int g_retx_total;
+static int g_retx_left;
+static int g_retx_on;
+static uint32_t g_retx_ms;
+static uint32_t g_retx_end;
 
 static uint16_t rd16(const uint8_t *p)
 {
@@ -199,12 +208,60 @@ static void tcp_send(uint8_t flags, const uint8_t *payload, int plen)
         g_snd++;
     }
     g_snd += (uint32_t)plen;
+    if ((plen > 0 || (flags & 0x01u)) && (flags & 0x02u) == 0 && total <= (int)sizeof(g_retx_pkt)) {
+        memcpy(g_retx_pkt, pkt, (size_t)total);
+        g_retx_total = total;
+        g_retx_end = g_snd;
+        g_retx_ms = board_millis();
+        g_retx_left = 3;
+        g_retx_on = 1;
+    }
 }
 
 static void tcp_reset(void)
 {
     g_tcp = TCP_LISTEN;
     g_acc_len = 0;
+    g_retx_on = 0;
+    g_syn_retx = 0;
+}
+
+static int same_session(const uint8_t *ip, uint16_t port)
+{
+    return memcmp(g_peer_ip, ip + 12, 4) == 0 && g_peer_port == port;
+}
+
+static int ack_covers(uint32_t ack)
+{
+    return (ack - g_retx_end) < 0x80000000u;
+}
+
+/* RST till en annan part, utan att rubba den session som är igång. */
+static void tcp_rst_stranger(const uint8_t *frame, const uint8_t *ip, uint16_t port,
+                             uint32_t seq, uint32_t ack_no, int seglen)
+{
+    uint8_t mac[6];
+    uint8_t pip[4];
+    uint16_t pport;
+    uint32_t snd;
+    uint32_t rcv;
+
+    memcpy(mac, g_peer_mac, 6);
+    memcpy(pip, g_peer_ip, 4);
+    pport = g_peer_port;
+    snd = g_snd;
+    rcv = g_rcv;
+    memcpy(g_peer_mac, frame + 6, 6);
+    memcpy(g_peer_ip, ip + 12, 4);
+    g_peer_port = port;
+    g_snd = ack_no;
+    g_rcv = seq + (uint32_t)seglen;
+    tcp_send(0x14, 0, 0);
+    memcpy(g_peer_mac, mac, 6);
+    memcpy(g_peer_ip, pip, 4);
+    g_peer_port = pport;
+    g_snd = snd;
+    g_rcv = rcv;
 }
 
 static void tcp_consume(void)
@@ -217,6 +274,7 @@ static void tcp_consume(void)
         int out_len;
 
         if (mb_len < 2 || mb_len > 254) {
+            tcp_send(0x04, 0, 0);
             tcp_reset();
             return;
         }
@@ -251,9 +309,11 @@ static void tcp_on_packet(const uint8_t *frame, const uint8_t *ip, int ip_len)
     int hdr;
     int plen;
     uint16_t dest;
+    uint16_t sport;
     uint8_t flags;
     uint32_t seq;
     uint32_t ack;
+    int seglen;
 
     tcp_off = (ip[0] & 0x0Fu) * 4;
     if (tcp_off < 20 || ip_len < tcp_off + 20) {
@@ -273,14 +333,24 @@ static void tcp_on_packet(const uint8_t *frame, const uint8_t *ip, int ip_len)
     flags = tcp[13];
     seq = rd32(tcp + 4);
     ack = rd32(tcp + 8);
-    remember_peer(frame, ip);
-    g_peer_port = rd16(tcp);
-
-    if ((flags & 0x04u) && g_tcp != TCP_LISTEN) {
-        tcp_reset();
-        return;
-    }
+    sport = rd16(tcp);
+    seglen = plen;
     if (flags & 0x02u) {
+        seglen++;
+    }
+    if (flags & 0x01u) {
+        seglen++;
+    }
+
+    if (g_tcp != TCP_LISTEN && same_session(ip, sport)) {
+        memcpy(g_peer_mac, frame + 6, 6);
+    } else if (flags & 0x02u) {
+        if (g_tcp != TCP_LISTEN) {
+            tcp_send(0x04, 0, 0);
+            tcp_reset();
+        }
+        remember_peer(frame, ip);
+        g_peer_port = sport;
         g_snd = board_millis() * 1000u + 1u;
         g_rcv = seq + 1u;
         g_acc_len = 0;
@@ -289,10 +359,29 @@ static void tcp_on_packet(const uint8_t *frame, const uint8_t *ip, int ip_len)
         g_syn_retx = 0;
         tcp_send(0x12, 0, 0);
         return;
+    } else {
+        if ((flags & 0x04u) == 0 && (seglen > 0 || (flags & 0x10u))) {
+            tcp_rst_stranger(frame, ip, sport, seq, (flags & 0x10u) ? ack : 0, seglen);
+        }
+        return;
+    }
+
+    if (flags & 0x04u) {
+        tcp_reset();
+        return;
     }
     if (g_tcp == TCP_SYN && (flags & 0x10u) && ack == g_snd) {
         g_tcp = TCP_OPEN;
         g_rcv = seq;
+    }
+    if ((flags & 0x10u) && g_retx_on && ack_covers(ack)) {
+        g_retx_on = 0;
+    }
+    if (g_tcp == TCP_LAST_ACK) {
+        if (!g_retx_on) {
+            tcp_reset();
+        }
+        return;
     }
     if (g_tcp != TCP_OPEN) {
         return;
@@ -303,8 +392,8 @@ static void tcp_on_packet(const uint8_t *frame, const uint8_t *ip, int ip_len)
             return;
         }
         if (g_acc_len + plen > (int)sizeof(g_acc)) {
-            tcp_reset();
             tcp_send(0x04, 0, 0);
+            tcp_reset();
             return;
         }
         memcpy(g_acc + g_acc_len, tcp + hdr, (size_t)plen);
@@ -315,10 +404,10 @@ static void tcp_on_packet(const uint8_t *frame, const uint8_t *ip, int ip_len)
             tcp_send(0x10, 0, 0);
         }
     }
-    if (flags & 0x01u) {
+    if ((flags & 0x01u) && g_tcp == TCP_OPEN) {
         g_rcv += 1u;
-        tcp_send(0x10, 0, 0);
-        tcp_reset();
+        tcp_send(0x11, 0, 0);
+        g_tcp = TCP_LAST_ACK;
     }
 }
 
@@ -375,11 +464,49 @@ void net_init(const uint8_t mac[6])
     g_ready = 0;
     g_tcp = TCP_LISTEN;
     g_acc_len = 0;
+    g_retx_on = 0;
+    g_link_up = 0;
+    g_link_down_ms = 0;
+    g_quiet_ms = board_millis();
     if (mac == 0) {
         return;
     }
     memcpy(g_mac, mac, 6);
     g_ready = enc_ok();
+}
+
+/* Länk borta i 3 s, eller inga mottagna ramar på 10 s, startar om kretsen. */
+static void heal_link(void)
+{
+    uint32_t now = board_millis();
+    int link;
+
+    if (!enc_ok()) {
+        g_ready = 0;
+        return;
+    }
+    link = enc_link() ? 1 : 0;
+    if (link) {
+        if (!g_link_up) {
+            g_ann_ms = now - 1000u;
+            g_quiet_ms = now;
+        }
+        g_link_up = 1;
+        g_link_down_ms = 0;
+        if ((now - g_quiet_ms) >= 10000u) {
+            g_ready = 0;
+            g_quiet_ms = now;
+        }
+        return;
+    }
+    g_quiet_ms = now;
+    g_link_up = 0;
+    if (g_link_down_ms == 0) {
+        g_link_down_ms = now;
+    } else if ((now - g_link_down_ms) >= 3000u) {
+        g_ready = 0;
+        g_link_down_ms = now;
+    }
 }
 
 void net_poll(void)
@@ -388,6 +515,9 @@ void net_poll(void)
     int len;
     int guard;
 
+    if (g_ready && !enc_ok()) {
+        g_ready = 0;
+    }
     if (!g_ready) {
         static uint32_t last;
         uint8_t mac[6];
@@ -409,9 +539,23 @@ void net_poll(void)
         }
         on_frame(frame, len);
     }
-    if (enc_take_rx() && (board_millis() - g_ann_ms) >= 200u) {
-        g_ann_ms = board_millis();
-        arp_announce();
+    if (enc_take_rx()) {
+        g_quiet_ms = board_millis();
+        if ((board_millis() - g_ann_ms) >= 200u) {
+            g_ann_ms = board_millis();
+            arp_announce();
+        }
+    }
+    if (g_retx_on && (uint32_t)(board_millis() - g_retx_ms) >= 200u) {
+        if (g_retx_left <= 0) {
+            g_retx_on = 0;
+            tcp_send(0x04, 0, 0);
+            tcp_reset();
+        } else {
+            eth_send(g_peer_mac, ETH_IP, g_retx_pkt, g_retx_total);
+            g_retx_left--;
+            g_retx_ms = board_millis();
+        }
     }
     if (g_tcp == TCP_SYN && (board_millis() - g_syn_ms) > 250u) {
         if (g_syn_retx == 0) {
@@ -423,7 +567,8 @@ void net_poll(void)
             tcp_reset();
         }
     }
-    if (enc_link() && (board_millis() - g_ann_ms) >= 1000u) {
+    heal_link();
+    if (g_ready && enc_link() && (board_millis() - g_ann_ms) >= 1000u) {
         g_ann_ms = board_millis();
         arp_announce();
     }

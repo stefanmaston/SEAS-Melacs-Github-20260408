@@ -4,42 +4,34 @@ function tickLabel(row) {
   return parts[1] || parts[0];
 }
 
-function extent(rows, keys) {
-  let lo = Infinity;
-  let hi = -Infinity;
-  for (const row of rows) {
-    for (const key of keys) {
-      const n = Number(row[key]);
-      if (Number.isNaN(n)) continue;
-      lo = Math.min(lo, n);
-      hi = Math.max(hi, n);
-    }
-  }
-  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return [0, 1];
-  if (lo === hi) return [lo - 1, hi + 1];
-  const pad = (hi - lo) * 0.12;
-  return [lo - pad, hi + pad];
-}
-
 function pathFor(rows, key, xOf, yOf) {
-  return rows
-    .map((row, i) => `${i === 0 ? "M" : "L"} ${xOf(i).toFixed(1)} ${yOf(Number(row[key])).toFixed(1)}`)
-    .join(" ");
+  let pen = false;
+  let path = "";
+  rows.forEach((row, i) => {
+    const value = Number(row[key]);
+    if (!Number.isFinite(value)) {
+      pen = false;
+      return;
+    }
+    path += `${pen ? "L" : "M"} ${xOf(i).toFixed(1)} ${yOf(value).toFixed(1)} `;
+    pen = true;
+  });
+  return path;
 }
 
-export function TrendChart({ title, note, rows, series, extra }) {
+export function TrendChart({ title, note, rows, series, extra, yMaxLeft = 3300, yMaxRight = 3300, controls }) {
   const width = 720;
   const height = 280;
-  const left = 48;
-  const right = 56;
+  const left = 52;
+  const right = 58;
   const top = 16;
   const bottom = 28;
   const plotW = width - left - right;
   const plotH = height - top - bottom;
-  const leftKeys = series.filter((s) => s.axis !== "right").map((s) => s.key);
-  const rightKeys = series.filter((s) => s.axis === "right").map((s) => s.key);
-  const [y0, y1] = extent(rows, leftKeys);
-  const [r0, r1] = rightKeys.length ? extent(rows, rightKeys) : [0, 1];
+  const y0 = 0;
+  const y1 = Math.max(1, Number(yMaxLeft) || 1);
+  const r0 = 0;
+  const r1 = Math.max(1, Number(yMaxRight) || 1);
   const xOf = (i) => left + (rows.length < 2 ? plotW / 2 : (i / (rows.length - 1)) * plotW);
   const yLeft = (v) => top + ((y1 - v) / (y1 - y0)) * plotH;
   const yRight = (v) => top + ((r1 - v) / (r1 - r0)) * plotH;
@@ -55,6 +47,11 @@ export function TrendChart({ title, note, rows, series, extra }) {
         </span>
       </figcaption>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={title}>
+          <defs>
+            <clipPath id="chart-plot">
+              <rect x={left} y={top} width={plotW} height={plotH} />
+            </clipPath>
+          </defs>
           {Array.from({ length: ticks + 1 }, (_, i) => {
             const y = top + (plotH / ticks) * i;
             const value = y1 - ((y1 - y0) / ticks) * i;
@@ -67,25 +64,24 @@ export function TrendChart({ title, note, rows, series, extra }) {
               </g>
             );
           })}
-          {rightKeys.length > 0
-            ? Array.from({ length: ticks + 1 }, (_, i) => {
+          {Array.from({ length: ticks + 1 }, (_, i) => {
                 const y = top + (plotH / ticks) * i;
                 const value = r1 - ((r1 - r0) / ticks) * i;
                 return (
                   <text key={`r${y}`} x={width - right + 8} y={y + 4} className="axis right">
                     {Math.round(value)}
-                  </text>
-                );
-              })
-            : null}
+                </text>
+              );
+            })}
           {rows.length >= 2
             ? series.map((item) => (
               <path
-                key={item.key}
+                key={item.id || item.key}
                 d={pathFor(rows, item.key, xOf, item.axis === "right" ? yRight : yLeft)}
                 fill="none"
                 stroke={item.color}
                 strokeWidth="2.4"
+                clipPath="url(#chart-plot)"
               />
             ))
             : (
@@ -104,12 +100,13 @@ export function TrendChart({ title, note, rows, series, extra }) {
             </text>
           ) : null}
         </svg>
+      {controls}
       <ul className="legend">
         {series.map((item) => (
-          <li key={item.key}>
+          <li key={item.id || item.key}>
             <i style={{ background: item.color }} />
             {item.label}
-            {rows.length > 0 ? <b>{rows[rows.length - 1][item.key]}</b> : null}
+            <b>{rows.length > 0 && Number.isFinite(Number(rows[rows.length - 1][item.key])) ? rows[rows.length - 1][item.key] : "—"}</b>
           </li>
         ))}
       </ul>

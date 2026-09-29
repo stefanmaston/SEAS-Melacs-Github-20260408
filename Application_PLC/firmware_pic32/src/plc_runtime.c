@@ -37,6 +37,8 @@ void plc_runtime_init(const char *log_path)
 void plc_runtime_tick(void)
 {
     RtcClock clk;
+
+    plat_seed_pack();
     RtcClock set_clk;
     PlcOutputs cmd;
     uint16_t safe_mode;

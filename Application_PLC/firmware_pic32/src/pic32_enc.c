@@ -4,6 +4,7 @@
 #define OP_RCRU 0x20u
 #define OP_WCRU 0x22u
 #define OP_BFSU 0x24u
+#define OP_BFCU 0x26u
 #define OP_RRXDATA 0x2Cu
 #define OP_WGPDATA 0x2Au
 #define OP_WGPRDPT 0x60u
@@ -48,6 +49,7 @@
 static int g_enc_ok;
 static int g_duplex = -1;
 static int g_got_rx;
+static int g_tx_fail;
 static uint16_t g_next = RX_START;
 
 static void cs(int on)
@@ -72,6 +74,26 @@ static void enc_bfs(uint8_t addr, uint16_t mask)
     spi_xfer((uint8_t)mask);
     spi_xfer((uint8_t)(mask >> 8));
     cs(0);
+}
+
+static void enc_bfc(uint8_t addr, uint16_t mask)
+{
+    cs(1);
+    delay_us(1);
+    spi_xfer(OP_BFCU);
+    spi_xfer(addr);
+    spi_xfer((uint8_t)mask);
+    spi_xfer((uint8_t)(mask >> 8));
+    cs(0);
+}
+
+/* TXRST håller sändaren i reset tills biten nollställs. */
+static void enc_tx_abort(void)
+{
+    enc_bfs(REG_ECON2, ECON2_TXRST);
+    delay_us(100);
+    enc_bfc(REG_ECON2, ECON2_TXRST);
+    enc_cmd(OP_ENABLERX);
 }
 
 static void enc_w16(uint8_t addr, uint16_t value)
@@ -143,6 +165,7 @@ bool enc_start(uint8_t mac[6])
 
     g_enc_ok = 0;
     g_duplex = -1;
+    g_tx_fail = 0;
     g_next = RX_START;
     spi_hw_on(0);
     PIN_CS_ETH_LAT = 1;
@@ -231,34 +254,49 @@ void enc_apply_duplex(void)
 bool enc_tx(const uint8_t *frame, int len)
 {
     uint32_t start;
+    int attempt;
     int i;
 
-    if (!g_enc_ok || len <= 0 || len > 1514) {
+    if (!g_enc_ok || len <= 0 || len > 1514 || !enc_link()) {
         return false;
     }
-    if (enc_r16(REG_ECON1) & 0x0002u) {
-        enc_bfs(REG_ECON2, ECON2_TXRST);
-        return false;
-    }
-    enc_ptr(OP_WGPWRPT, 0);
-    cs(1);
-    delay_us(1);
-    spi_xfer(OP_WGPDATA);
-    for (i = 0; i < len; i++) {
-        spi_xfer(frame[i]);
-    }
-    cs(0);
-    enc_w16(REG_ETXST, 0);
-    enc_w16(REG_ETXLEN, (uint16_t)len);
-    enc_cmd(OP_SETTXRTS);
-    start = board_millis();
-    while (enc_r16(REG_ECON1) & 0x0002u) {
-        if (board_millis() - start > 30u) {
-            enc_bfs(REG_ECON2, ECON2_TXRST);
-            return false;
+    for (attempt = 0; attempt < 2; attempt++) {
+        if (enc_r16(REG_ECON1) & 0x0002u) {
+            enc_tx_abort();
+        }
+        if (enc_r16(REG_ECON1) & 0x0002u) {
+            continue;
+        }
+        enc_ptr(OP_WGPWRPT, 0);
+        cs(1);
+        delay_us(1);
+        spi_xfer(OP_WGPDATA);
+        for (i = 0; i < len; i++) {
+            spi_xfer(frame[i]);
+        }
+        cs(0);
+        enc_w16(REG_ETXST, 0);
+        enc_w16(REG_ETXLEN, (uint16_t)len);
+        enc_cmd(OP_SETTXRTS);
+        start = board_millis();
+        while (enc_r16(REG_ECON1) & 0x0002u) {
+            if (board_millis() - start > 30u) {
+                enc_tx_abort();
+                break;
+            }
+        }
+        if ((enc_r16(REG_ECON1) & 0x0002u) == 0) {
+            g_tx_fail = 0;
+            return true;
         }
     }
-    return true;
+    if (g_tx_fail < 3) {
+        g_tx_fail++;
+    }
+    if (g_tx_fail >= 3) {
+        g_enc_ok = 0;
+    }
+    return false;
 }
 
 bool enc_rx(uint8_t *frame, int *len, int max_len)

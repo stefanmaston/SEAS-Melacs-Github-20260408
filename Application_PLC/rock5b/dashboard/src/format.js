@@ -1,4 +1,4 @@
-import { WEEKDAYS } from "../shared/columns.js";
+import { LOG_KEYS, WEEKDAYS } from "../shared/columns.js";
 
 export function pad(n) {
   return String(n).padStart(2, "0");
@@ -29,6 +29,26 @@ export function errorText(code) {
   return parts.join(", ");
 }
 
+function csvEscape(value) {
+  const text = String(value ?? "");
+  if (/[",\n]/.test(text)) return `"${text.replaceAll('"', '""')}"`;
+  return text;
+}
+
+export function downloadMelacsCsv(rows) {
+  const lines = [
+    LOG_KEYS.join(","),
+    ...rows.map((row) => LOG_KEYS.map((key) => csvEscape(row[key])).join(",")),
+  ];
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "MELACS.CSV";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export function fieldsFromRtc(rtc) {
   return {
     year: rtc.year,
@@ -41,10 +61,3 @@ export function fieldsFromRtc(rtc) {
   };
 }
 
-export function dateValue(fields) {
-  return `${fields.year}-${pad(fields.month)}-${pad(fields.day)}`;
-}
-
-export function timeValue(fields) {
-  return `${pad(fields.hour)}:${pad(fields.minute)}:${pad(fields.second)}`;
-}

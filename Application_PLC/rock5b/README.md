@@ -10,24 +10,46 @@ cd openplc-runtime
 sudo ./install.sh
 ```
 
-1. Öppna webbeditorn mot `https://<rock-ip>:8443` (desktop-editorn eller Autonomy Edge).
-2. Välj OpenPLC Runtime v4 som mål och deploya dit.
-3. Lägg en Modbus/TCP-klient (Remote Device) enligt [openplc/modbus_master.json](openplc/modbus_master.json). Filen kan kopieras till runtimens `core/generated/conf/modbus_master.json`.
-4. På Rock pekar klienten på PIC32 `192.168.1.160` port 502. Mot host-test på datorn: `127.0.0.1` port 1502 (`plc_host_test --serve`). Saknas Ethernet används RTU `/dev/ttyUSB0` med samma register.
-5. Ladda upp [../plc/blink_dio.st](../plc/blink_dio.st). `%IX0.0` är DIO0 och `%QX0.0` är DIO4.
+Runtime lyssnar på `https://192.168.50.60:8443`. Det är inget webbgränssnitt. Programmet skrivs i OpenPLC Editor på en dator.
+
+På Rock, när runtime kör:
+
+```bash
+sudo sh openplc/prepare-runtime.sh
+```
+
+Skriptet lägger [openplc/modbus_master.json](openplc/modbus_master.json) i runtimens `conf/`. Klienten pekar på PIC32 `192.168.1.160` port 502, slav 1. Mot host-test på datorn: `127.0.0.1` port 1502 (`plc_host_test --serve`).
+
+## Projekt på Melacs SD-kort
+
+Källan ligger i [../sd_pack](../sd_pack). Firmwaren skriver `README.TXT` och `MELACS.ZIP` på SD-kortet om filerna saknas. Zippen är ett OpenPLC-projekt med hela Modbus-kartan, runtime-adressen och ett program som håller H-bryggornas spärr på. `MELACS.CSV` är loggen och lämnas orörd.
+
+Packa upp zippen på datorn och öppna mappen i OpenPLC Editor 4. Välj OpenPLC Runtime v4 mot `192.168.50.60` port 8443.
 
 Adresserna är 0-baserade och står i [../shared/register_map.json](../shared/register_map.json). Ställ klockan genom att skriva `%MW2`–`%MW8` och pulsa `%MW9` till 1 under en scan.
 
 ## Dashboard
 
-Alltid nåbar i LAN, även utan inlagt PLC-program. Visar RTC, logger och senaste loggrad.
+Sidan körs på DietPi och pratar Modbus direkt med PIC32 `192.168.1.160` port 502. Öppna `http://192.168.50.60/` i nätverket. Ingen tunnel och ingen lokal Vite-process behövs.
+
+Tjänsten är `melacs-dashboard.service`. Den startar med DietPi och läser `MELACS_HOST` och `MELACS_PORT`. Filer ligger i `/opt/melacs-dashboard` (`dist/`, `server/`, `shared/columns.js`).
+
+`melacs-net.service` lägger `192.168.1.10/24` på `eth0` vid uppstart, så Rocken når kortet på `192.168.1.160` även efter omstart. OpenPLC-containern `openplc-runtime` startar med `unless-stopped`.
+
+Bygg och lägg upp en ny version från datorn:
 
 ```bash
 cd Application_PLC/rock5b/dashboard
 npm install
-npm run dev -- --host
+npm run build
 ```
 
-Produktion: `npm run build` och serva `dist/` med nginx på port 80 (`http://melacs.local`).
+Kopiera `dist/`, `server/` och `shared/columns.js` till `/opt/melacs-dashboard` och starta om tjänsten.
 
-Utvecklingsläget använder simulerad data från registerkartan. Byt till `/api/live` när Modbus-bryggan finns. Svaret kan innehålla `rtc` och `last_log`.
+Utveckling på datorn, mot en tunnel till kortet:
+
+```bash
+MELACS_PORT=1506 npm run dev -- --host
+```
+
+`MELACS_MODE=sim` ger simulerad data. `MELACS_HOST` är `127.0.0.1` om den inte sätts.

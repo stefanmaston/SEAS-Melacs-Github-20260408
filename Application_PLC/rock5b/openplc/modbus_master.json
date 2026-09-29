@@ -106,7 +106,7 @@
           "fc": 16,
           "offset": "200",
           "iec_location": "%MW0",
-          "len": 10,
+          "len": 2,
           "cycle_time_ms": 100
         }
       ]

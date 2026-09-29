@@ -1,9 +1,12 @@
+#include "logger.h"
 #include "plat_host.h"
 #include "plc_runtime.h"
+#include "sd_pack.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 static PlcInputs sim;
 static int ticks;
@@ -104,4 +107,56 @@ bool plat_log_append(const char *path, const char *text)
     }
     fclose(fp);
     return true;
+}
+
+static void sibling_path(const char *log_path, const char *name, char *out, size_t n)
+{
+    const char *slash = strrchr(log_path, '/');
+
+    if (slash == NULL) {
+        snprintf(out, n, "%s", name);
+        return;
+    }
+    snprintf(out, n, "%.*s/%s", (int)(slash - log_path), log_path, name);
+}
+
+static bool write_if_absent(const char *path, const void *data, uint32_t len)
+{
+    FILE *fp;
+
+    if (access(path, F_OK) == 0) {
+        return true;
+    }
+    fp = fopen(path, "wb");
+    if (fp == NULL) {
+        return false;
+    }
+    if (fwrite(data, 1, len, fp) != len) {
+        fclose(fp);
+        remove(path);
+        return false;
+    }
+    fclose(fp);
+    return true;
+}
+
+void plat_seed_pack(void)
+{
+    static int done;
+    char readme[320];
+    char zip[320];
+    const char *log_path = logger_path();
+
+    if (done || log_path == NULL || log_path[0] == '\0') {
+        return;
+    }
+    sibling_path(log_path, "README.TXT", readme, sizeof(readme));
+    sibling_path(log_path, "MELACS.ZIP", zip, sizeof(zip));
+    if (!write_if_absent(readme, g_sd_pack_readme, g_sd_pack_readme_len)) {
+        return;
+    }
+    if (!write_if_absent(zip, g_sd_pack_zip, g_sd_pack_zip_len)) {
+        return;
+    }
+    done = 1;
 }

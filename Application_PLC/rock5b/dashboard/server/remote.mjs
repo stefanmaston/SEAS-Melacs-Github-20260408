@@ -260,6 +260,7 @@ export function createRemotePlant(modbus) {
           hour: clk[3].value, minute: clk[4].value, second: clk[5].value, weekday: clk[6].value,
         };
         if (!clockValid(fields)) return "Ogiltig tid. År 2000–2099, giltigt datum, och veckodag 0–6.";
+        await modbus.writeReg(209, 0);
         await modbus.writeRegs(202, [fields.year, fields.month, fields.day, fields.hour, fields.minute, fields.second, fields.weekday, 1]);
         return null;
       }

@@ -16,16 +16,26 @@ PIC32_ELF = build/melacs_pic32.elf
 host-test: $(OUT)
 	$(OUT)
 
-$(OUT): $(SRC) include/plc_runtime.h include/rtc.h include/logger.h include/register_image.h include/modbus_tcp.h include/modbus_pdu.h include/plat_host.h
+PACK_C = build/sd_pack_data.c
+PACK_IN = tools/pack_sd.py ../sd_pack/README.txt ../sd_pack/project.json \
+	../sd_pack/pous/programs/main.st ../sd_pack/devices/configuration.json \
+	../sd_pack/devices/pin-mapping.json ../sd_pack/devices/remote/Melacs.json \
+	../rock5b/openplc/modbus_master.json ../shared/register_map.json
+
+$(PACK_C): $(PACK_IN)
 	mkdir -p build
-	$(CC) $(CFLAGS) -o $@ $(SRC)
+	python3 tools/pack_sd.py $@
+
+$(OUT): $(SRC) $(PACK_C) include/plc_runtime.h include/rtc.h include/logger.h include/register_image.h include/modbus_tcp.h include/modbus_pdu.h include/plat_host.h include/sd_pack.h
+	mkdir -p build
+	$(CC) $(CFLAGS) -o $@ $(SRC) $(PACK_C)
 
 pic32: $(PIC32_ELF)
 	$(XC32_HEX) $(PIC32_ELF)
 
-$(PIC32_ELF): $(PIC32_SRC) include/pin_map.h include/plc_runtime.h include/rtc.h include/logger.h include/register_image.h include/modbus_pdu.h
+$(PIC32_ELF): $(PIC32_SRC) $(PACK_C) include/pin_map.h include/plc_runtime.h include/rtc.h include/logger.h include/register_image.h include/modbus_pdu.h include/sd_pack.h
 	mkdir -p build
-	$(XC32) $(XC32_CFLAGS) -Wl,--gc-sections -o $@ $(PIC32_SRC)
+	$(XC32) $(XC32_CFLAGS) -Wl,--gc-sections -o $@ $(PIC32_SRC) $(PACK_C)
 
 clean:
 	rm -rf build

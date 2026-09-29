@@ -332,28 +332,41 @@ bool rtc_chip_ok(void)
     return g_rtc_ok ? true : false;
 }
 
+static void rtc_write_reg(uint8_t addr, uint8_t value)
+{
+    rtc_begin(addr);
+    rtc_out_byte(value);
+    rtc_end();
+}
+
 bool rtc_chip_read(RtcClock *clk)
 {
-    uint8_t raw[7];
+    uint8_t raw[8];
+    uint8_t century;
+    unsigned dow;
     RtcClock next;
     int i;
 
     rtc_begin(0xBF);
-    for (i = 0; i < 7; i++) {
+    for (i = 0; i < 8; i++) {
         raw[i] = rtc_in_byte();
     }
+    rtc_end();
+    rtc_begin(0x93);
+    century = rtc_in_byte();
     rtc_end();
 
     raw[0] &= 0x7Fu;
     raw[2] &= 0x3Fu;
+    dow = from_bcd(raw[5] & 0x07u);
     next.second = from_bcd(raw[0]);
     next.minute = from_bcd(raw[1]);
     next.hour = from_bcd(raw[2]);
     next.day = from_bcd(raw[3]);
     next.month = from_bcd(raw[4] & 0x1Fu);
-    next.weekday = from_bcd(raw[5] & 0x07u);
-    next.year = (uint16_t)(2000u + from_bcd(raw[6]));
-    if (!rtc_valid(&next)) {
+    next.weekday = (uint8_t)(dow - 1u);
+    next.year = (uint16_t)(from_bcd(century) * 100u + from_bcd(raw[6]));
+    if (dow < 1u || dow > 7u || !rtc_valid(&next)) {
         g_rtc_ok = 0;
         return false;
     }
@@ -365,6 +378,7 @@ bool rtc_chip_read(RtcClock *clk)
 bool rtc_chip_write(const RtcClock *clk)
 {
     uint8_t raw[8];
+    int i;
 
     if (!rtc_valid(clk)) {
         return false;
@@ -374,22 +388,19 @@ bool rtc_chip_write(const RtcClock *clk)
     raw[2] = to_bcd(clk->hour);
     raw[3] = to_bcd(clk->day);
     raw[4] = to_bcd(clk->month);
-    raw[5] = to_bcd(clk->weekday);
-    raw[6] = to_bcd((uint8_t)(clk->year - 2000u));
+    /* Kretsen räknar veckodag 1–7, söndag är 1. */
+    raw[5] = to_bcd((uint8_t)(clk->weekday + 1u));
+    raw[6] = to_bcd((uint8_t)(clk->year % 100u));
     raw[7] = 0;
 
-    rtc_begin(0x0F);
-    rtc_out_byte(0x00);
-    rtc_end();
-
+    /* WP måste vara 0, annars kastas hela burst-skrivningen. Exakt åtta byte. */
+    rtc_write_reg(0x0F, 0x00);
     rtc_begin(0x3F);
-    {
-        int i;
-        for (i = 0; i < 8; i++) {
-            rtc_out_byte(raw[i]);
-        }
+    for (i = 0; i < 8; i++) {
+        rtc_out_byte(raw[i]);
     }
-    rtc_out_byte(0x00);
     rtc_end();
+    rtc_write_reg(0x13, 0x20);
+    rtc_write_reg(0x0F, 0x80);
     return true;
 }

@@ -1,6 +1,7 @@
 #include "log_history.h"
 #include "pic32_board.h"
 #include "pin_map.h"
+#include "sd_pack.h"
 
 #include <string.h>
 
@@ -622,6 +623,100 @@ bool sd_append_line(const char *path, const char *text)
     }
     spi_hw_on(0);
     return true;
+}
+
+static void restore_file(int have, uint32_t cluster, uint32_t size, uint32_t lba, int off)
+{
+    g_have_file = have;
+    g_file_cluster = cluster;
+    g_file_size = size;
+    g_dir_lba = lba;
+    g_dir_off = off;
+}
+
+static bool sd_write_if_absent(const char *path, const void *data, uint32_t len)
+{
+    int saved_have;
+    uint32_t saved_cluster;
+    uint32_t saved_size;
+    uint32_t saved_lba;
+    int saved_off;
+    const uint8_t *src;
+    uint32_t left;
+    uint32_t pos;
+    int ok = 0;
+
+    if (!g_sd_ok || path == 0 || data == 0) {
+        return false;
+    }
+    spi_hw_on(0);
+    if (!g_mounted && !mount_fat()) {
+        spi_hw_on(0);
+        g_sd_ok = 0;
+        return false;
+    }
+    saved_have = g_have_file;
+    saved_cluster = g_file_cluster;
+    saved_size = g_file_size;
+    saved_lba = g_dir_lba;
+    saved_off = g_dir_off;
+    g_have_file = 0;
+    if (!open_file(path)) {
+        restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off);
+        spi_hw_on(0);
+        return false;
+    }
+    if (g_file_size > 0) {
+        restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off);
+        spi_hw_on(0);
+        return true;
+    }
+    pos = 0;
+    src = (const uint8_t *)data;
+    left = len;
+    while (left > 0) {
+        uint32_t cluster_bytes = (uint32_t)g_spc * 512u;
+        uint32_t into = pos % cluster_bytes;
+        uint32_t chunk;
+        uint32_t cluster = cluster_at(pos, 1);
+        uint32_t lba;
+        uint32_t off;
+
+        if (cluster < 2) {
+            break;
+        }
+        lba = cluster_lba(cluster) + into / 512u;
+        off = into % 512u;
+        chunk = 512u - off;
+        if (chunk > left) {
+            chunk = left;
+        }
+        if (!sd_read(lba, g_sec)) {
+            break;
+        }
+        memcpy(g_sec + off, src, chunk);
+        if (!sd_write(lba, g_sec)) {
+            break;
+        }
+        src += chunk;
+        left -= chunk;
+        pos += chunk;
+    }
+    if (left == 0) {
+        g_file_size = pos;
+        ok = update_size() ? 1 : 0;
+    }
+    restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off);
+    spi_hw_on(0);
+    return ok == 1;
+}
+
+bool sd_seed_pack(void)
+{
+    if (!sd_write_if_absent("README.TXT", g_sd_pack_readme, g_sd_pack_readme_len)) {
+        return false;
+    }
+    return sd_write_if_absent("MELACS.ZIP", g_sd_pack_zip, g_sd_pack_zip_len);
 }
 
 enum {

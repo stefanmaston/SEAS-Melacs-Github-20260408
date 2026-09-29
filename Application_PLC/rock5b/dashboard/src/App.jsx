@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Controls } from "./Controls.jsx";
-import { alarmText, errorText, formatRtc } from "./format.js";
+import { alarmText, downloadMelacsCsv, errorText, formatRtc } from "./format.js";
 import { LoggerPanel } from "./LoggerPanel.jsx";
 import { Schematic } from "./Schematic.jsx";
 import { usePlant } from "./usePlant.js";
@@ -10,6 +10,51 @@ const VIEWS = [
   { id: "controls", label: "Reglage" },
   { id: "logger", label: "Logger" },
 ];
+
+const emptyPlant = {
+  host: "—",
+  link: false,
+  inputs: {
+    ad: [null, null, null, null, null, null, null, null],
+    dio: [false, false, false, false],
+    sd_ok: false,
+    t_board: "—",
+    t1: "—",
+    t2: "—",
+  },
+  applied: {
+    dio: [false, false, false, false],
+    ao: [0, 0, 0],
+    sip: [false, false, false, false, false, false, false, false],
+    h1_dis: true,
+    h1_ali: false,
+    h1_bli: false,
+    h1_ahi: 0,
+    h1_bhi: 0,
+    h2_dis: true,
+    h2_ali: false,
+    h2_bli: false,
+    h2_ahi: 0,
+    h2_bhi: 0,
+  },
+  holding: { safe_mode: 1, log_period_s: "" },
+  commanded: {
+    dio: [false, false, false, false],
+    ao: [0, 0, 0],
+    sip: [false, false, false, false, false, false, false, false],
+    h1_dis: true,
+    h1_ali: false,
+    h1_bli: false,
+    h1_ahi: 0,
+    h1_bhi: 0,
+    h2_dis: true,
+    h2_ali: false,
+    h2_bli: false,
+    h2_ahi: 0,
+    h2_bhi: 0,
+    note: 0,
+  },
+};
 
 function readTheme() {
   try {
@@ -72,15 +117,16 @@ function Status({ plant }) {
 
 function Overview({ plant }) {
   const inp = plant.inputs;
+  const live = Boolean(plant.source);
   const tiles = [
-    ["T_BOARD", `${inp.t_board} °C`],
-    ["T1", inp.t1],
-    ["T2", inp.t2],
-    ["P", inp.p],
-    ["VALUE", inp.value],
-    ["Fel", errorText(inp.error_code)],
+    ["T_BOARD", live ? `${inp.t_board} °C` : "—"],
+    ["T1", live ? inp.t1 : "—"],
+    ["T2", live ? inp.t2 : "—"],
+    ["P", live ? (inp.p ?? "—") : "—"],
+    ["VALUE", live ? (inp.value ?? "—") : "—"],
+    ["Fel", live ? errorText(inp.error_code) : "—"],
   ];
-  const safe = !plant.inputs.plc_running;
+  const safe = live && !plant.inputs.plc_running;
   return (
     <div className="stack">
       {safe ? (
@@ -98,6 +144,19 @@ function Overview({ plant }) {
           </article>
         ))}
       </section>
+    </div>
+  );
+}
+
+export function ControlsView({ plant, busy, onCommand }) {
+  return (
+    <div className="workbench">
+      <div className="controls-col">
+        <Controls plant={plant} busy={busy} onCommand={onCommand} />
+      </div>
+      <figure className="board-photo">
+        <img src="/melacs7.jpg" alt="Melacs 7-kortet" />
+      </figure>
     </div>
   );
 }
@@ -155,18 +214,27 @@ export function App() {
               </button>
             ))}
           </nav>
-          <p
-            className={error ? "banner bad" : notice ? "banner good" : "banner idle"}
-            role={error ? "alert" : "status"}
-            title={error || notice || undefined}
-          >
-            {error ? alarmText(error) : notice}
-          </p>
+          <div className="view-side">
+            <p
+              className={error ? "banner bad" : notice ? "banner good" : "banner idle"}
+              role={error ? "alert" : "status"}
+              title={error || notice || undefined}
+            >
+              {error ? alarmText(error) : notice}
+            </p>
+            <button
+              type="button"
+              className="primary"
+              onClick={() => downloadMelacsCsv(log)}
+              disabled={log.length === 0}
+            >
+              Ladda ned datafil
+            </button>
+          </div>
         </div>
-        {!plant ? <p className="panel">Hämtar kortets värden.</p> : null}
-        {plant && view === "overview" ? <Overview plant={plant} /> : null}
-        {plant && view === "controls" ? <Controls plant={plant} busy={busy} onCommand={command} /> : null}
-        {plant && view === "logger" ? <LoggerPanel rows={log} /> : null}
+        {view === "overview" ? <Overview plant={plant || emptyPlant} /> : null}
+        {view === "controls" ? <ControlsView plant={plant || emptyPlant} busy={busy} onCommand={command} /> : null}
+        {view === "logger" ? <LoggerPanel rows={plant ? log : []} /> : null}
       </main>
     </div>
   );

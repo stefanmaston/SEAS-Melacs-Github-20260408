@@ -314,9 +314,12 @@ function createPlant() {
   };
 }
 
+const melacsHost = process.env.MELACS_HOST || "127.0.0.1";
+const melacsPort = Number(process.env.MELACS_PORT || 1502);
+
 const plant = process.env.MELACS_MODE === "sim"
   ? createPlant()
-  : createRemotePlant(createModbus("127.0.0.1", Number(process.env.MELACS_PORT || 1502)));
+  : createRemotePlant(createModbus(melacsHost, melacsPort));
 
 function send(res, status, payload) {
   const body = JSON.stringify(payload);

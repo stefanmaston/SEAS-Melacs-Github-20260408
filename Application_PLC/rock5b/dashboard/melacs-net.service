@@ -1,0 +1,13 @@
+[Unit]
+Description=Melacs secondary address on eth0
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/sbin/ip addr replace 192.168.1.10/24 dev eth0
+ExecStop=/sbin/ip addr del 192.168.1.10/24 dev eth0
+
+[Install]
+WantedBy=multi-user.target

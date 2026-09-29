@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { WEEKDAYS } from "../shared/columns.js";
-import { dateValue, fieldsFromRtc, timeValue } from "./format.js";
+import { fieldsFromRtc, formatRtc } from "./format.js";
 
 function Toggle({ pressed, label, hint, onClick }) {
   return (
@@ -71,77 +70,128 @@ function NoteField({ value, onCommit }) {
   );
 }
 
+const blankClock = {
+  year: "", month: "", day: "", hour: "", minute: "", second: "",
+};
+
+const clockParts = [
+  ["year", "År", "2000–2099"],
+  ["month", "Månad", "1–12"],
+  ["day", "Dag", "1–31"],
+  ["hour", "Timme", "0–23"],
+  ["minute", "Minut", "0–59"],
+  ["second", "Sekund", "0–59"],
+];
+
+function wholeNumber(text) {
+  if (!/^\d+$/.test(text)) return null;
+  return Number(text);
+}
+
+function parseClock(fields) {
+  if (clockParts.some(([key]) => fields[key] === "")) {
+    return { error: "Fyll i år, månad, dag, timme, minut och sekund." };
+  }
+  const year = wholeNumber(fields.year);
+  const month = wholeNumber(fields.month);
+  const day = wholeNumber(fields.day);
+  const hour = wholeNumber(fields.hour);
+  const minute = wholeNumber(fields.minute);
+  const second = wholeNumber(fields.second);
+  if (year === null || year < 2000 || year > 2099) return { error: "År ska vara 2000–2099." };
+  if (month === null || month < 1 || month > 12) return { error: "Månad ska vara 1–12." };
+  const maxDay = new Date(year, month, 0).getDate();
+  if (day === null || day < 1 || day > maxDay) return { error: "Dagen finns inte i den månaden." };
+  if (hour === null || hour > 23) return { error: "Timme ska vara 0–23." };
+  if (minute === null || minute > 59) return { error: "Minut ska vara 0–59." };
+  if (second === null || second > 59) return { error: "Sekund ska vara 0–59." };
+  const weekday = new Date(year, month - 1, day).getDay();
+  return { value: { year, month, day, hour, minute, second, weekday } };
+}
+
 function ClockForm({ rtc, busy, onSet }) {
-  const [fields, setFields] = useState(null);
+  const [fields, setFields] = useState(blankClock);
+  const [pending, setPending] = useState(null);
   const [localError, setLocalError] = useState("");
 
-  useEffect(() => {
-    if (rtc && fields === null) {
-      setFields(fieldsFromRtc(rtc));
-    }
-  }, [rtc, fields]);
-
-  if (!fields) return null;
-
-  const applyDate = (value) => {
-    const [year, month, day] = value.split("-").map(Number);
-    const weekday = new Date(year, month - 1, day).getDay();
-    setFields((prev) => ({ ...prev, year, month, day, weekday }));
+  const edit = (key, value) => {
+    setPending(null);
+    setFields((prev) => ({ ...prev, [key]: value.replace(/\D/g, "") }));
   };
 
-  const applyTime = (value) => {
-    const [hour, minute, second] = value.split(":").map(Number);
-    setFields((prev) => ({
-      ...prev,
-      hour,
-      minute,
-      second: Number.isInteger(second) ? second : 0,
-    }));
-  };
-
-  const submit = (event) => {
+  const prepare = (event) => {
     event.preventDefault();
+    const parsed = parseClock(fields);
+    if (parsed.error) {
+      setLocalError(parsed.error);
+      setPending(null);
+      return;
+    }
     setLocalError("");
-    onSet(fields).then((ok) => {
-      if (!ok) setLocalError("Klockan ställdes inte.");
+    setPending(parsed.value);
+  };
+
+  const write = () => {
+    if (!pending) return;
+    setLocalError("");
+    onSet(pending).then((ok) => {
+      if (!ok) setLocalError("Klockan skrevs inte.");
+      else setPending(null);
     });
   };
 
+  const fetchFromCard = () => {
+    if (!rtc) return;
+    const fetched = fieldsFromRtc(rtc);
+    setFields({
+      year: String(fetched.year),
+      month: String(fetched.month),
+      day: String(fetched.day),
+      hour: String(fetched.hour),
+      minute: String(fetched.minute),
+      second: String(fetched.second),
+    });
+    setPending(null);
+    setLocalError("");
+  };
+
   return (
-    <form className="stack" onSubmit={submit}>
-      <div className="split">
-        <label>
-          Datum
-          <input type="date" value={dateValue(fields)} onChange={(event) => applyDate(event.target.value)} required />
-        </label>
-        <label>
-          Tid
-          <input type="time" step="1" value={timeValue(fields)} onChange={(event) => applyTime(event.target.value)} required />
-        </label>
-        <label>
-          Veckodag
-          <select
-            value={fields.weekday}
-            onChange={(event) => setFields((prev) => ({ ...prev, weekday: Number(event.target.value) }))}
-          >
-            {WEEKDAYS.map((name, index) => (
-              <option key={name} value={index}>
-                {index} {name}
-              </option>
-            ))}
-          </select>
-        </label>
+    <form className="stack" onSubmit={prepare}>
+      <p className="muted">Kortet visar {formatRtc(rtc)}. Fälten skrivs inte förrän du bekräftar.</p>
+      <div className="clock-fields">
+        {clockParts.map(([key, label, hint]) => (
+          <label key={key}>
+            {label}
+            <input
+              inputMode="numeric"
+              autoComplete="off"
+              value={fields[key]}
+              aria-label={label}
+              placeholder={hint}
+              onChange={(event) => edit(key, event.target.value)}
+            />
+          </label>
+        ))}
       </div>
       <div className="actions">
-        <button type="submit" className="primary" disabled={busy}>
-          Ställ klockan
+        <button type="submit" disabled={busy}>
+          Kontrollera
         </button>
-        <button type="button" onClick={() => setFields(fieldsFromRtc(rtc))}>
+        <button type="button" disabled={!rtc} onClick={fetchFromCard}>
           Hämta från kortet
         </button>
       </div>
+      {pending ? (
+        <div className="confirm">
+          <p>Skriv {formatRtc(pending)} till kortet.</p>
+          <button type="button" className="primary" disabled={busy} onClick={write}>
+            Skriv till kortet
+          </button>
+          <button type="button" onClick={() => setPending(null)}>Avbryt</button>
+        </div>
+      ) : null}
       {localError ? <p className="warn-text">{localError}</p> : null}
-      <p className="muted">Kortet tar år, datum, tid och veckodag i samma kommando. 0 är söndag.</p>
+      <p className="muted">Veckodagen räknas från datumet. 0 är söndag.</p>
     </form>
   );
 }
@@ -230,6 +280,7 @@ export function Controls({ plant, busy, onCommand }) {
               value={period}
               onChange={(event) => setPeriod(event.target.value)}
               onBlur={() => {
+                if (period === "") return;
                 const n = Number(period);
                 if (Number.isInteger(n) && n >= 0 && n <= 65535 && n !== holding.log_period_s) {
                   hold({ log_period_s: n }, n === 0 ? "Period 0 blir 6 sekunder." : "Loggperioden är sparad.");

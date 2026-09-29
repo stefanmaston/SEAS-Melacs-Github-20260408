@@ -60,6 +60,7 @@ Resultat: `build/melacs_pic32.hex`. Filen är inte programmerad i kretsen.
 | P, T1, T2 | råvärde från AD5, AD6 och AD7 |
 | Klocka | yttre krets på SPI |
 | Logg | `MELACS.CSV` på SD-kortet |
+| Hjälppaket | `README.TXT` och `MELACS.ZIP` på SD-kortet, om de saknas |
 | Modbus TCP | port 502, slav 1, adress 192.168.1.160 |
 
 Utan en master, eller när `safe_mode` inte är 0, är de fysiska utgångarna av. Loggern skriver ändå.

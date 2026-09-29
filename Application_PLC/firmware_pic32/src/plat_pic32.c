@@ -57,3 +57,15 @@ bool plat_log_append(const char *path, const char *text)
 {
     return sd_append_line(path, text);
 }
+
+void plat_seed_pack(void)
+{
+    static int done;
+
+    if (done) {
+        return;
+    }
+    if (sd_seed_pack()) {
+        done = 1;
+    }
+}
