@@ -256,6 +256,15 @@ button, input, select {
 
 .nav button { color: var(--muted); font-weight: 500; }
 
+.cockpit-frame {
+  width: 100%;
+  height: calc(100vh - 9rem);
+  min-height: 32rem;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+}
+
 .nav button.active {
   background: var(--primary);
   color: #fff;

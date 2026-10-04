@@ -9,6 +9,7 @@ const VIEWS = [
   { id: "overview", label: "Översikt" },
   { id: "controls", label: "Reglage" },
   { id: "logger", label: "Logger" },
+  { id: "cockpit", label: "Cockpit" },
 ];
 
 const emptyPlant = {
@@ -161,10 +162,49 @@ export function ControlsView({ plant, busy, onCommand }) {
   );
 }
 
+function readView() {
+  try {
+    const match = document.cookie.match(/(?:^|; )melacs-view=([^;]*)/);
+    const saved = match ? decodeURIComponent(match[1]) : "";
+    if (VIEWS.some((item) => item.id === saved)) return saved;
+  } catch {
+    /* Sidan fungerar även om lagringen är avstängd. */
+  }
+  return "overview";
+}
+
+function keepCockpit(frame) {
+  try {
+    const path = frame.contentWindow.location.pathname || "/";
+    if (path !== "/console" && !path.startsWith("/console/")) frame.contentWindow.location.replace("/console/");
+  } catch {
+    /* En sida på en annan adress går inte att styra. */
+  }
+}
+
+function CockpitFrame() {
+  return (
+    <iframe
+      className="cockpit-frame"
+      title="Cockpit"
+      src="/console/"
+      onLoad={(event) => keepCockpit(event.currentTarget)}
+    />
+  );
+}
+
 export function App() {
   const { plant, log, error, notice, busy, command } = usePlant();
-  const [view, setView] = useState("overview");
+  const [view, setView] = useState(readView);
   const [theme, setTheme] = useState(readTheme);
+
+  useEffect(() => {
+    try {
+      document.cookie = `melacs-view=${encodeURIComponent(view)}; Path=/; SameSite=Lax; Max-Age=86400`;
+    } catch {
+      /* Sidan fungerar även om lagringen är avstängd. */
+    }
+  }, [view]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -235,6 +275,7 @@ export function App() {
         {view === "overview" ? <Overview plant={plant || emptyPlant} /> : null}
         {view === "controls" ? <ControlsView plant={plant || emptyPlant} busy={busy} onCommand={command} /> : null}
         {view === "logger" ? <LoggerPanel rows={plant ? log : []} /> : null}
+        {view === "cockpit" ? <CockpitFrame /> : null}
       </main>
     </div>
   );
