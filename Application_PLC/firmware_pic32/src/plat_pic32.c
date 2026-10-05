@@ -31,6 +31,11 @@ void plat_write_outputs(const PlcOutputs *out)
     io_write(out);
 }
 
+void plat_beep(void)
+{
+    buzzer_pulse();
+}
+
 void plat_read_rtc(RtcClock *clk)
 {
     if (rtc_chip_read(clk)) {

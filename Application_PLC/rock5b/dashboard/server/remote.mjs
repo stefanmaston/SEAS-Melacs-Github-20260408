@@ -277,6 +277,17 @@ export function createRemotePlant(modbus) {
         }
         return null;
       }
+      if (body.op === "beep") {
+        try {
+          await modbus.writeReg(210, 1);
+        } catch (err) {
+          if (String(err.message).includes("avvisade")) {
+            return "Programmet i kortet kan inte ge signalen ännu. Programmera om kortet.";
+          }
+          throw err;
+        }
+        return null;
+      }
       if (body.op === "outputs") {
         if (Array.isArray(body.dio)) {
           if (body.dio.length !== 4) return "DIO4–DIO7 ska vara fyra värden.";

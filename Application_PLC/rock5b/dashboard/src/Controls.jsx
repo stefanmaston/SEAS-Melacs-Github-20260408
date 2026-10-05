@@ -289,6 +289,12 @@ export function Controls({ plant, busy, onCommand }) {
             />
           </label>
         </div>
+        <div className="actions">
+          <button type="button" className="primary" disabled={busy} onClick={() => onCommand({ op: "beep" }, "Kort signal skickad.")}>
+            Kort signal
+          </button>
+        </div>
+        <p className="muted">En mycket kort ton på kortet.</p>
         <NoteField value={cmd.note} onCommit={(n) => outputs({ note: n })} />
       </section>
       <section className="panel">

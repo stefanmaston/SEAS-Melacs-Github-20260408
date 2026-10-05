@@ -355,6 +355,11 @@ static int run_tests(void)
     line = logger_last_line();
     expect(strncmp(line, "2026-01-02 03:04:", 17) == 0, "rtc_set uppdaterar klockan");
 
+    expect(write_reg(210, 1) == 0, "begär kort signal");
+    plc_runtime_tick();
+    expect(plat_host_beep_count() == 1, "signalen tas emot även i safe");
+    expect(read_holding(210, 1, &year) == 0 && year == 0, "signalregistret läses som 0");
+
     modbus_tcp_stop();
     if (g_fails != 0) {
         fprintf(stderr, "%d test fel\n", g_fails);

@@ -89,9 +89,21 @@ void plat_sample_mark(void)
 {
 }
 
+static int g_beeps;
+
 void plat_write_outputs(const PlcOutputs *out)
 {
     (void)out;
+}
+
+void plat_beep(void)
+{
+    g_beeps++;
+}
+
+int plat_host_beep_count(void)
+{
+    return g_beeps;
 }
 
 bool plat_log_append(const char *path, const char *text)

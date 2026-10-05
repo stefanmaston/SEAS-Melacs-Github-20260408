@@ -56,6 +56,9 @@ void plc_runtime_tick(void)
     if (register_image_take_clock(&set_clk) && rtc_set(&set_clk)) {
         rtc_get(&clk);
     }
+    if (register_image_take_beep()) {
+        plat_beep();
+    }
 
     g_st.plc_loaded = master;
     if (master && g_st.safe_mode == 0) {

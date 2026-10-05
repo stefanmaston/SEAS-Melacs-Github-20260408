@@ -309,6 +309,7 @@ function createPlant() {
       if (body.op === "clock") return setClock(body);
       if (body.op === "holding") return setHolding(body);
       if (body.op === "outputs") return setOutputs(body);
+      if (body.op === "beep") return null;
       return "Okänd åtgärd.";
     },
   };

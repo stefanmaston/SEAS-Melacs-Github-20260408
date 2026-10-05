@@ -67,6 +67,10 @@
 #define PIN_LED7_TRIS TRISFbits.TRISF1
 #define PIN_LED7_LAT  LATFbits.LATF1
 
+/* Summer på RF4. Hög nivå ger ton. */
+#define PIN_BUZZER_TRIS TRISFbits.TRISF4
+#define PIN_BUZZER_LAT  LATFbits.LATF4
+
 /* Gemensam SPI3-buss: SCK RD15, MOSI RF8, MISO RF2. */
 #define PIN_SPI_SCK_TRIS  TRISDbits.TRISD15
 #define PIN_SPI_SCK_LAT   LATDbits.LATD15

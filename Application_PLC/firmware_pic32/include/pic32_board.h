@@ -24,6 +24,9 @@ void memled_pulse(void);
 void memled_sd(int on);
 void memled_poll(void);
 
+void buzzer_pulse(void);
+void buzzer_poll(void);
+
 void io_init(void);
 void io_read(PlcInputs *in);
 void io_write(const PlcOutputs *out);

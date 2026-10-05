@@ -71,6 +71,7 @@
     { "name": "rtc_second", "iec": "%MW7", "modbus": 207, "type": "uint16" },
     { "name": "rtc_weekday", "iec": "%MW8", "modbus": 208, "type": "uint16", "comment": "0=söndag … 6=lördag" },
     { "name": "rtc_set", "iec": "%MW9", "modbus": 209, "type": "uint16", "comment": "Skriv 1 i samma svep som 202–208 för att ställa klockan. Läses alltid som 0." },
+    { "name": "beep", "iec": "%MW10", "modbus": 210, "type": "uint16", "comment": "Skriv 1 för en kort ton på RF4. Läses alltid som 0." },
     { "name": "log_window_min", "iec": "%MW20", "modbus": 220, "type": "uint16", "comment": "Skriv antal minuter. Kortet läser MELACS.CSV bakåt från nu och fyller ingångsregister 500." }
   ],
   "history": [

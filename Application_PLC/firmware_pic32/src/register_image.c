@@ -35,6 +35,7 @@ enum {
     REG_LOG_PERIOD = 201,
     REG_RTC_YEAR = 202,
     REG_RTC_SET = 209,
+    REG_BEEP = 210,
     REG_HIST_ARM = 220
 };
 
@@ -47,6 +48,7 @@ static uint16_t g_log_period;
 static bool g_master;
 static bool g_set_level;
 static bool g_clock_pending;
+static bool g_beep_pending;
 static RtcClock g_clock_req;
 static uint16_t g_setbuf[7];
 
@@ -150,6 +152,7 @@ static uint16_t read_holding_reg(uint16_t addr)
     case REG_RTC_YEAR + 5: return g_clk.second;
     case REG_RTC_YEAR + 6: return g_clk.weekday;
     case REG_RTC_SET: return 0;
+    case REG_BEEP: return 0;
     case REG_HIST_ARM: return log_history_minutes();
     default: return 0;
     }
@@ -159,7 +162,7 @@ static bool holding_writable(uint16_t addr)
 {
     return (addr >= REG_AO && addr <= REG_AO + 2)
         || (addr >= REG_H_PWM && addr <= REG_NOTE)
-        || (addr >= REG_SAFE && addr <= REG_RTC_SET)
+        || (addr >= REG_SAFE && addr <= REG_BEEP)
         || addr == REG_HIST_ARM;
 }
 
@@ -205,6 +208,12 @@ static void write_one_holding(uint16_t addr, uint16_t value, bool *rising)
         g_set_level = on;
         return;
     }
+    if (addr == REG_BEEP) {
+        if (value != 0) {
+            g_beep_pending = true;
+        }
+        return;
+    }
     if (addr == REG_SAFE) {
         g_safe_mode = value;
         return;
@@ -248,6 +257,7 @@ void register_image_init(void)
     g_master = false;
     g_set_level = false;
     g_clock_pending = false;
+    g_beep_pending = false;
     seed_setbuf();
     image_unlock();
 }
@@ -284,6 +294,17 @@ bool register_image_take_clock(RtcClock *clk)
         *clk = g_clock_req;
         g_clock_pending = false;
     }
+    image_unlock();
+    return pending;
+}
+
+bool register_image_take_beep(void)
+{
+    bool pending;
+
+    image_lock();
+    pending = g_beep_pending;
+    g_beep_pending = false;
     image_unlock();
     return pending;
 }

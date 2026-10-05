@@ -7,6 +7,8 @@ static int g_rtc_ok;
 static int g_led_hold;
 static int g_led_pulse;
 static uint32_t g_led_until;
+static int g_beep_on;
+static uint32_t g_beep_until;
 
 static void memled_apply(void)
 {
@@ -44,6 +46,21 @@ void memled_poll(void)
         g_led_pulse = 0;
     }
     memled_apply();
+}
+
+void buzzer_pulse(void)
+{
+    g_beep_on = 1;
+    g_beep_until = board_millis() + 30u;
+    PIN_BUZZER_LAT = 1;
+}
+
+void buzzer_poll(void)
+{
+    if (g_beep_on && (int32_t)(board_millis() - g_beep_until) >= 0) {
+        g_beep_on = 0;
+        PIN_BUZZER_LAT = 0;
+    }
 }
 
 static void pwm_init(void)
@@ -188,6 +205,10 @@ void io_init(void)
     PIN_H2_BLI_TRIS = 0;
     PIN_H2_AHI_TRIS = 0;
     PIN_H2_BHI_TRIS = 0;
+
+    g_beep_on = 0;
+    PIN_BUZZER_LAT = 0;
+    PIN_BUZZER_TRIS = 0;
 
     pwm_init();
     adc_init();

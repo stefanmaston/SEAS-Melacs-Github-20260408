@@ -18,6 +18,9 @@ void register_image_commands(PlcOutputs *cmd, uint16_t *safe_mode,
 /* Tar emot en klockskrivning (stigande kant på rtc_set). */
 bool register_image_take_clock(RtcClock *clk);
 
+/* Tar emot en begäran om en kort summersignal. */
+bool register_image_take_beep(void);
+
 int register_image_read_bits(bool coils, uint16_t addr, uint16_t count,
                              uint8_t *dest);
 int register_image_read_regs(bool holding, uint16_t addr, uint16_t count,

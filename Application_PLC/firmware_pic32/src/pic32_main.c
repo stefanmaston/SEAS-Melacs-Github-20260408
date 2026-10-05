@@ -9,6 +9,7 @@ int main(void)
         net_poll();
         plc_runtime_tick();
         memled_poll();
+        buzzer_poll();
         delay_ms(10);
     }
     return 0;
