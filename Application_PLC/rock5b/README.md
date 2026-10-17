@@ -18,7 +18,7 @@ På Rock, när runtime kör:
 sudo sh openplc/prepare-runtime.sh
 ```
 
-Skriptet lägger [openplc/modbus_master.json](openplc/modbus_master.json) i runtimens `conf/`. Klienten pekar på PIC32 `192.168.1.160` port 502, slav 1. Mot host-test på datorn: `127.0.0.1` port 1502 (`plc_host_test --serve`).
+Skriptet lägger [openplc/modbus_master.json](openplc/modbus_master.json) i runtimens `conf/`. På Rock går klienten via `melacs-modbus-proxy` på `127.0.0.1` port 1502, som ensam håller sessionen mot PIC32 `192.168.1.160` port 502, slav 1. Mot host-test på datorn är samma adress `plc_host_test --serve`.
 
 ## Projekt på Melacs SD-kort
 
@@ -30,7 +30,9 @@ Adresserna är 0-baserade och står i [../shared/register_map.json](../shared/re
 
 ## Dashboard
 
-Sidan körs på DietPi och pratar Modbus direkt med PIC32 `192.168.1.160` port 502. Öppna `http://192.168.50.60/` i nätverket. Ingen tunnel och ingen lokal Vite-process behövs.
+Hur lådan ska användas, med lokal inloggning, licens och SEAS-webben, står i [funktion.md](funktion.md).
+
+Sidan körs på DietPi. Öppna `http://192.168.50.60/` i nätverket. Ingen tunnel och ingen lokal Vite-process behövs. Sidan och OpenPLC delar Modbus-sessionen genom `melacs-modbus-proxy` på `127.0.0.1` port 1502.
 
 Tjänsten är `melacs-dashboard.service`. Den startar med DietPi och läser `MELACS_HOST` och `MELACS_PORT`. Filer ligger i `/opt/melacs-dashboard` (`dist/`, `server/`, `shared/columns.js`).
 
