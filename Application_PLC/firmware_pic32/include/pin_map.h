@@ -48,11 +48,19 @@
 #define PIN_DIO7_PORT _RB2
 #define PIN_DIO7_U1   23
 
-/* SIP1 och SIP2 sitter på RA3 och RA2. SIP0 och SIP3 har inget bekräftat ben. */
+/*
+ * Fyra SIP-reläer. Rev 7 flyttade bara SIP1 och SIP2.
+ * SIP0 är RA1 (TCK, så JTAG stängs i io_init). SIP3 är RB12.
+ * SIP1 är RA3. SIP2 är RA2.
+ */
+#define PIN_SIP0_TRIS TRISAbits.TRISA1
+#define PIN_SIP0_LAT  LATAbits.LATA1
 #define PIN_SIP1_TRIS TRISAbits.TRISA3
 #define PIN_SIP1_LAT  LATAbits.LATA3
 #define PIN_SIP2_TRIS TRISAbits.TRISA2
 #define PIN_SIP2_LAT  LATAbits.LATA2
+#define PIN_SIP3_TRIS TRISBbits.TRISB12
+#define PIN_SIP3_LAT  LATBbits.LATB12
 /* SIP4 styr JP7 och LED10. Låg nivå är av. */
 #define PIN_SIP4_TRIS TRISDbits.TRISD12
 #define PIN_SIP4_LAT  LATDbits.LATD12

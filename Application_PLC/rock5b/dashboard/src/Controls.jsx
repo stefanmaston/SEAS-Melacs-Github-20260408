@@ -331,14 +331,14 @@ export function Controls({ plant, busy, onCommand }) {
       </section>
       <section className="panel">
         <h2>SIP</h2>
-        <p className="muted">SIP0 och SIP3 har inget bekräftat ben. SIP4 är JP7 och LED10, och tänds när den är hög.</p>
+        <p className="muted">SIP0–SIP3 är de fyra reläportarna. SIP4 är JP7 och LED10, och tänds när den är hög.</p>
         <div className="toggles">
           {cmd.sip.map((on, index) => (
             <Toggle
               key={index}
               pressed={on}
               label={`SIP${index}`}
-              hint={index === 0 || index === 3 ? "obekräftat ben" : ""}
+              hint=""
               onClick={() => {
                 const sip = cmd.sip.slice();
                 sip[index] = !on;

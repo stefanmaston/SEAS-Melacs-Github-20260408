@@ -3,6 +3,7 @@ import http from "node:http";
 import https from "node:https";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { allowCockpitUpgrade, ensureAuth, routeProtected } from "./auth.mjs";
 import { attachPlant } from "./plant.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -46,7 +47,7 @@ function sendFile(res, file) {
     const ext = path.extname(file);
     res.statusCode = 200;
     res.setHeader("Content-Type", types[ext] || "application/octet-stream");
-    if (ext !== ".html") res.setHeader("Cache-Control", "public, max-age=3600");
+    res.setHeader("Cache-Control", ext === ".html" ? "no-store" : "public, max-age=3600");
     res.end(data);
   });
 }
@@ -344,9 +345,6 @@ function proxyCockpit(req, res) {
     const headers = cockpitHeaders(req);
     headers["content-length"] = String(body.length);
     delete headers["transfer-encoding"];
-    const loginScript = isLoginScript(req.url);
-    const loginPage = isLoginPage(req.url);
-    if (loginScript || loginPage) delete headers["accept-encoding"];
     const preq = https.request(
       {
         host: "127.0.0.1",
@@ -358,23 +356,8 @@ function proxyCockpit(req, res) {
       },
       (pres) => {
         pres.on("error", () => res.destroy());
-        if (!loginScript && !loginPage) {
-          if (!res.headersSent) res.writeHead(pres.statusCode || 502, publicHeaders(pres));
-          pres.pipe(res);
-          return;
-        }
-        const out = [];
-        pres.on("data", (chunk) => out.push(chunk));
-        pres.on("end", () => {
-          let rewritten = Buffer.concat(out);
-          if (loginScript) rewritten = rewriteLoginJs(rewritten);
-          if (loginPage) rewritten = rewriteLoginHtml(rewritten);
-          const responseHeaders = publicHeaders(pres);
-          responseHeaders["content-length"] = String(rewritten.length);
-          responseHeaders["cache-control"] = "no-store";
-          if (!res.headersSent) res.writeHead(pres.statusCode || 502, responseHeaders);
-          res.end(rewritten);
-        });
+        if (!res.headersSent) res.writeHead(pres.statusCode || 502, publicHeaders(pres));
+        pres.pipe(res);
       },
     );
     preq.on("error", () => {
@@ -436,28 +419,45 @@ function proxyCockpitUpgrade(req, socket, head) {
 }
 
 const server = http.createServer((req, res) => {
-  if (requestPath(req.url) === "/console/melacs-enter") {
-    handleMelacsEnter(req, res);
-    return;
-  }
-  if (requestPath(req.url) === "/console/melacs-session") {
-    handleMelacsSession(req, res);
-    return;
-  }
-  if (cockpitPath(req.url)) {
-    proxyCockpit(req, res);
-    return;
-  }
-  dispatch(0, req, res);
+  routeProtected(req, res)
+    .then((done) => {
+      if (done || res.headersSent || res.writableEnded) return;
+      if (requestPath(req.url) === "/console/melacs-enter") {
+        handleMelacsEnter(req, res);
+        return;
+      }
+      if (requestPath(req.url) === "/console/melacs-session") {
+        handleMelacsSession(req, res);
+        return;
+      }
+      if (cockpitPath(req.url)) {
+        proxyCockpit(req, res);
+        return;
+      }
+      dispatch(0, req, res);
+    })
+    .catch((err) => {
+      if (res.headersSent || res.writableEnded) return;
+      res.statusCode = 500;
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      res.end(err && err.message ? err.message : "Fel");
+    });
 });
 server.on("upgrade", (req, socket, head) => {
-  if (cockpitPath(req.url)) {
+  if (cockpitPath(req.url) && allowCockpitUpgrade(req)) {
     proxyCockpitUpgrade(req, socket, head);
     return;
   }
   socket.destroy();
 });
-server.listen(listenPort, listenHost, () => {
-  const card = `${process.env.MELACS_HOST || "127.0.0.1"}:${process.env.MELACS_PORT || 1502}`;
-  console.log(`Melacs dashboard http://${listenHost}:${listenPort} modbus ${card}`);
-});
+ensureAuth()
+  .then(() => {
+    server.listen(listenPort, listenHost, () => {
+      const card = `${process.env.MELACS_HOST || "127.0.0.1"}:${process.env.MELACS_PORT || 1502}`;
+      console.log(`Melacs dashboard http://${listenHost}:${listenPort} modbus ${card}`);
+    });
+  })
+  .catch((err) => {
+    console.error(err && err.message ? err.message : err);
+    process.exit(1);
+  });

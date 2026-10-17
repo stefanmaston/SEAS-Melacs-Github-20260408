@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { Access } from "./Access.jsx";
 import { Controls } from "./Controls.jsx";
 import { alarmText, downloadMelacsCsv, errorText, formatRtc } from "./format.js";
 import { LoggerPanel } from "./LoggerPanel.jsx";
+import { Login } from "./Login.jsx";
 import { Schematic } from "./Schematic.jsx";
 import { usePlant } from "./usePlant.js";
 
@@ -10,7 +12,16 @@ const VIEWS = [
   { id: "controls", label: "Reglage" },
   { id: "logger", label: "Logger" },
   { id: "cockpit", label: "Cockpit" },
+  { id: "access", label: "Åtkomst" },
 ];
+
+function allowedViews(session) {
+  const admin = session.role === "admin" || session.role === "service";
+  return VIEWS.filter((item) => {
+    if (item.id === "cockpit" || item.id === "access") return admin;
+    return true;
+  });
+}
 
 const emptyPlant = {
   host: "—",
@@ -149,11 +160,14 @@ function Overview({ plant }) {
   );
 }
 
-export function ControlsView({ plant, busy, onCommand }) {
+export function ControlsView({ plant, busy, onCommand, canControl }) {
   return (
     <div className="workbench">
       <div className="controls-col">
-        <Controls plant={plant} busy={busy} onCommand={onCommand} />
+        {canControl ? null : <p className="banner">Du kan läsa anläggningen. Styrning kräver operatör.</p>}
+        <div className={canControl ? "controls-lock" : "controls-lock locked"}>
+          <Controls plant={plant} busy={busy} onCommand={onCommand} />
+        </div>
       </div>
       <figure className="board-photo">
         <img src="/melacs7.jpg" alt="Melacs 7-kortet" />
@@ -162,11 +176,12 @@ export function ControlsView({ plant, busy, onCommand }) {
   );
 }
 
-function readView() {
+function readView(session) {
+  const views = allowedViews(session);
   try {
     const match = document.cookie.match(/(?:^|; )melacs-view=([^;]*)/);
     const saved = match ? decodeURIComponent(match[1]) : "";
-    if (VIEWS.some((item) => item.id === saved)) return saved;
+    if (views.some((item) => item.id === saved)) return saved;
   } catch {
     /* Sidan fungerar även om lagringen är avstängd. */
   }
@@ -193,10 +208,11 @@ function CockpitFrame() {
   );
 }
 
-export function App() {
-  const { plant, log, error, notice, busy, command } = usePlant();
-  const [view, setView] = useState(readView);
-  const [theme, setTheme] = useState(readTheme);
+function PlantShell({ session, onSession, onLogout, theme, onTheme }) {
+  const { plant, log, error, notice, busy, command } = usePlant(onLogout);
+  const views = allowedViews(session);
+  const [view, setView] = useState(() => readView(session));
+  const canControl = session.role === "operator" || session.role === "admin" || session.role === "service";
 
   useEffect(() => {
     try {
@@ -206,17 +222,8 @@ export function App() {
     }
   }, [view]);
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    try {
-      localStorage.setItem("melacs-theme", theme);
-    } catch {
-      /* Sidan fungerar även om lagringen är avstängd. */
-    }
-  }, [theme]);
-
   return (
-    <div className="app">
+    <>
       <header className="topbar">
         <div className="brand">
           <Mark />
@@ -227,22 +234,26 @@ export function App() {
         </div>
         <div className="top-tools">
           <p className="clock">{plant ? formatRtc(plant.rtc) : "—"}</p>
+          <p className="who">{session.name}</p>
           <button
             type="button"
             className="theme-toggle"
             aria-pressed={theme === "dark"}
             aria-label={theme === "dark" ? "Byt till ljust läge" : "Byt till mörkt läge"}
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={onTheme}
           >
             <ThemeIcon theme={theme} />
             <span>{theme === "dark" ? "Ljust" : "Mörkt"}</span>
+          </button>
+          <button type="button" className="theme-toggle" onClick={onLogout}>
+            Logga ut
           </button>
         </div>
       </header>
       <main className="shell">
         <div className="viewbar">
           <nav className="nav" aria-label="Vyer">
-            {VIEWS.map((item) => (
+            {views.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -273,10 +284,93 @@ export function App() {
           </div>
         </div>
         {view === "overview" ? <Overview plant={plant || emptyPlant} /> : null}
-        {view === "controls" ? <ControlsView plant={plant || emptyPlant} busy={busy} onCommand={command} /> : null}
+        {view === "controls" ? (
+          <ControlsView plant={plant || emptyPlant} busy={busy} onCommand={command} canControl={canControl} />
+        ) : null}
         {view === "logger" ? <LoggerPanel rows={plant ? log : []} /> : null}
         {view === "cockpit" ? <CockpitFrame /> : null}
+        {view === "access" ? <Access session={session} onSession={onSession} /> : null}
       </main>
+    </>
+  );
+}
+
+export function App() {
+  const [session, setSession] = useState(undefined);
+  const [theme, setTheme] = useState(readTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem("melacs-theme", theme);
+    } catch {
+      /* Sidan fungerar även om lagringen är avstängd. */
+    }
+  }, [theme]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/session", { cache: "no-store" })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then((data) => {
+        if (!cancelled) setSession(data);
+      })
+      .catch(() => {
+        if (!cancelled) setSession(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const logout = async () => {
+    try {
+      await fetch("/api/session", { method: "DELETE" });
+    } catch {
+      /* Utloggningen rensar kontot även om anropet inte når fram. */
+    }
+    setSession(null);
+  };
+
+  return (
+    <div className="app">
+      {session ? (
+        <PlantShell
+          session={session}
+          onSession={setSession}
+          onLogout={logout}
+          theme={theme}
+          onTheme={() => setTheme(theme === "dark" ? "light" : "dark")}
+        />
+      ) : (
+        <>
+          <header className="topbar">
+            <div className="brand">
+              <Mark />
+              <div>
+                <h1>Melacs SEAS PLC</h1>
+                <p>lokal anläggning</p>
+              </div>
+            </div>
+            <div className="top-tools">
+              <button
+                type="button"
+                className="theme-toggle"
+                aria-pressed={theme === "dark"}
+                aria-label={theme === "dark" ? "Byt till ljust läge" : "Byt till mörkt läge"}
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              >
+                <ThemeIcon theme={theme} />
+                <span>{theme === "dark" ? "Ljust" : "Mörkt"}</span>
+              </button>
+            </div>
+          </header>
+          {session === undefined ? null : <Login onSuccess={setSession} />}
+        </>
+      )}
     </div>
   );
 }

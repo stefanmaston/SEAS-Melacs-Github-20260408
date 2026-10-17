@@ -8,7 +8,7 @@ async function readJson(res) {
   return data;
 }
 
-export function usePlant() {
+export function usePlant(onUnauthorized) {
   const [plant, setPlant] = useState(null);
   const [log, setLog] = useState([]);
   const [error, setError] = useState("");
@@ -21,6 +21,10 @@ export function usePlant() {
     const pullLive = async () => {
       try {
         const res = await fetch("/api/live", { cache: "no-store" });
+        if (res.status === 401) {
+          onUnauthorized?.();
+          return;
+        }
         const data = await readJson(res);
         if (cancelled) return;
         setPlant(data);
@@ -33,6 +37,10 @@ export function usePlant() {
     const pullLog = async () => {
       try {
         const res = await fetch("/api/log", { cache: "no-store" });
+        if (res.status === 401) {
+          onUnauthorized?.();
+          return;
+        }
         const data = await readJson(res);
         if (!cancelled) setLog(data.rows || []);
       } catch (err) {
@@ -66,6 +74,10 @@ export function usePlant() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
+      if (res.status === 401) {
+        onUnauthorized?.();
+        return false;
+      }
       const data = await readJson(res);
       setPlant(data);
       if (okText) setNotice(okText);

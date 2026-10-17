@@ -2,12 +2,12 @@
   {
     "name": "Melacs",
     "protocol": "MODBUS",
-    "comment": "OpenPLC Runtime v4 Modbus-klient. På Rock: PIC32 192.168.1.160:502. Mot host-test: 127.0.0.1:1502. Adresser är 0-baserade och matchar shared/register_map.json.",
+    "comment": "OpenPLC Runtime v4 Modbus-klient. På Rock går den via melacs-modbus-proxy på 127.0.0.1:1502, som ensam håller sessionen mot PIC32 192.168.1.160:502. Adresser är 0-baserade och matchar shared/register_map.json.",
     "config": {
       "type": "SLAVE",
       "transport": "tcp",
-      "host": "192.168.1.160",
-      "port": 502,
+      "host": "127.0.0.1",
+      "port": 1502,
       "slave_id": 1,
       "timeout_ms": 1000,
       "io_points": [

@@ -158,6 +158,9 @@ static int board_celsius(uint16_t counts)
 
 void io_init(void)
 {
+    /* RA1 är TCK. JTAG måste vara av innan SIP0 kan drivas. */
+    DDPCONbits.JTAGEN = 0;
+
     PIN_DIO0_TRIS = 1;
     PIN_DIO1_TRIS = 1;
     PIN_DIO2_TRIS = 1;
@@ -172,14 +175,18 @@ void io_init(void)
     PIN_DIO6_TRIS = 0;
     PIN_DIO7_TRIS = 0;
 
+    PIN_SIP0_LAT = 0;
     PIN_SIP1_LAT = 0;
     PIN_SIP2_LAT = 0;
+    PIN_SIP3_LAT = 0;
     PIN_SIP4_LAT = 0;
     PIN_SIP5_LAT = 0;
     PIN_SIP6_LAT = 0;
     PIN_SIP7_LAT = 0;
+    PIN_SIP0_TRIS = 0;
     PIN_SIP1_TRIS = 0;
     PIN_SIP2_TRIS = 0;
+    PIN_SIP3_TRIS = 0;
     PIN_SIP4_TRIS = 0;
     PIN_SIP5_TRIS = 0;
     PIN_SIP6_TRIS = 0;
@@ -257,8 +264,10 @@ void io_write(const PlcOutputs *out)
     PIN_DIO6_LAT = out->dio_out[2] ? 1 : 0;
     PIN_DIO7_LAT = out->dio_out[3] ? 1 : 0;
 
+    PIN_SIP0_LAT = out->sip[0] ? 1 : 0;
     PIN_SIP1_LAT = out->sip[1] ? 1 : 0;
     PIN_SIP2_LAT = out->sip[2] ? 1 : 0;
+    PIN_SIP3_LAT = out->sip[3] ? 1 : 0;
     PIN_SIP4_LAT = out->sip[4] ? 1 : 0;
     PIN_SIP5_LAT = out->sip[5] ? 1 : 0;
     PIN_SIP6_LAT = out->sip[6] ? 1 : 0;

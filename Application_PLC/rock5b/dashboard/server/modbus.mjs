@@ -54,16 +54,18 @@ export function createModbus(host, port) {
       next.on("data", onData);
       next.on("error", (err) => {
         clearTimeout(timer);
-        if (socket === next) socket = null;
-        fail(err);
+        const active = socket === next;
+        if (active) socket = null;
+        if (waiter && waiter.socket === next) fail(err);
         if (!settled) {
           settled = true;
           reject(err);
         }
       });
       next.on("close", () => {
-        if (socket === next) socket = null;
-        fail(new Error("Melacs stängde anslutningen"));
+        const active = socket === next;
+        if (active) socket = null;
+        if (waiter && waiter.socket === next) fail(new Error("Melacs stängde anslutningen"));
       });
     });
   }
@@ -86,6 +88,7 @@ export function createModbus(host, port) {
         }, 700);
         waiter = {
           id,
+          socket,
           resolve: (value) => {
             clearTimeout(timer);
             resolve(value);

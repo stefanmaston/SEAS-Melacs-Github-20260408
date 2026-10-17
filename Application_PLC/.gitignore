@@ -1,3 +1,5 @@
 firmware_pic32/build/
 rock5b/dashboard/node_modules/
 rock5b/dashboard/dist/
+rock5b/dashboard/.license/
+rock5b/dashboard/data/

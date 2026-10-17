@@ -1,0 +1,18 @@
+[Unit]
+Description=Melacs Modbus session to the PIC32
+After=network-online.target melacs-net.service
+Wants=network-online.target
+Requires=melacs-net.service
+
+[Service]
+Type=simple
+Environment=MELACS_UPSTREAM_HOST=192.168.1.160
+Environment=MELACS_UPSTREAM_PORT=502
+Environment=MELACS_PROXY_HOST=127.0.0.1
+Environment=MELACS_PROXY_PORT=1502
+ExecStart=/usr/bin/node /opt/melacs-dashboard/server/modbus-proxy.mjs
+Restart=on-failure
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
