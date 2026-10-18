@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include "logger.h"
 #include "modbus_tcp.h"
 #include "plat_host.h"
@@ -359,6 +360,11 @@ static int run_tests(void)
     plc_runtime_tick();
     expect(plat_host_beep_count() == 1, "signalen tas emot även i safe");
     expect(read_holding(210, 1, &year) == 0 && year == 0, "signalregistret läses som 0");
+
+    expect(write_reg(301, 0x8019u) == 0, "skriv förregling via Modbus");
+    expect(read_holding(301, 1, &year) == 0 && year == 0x8019u, "förreglingen läses tillbaka");
+    expect(write_reg(305, 1) != 0, "lucka i snabbblocket är inte skrivbar");
+    expect(read_input(300, &year) == 0 && year == 0, "ingen förregling utlöst på host");
 
     modbus_tcp_stop();
     if (g_fails != 0) {

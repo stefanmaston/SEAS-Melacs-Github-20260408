@@ -21,11 +21,37 @@ Utan PLC-program ligger utgångarna i safe: DIO av, AO0–AO2 är 0. Loggern skr
 
 Klockan ställs genom holding 202–208 tillsammans med `rtc_set` (209) = 1. Adresserna 0–201 är oförändrade.
 
+## Tidbas och svarstider (PIC32)
+
+Timer1 ger en tidbas på 1 kHz. Huvudloopen har ingen fast fördröjning:
+
+| Takt | Vad |
+|---|---|
+| Varje varv | Ethernet och Modbus. En fråga besvaras normalt inom en bråkdel av en millisekund. |
+| Var 10 ms | PLC-svepet ovan: I/O, logger, SD, klocka och registerbild. |
+| 1 kHz, i avbrott | Snabbfunktioner: förreglingar och PID (se nedan). |
+
+Medan SD-kortet programmerar en sektor släpps SPI-bussen och Ethernet betjänas, så loggningen stoppar inte Modbus. Tillägg till `MELACS.CSV` tar lika lång tid oavsett filens storlek; FAT-sektorn och senaste klustret cachas.
+
+Avbrottet rör aldrig SPI-bussen. Det använder bara DIO0–DIO3, den inbyggda ADC:n (AI10–AI15) och PWM-registren. AD0–AD7 sitter på SPI och läses i PLC-svepet.
+
+ENC424J600:s INT-ben är inte draget till PIC32 på R3A, så Ethernet pollas.
+
+## Snabbfunktioner, Modbus 300–339
+
+Fyra förreglingar och två PID-kanaler körs i 1 kHz-avbrottet. Hela kartan står under `fast_ctrl` i [shared/register_map.json](shared/register_map.json) och i `firmware_pic32/include/fast_ctrl.h`.
+
+- **Förregling** (holding 301–304): en DIO-ingång som löser ut spärrar H1, H2 eller båda inom en millisekund. Spärren är låst tills den kvitteras med holding 300 = 1 och ingången har återgått. Den gäller även i safe.
+- **PID** (holding 310–319 och 320–329): återkoppling från AI10–AI15, utsignal till en av H-bryggornas PWM-kanaler. Kanalen ägs då av avbrottet och Modbus-värdet i 110–113 för den kanalen används inte. PID:en driver bara när PLC-utgångarna är släppta och bryggans DIS är låg. Samma bens lågsida (ALI/BLI) hålls av så länge PID:en äger högsidan. `out_max` är 0 från start.
+- **Status** (input 300–303, 310–312, 320–322): utlösta förreglingar, tickräknare, längsta avbrottstid i µs, utsignal, återkoppling och reglerfel.
+
+Förreglingen är en snabb driftfunktion, inte en certifierad säkerhetsfunktion. Nödstopp och tryckskydd ska vara hårdkopplade.
+
 ## Bygg host-test (utan XC32)
 
 ```bash
 cd Application_PLC/firmware_pic32
-make host-test
+make test        # unit-test för snabbfunktionerna + host-test
 ```
 
 Modbus TCP-slav mot samma karta, för OpenPLC på datorn:

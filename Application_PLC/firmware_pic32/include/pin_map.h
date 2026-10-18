@@ -95,6 +95,19 @@
 #define PIN_CS_ETH_TRIS   TRISAbits.TRISA6
 #define PIN_CS_ETH_LAT    LATAbits.LATA6
 
+/*
+ * Odelbara SET/CLR-skrivningar för ben som delar port med H-bryggornas
+ * spärr- och lågsidesben (port A, E och G). Timer1-avbrottet sätter de benen,
+ * och en vanlig bitfältsskrivning (läs-ändra-skriv) i huvudloopen kan annars
+ * skriva tillbaka ett gammalt värde.
+ */
+#define PIN_CS_AD_HI()    (LATGSET = 1u << 0)
+#define PIN_CS_AD_LO()    (LATGCLR = 1u << 0)
+#define PIN_CS_RTC_HI()   (LATGSET = 1u << 1)
+#define PIN_CS_RTC_LO()   (LATGCLR = 1u << 1)
+#define PIN_CS_ETH_HI()   (LATASET = 1u << 6)
+#define PIN_CS_ETH_LO()   (LATACLR = 1u << 6)
+
 #define PIN_H1_DIS_TRIS TRISAbits.TRISA14
 #define PIN_H1_DIS_LAT  LATAbits.LATA14
 #define PIN_H1_AHI_TRIS TRISDbits.TRISD0
@@ -116,6 +129,14 @@
 #define PIN_H2_BHI_LAT  LATDbits.LATD3
 #define PIN_H2_BLI_TRIS TRISEbits.TRISE3
 #define PIN_H2_BLI_LAT  LATEbits.LATE3
+
+/* Odelbara skrivningar som avbrottets förregling använder. */
+#define PIN_H1_DIS_SET()  (LATASET = 1u << 14)
+#define PIN_H2_DIS_SET()  (LATASET = 1u << 15)
+#define PIN_H1_ALI_CLR()  (LATGCLR = 1u << 9)
+#define PIN_H1_BLI_CLR()  (LATGCLR = 1u << 13)
+#define PIN_H2_ALI_CLR()  (LATECLR = 1u << 7)
+#define PIN_H2_BLI_CLR()  (LATECLR = 1u << 3)
 
 /*
  * Inbyggd ADC, samma skanningsordning som på kortet:

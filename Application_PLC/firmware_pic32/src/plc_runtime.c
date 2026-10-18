@@ -1,5 +1,6 @@
 #include "plc_runtime.h"
 
+#include "fast_ctrl.h"
 #include "log_history.h"
 #include "logger.h"
 #include "register_image.h"
@@ -24,6 +25,7 @@ void plc_runtime_init(const char *log_path)
     rtc_init();
     logger_init(log_path);
     register_image_init();
+    fast_ctrl_init();
     g_st.safe_mode = 0;
     g_st.log_period_s = MELACS_LOG_PERIOD_S;
     g_st.scan_count = 0;
@@ -68,6 +70,8 @@ void plc_runtime_tick(void)
         safe_outputs(&g_out);
         g_st.plc_running = false;
     }
+    /* Snabba PID-kanaler får bara driva när PLC-utgångarna är släppta. */
+    fast_ctrl_set_run(g_st.plc_running);
 
     if (logger_tick(&clk, g_st.log_period_s, &g_in, &g_out, &g_st)) {
         g_st.log_count++;

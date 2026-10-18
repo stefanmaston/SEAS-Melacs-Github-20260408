@@ -1,5 +1,6 @@
 #include "register_image.h"
 
+#include "fast_ctrl.h"
 #include "image_lock.h"
 #include "log_history.h"
 #include "logger.h"
@@ -125,6 +126,11 @@ static uint16_t read_input_reg(uint16_t addr)
     if (addr == 20) {
         return g_in.error_code;
     }
+    if (fast_ctrl_is_reg(addr)) {
+        uint16_t value = 0;
+        (void)fast_ctrl_read_input(addr, &value);
+        return value;
+    }
     if (addr >= LOG_HIST_STATUS) {
         return log_history_reg(addr);
     }
@@ -133,6 +139,11 @@ static uint16_t read_input_reg(uint16_t addr)
 
 static uint16_t read_holding_reg(uint16_t addr)
 {
+    if (fast_ctrl_is_reg(addr)) {
+        uint16_t value = 0;
+        (void)fast_ctrl_read_holding(addr, &value);
+        return value;
+    }
     switch (addr) {
     case REG_AO: return g_cmd.ao[0];
     case REG_AO + 1: return g_cmd.ao[1];
@@ -163,7 +174,8 @@ static bool holding_writable(uint16_t addr)
     return (addr >= REG_AO && addr <= REG_AO + 2)
         || (addr >= REG_H_PWM && addr <= REG_NOTE)
         || (addr >= REG_SAFE && addr <= REG_BEEP)
-        || addr == REG_HIST_ARM;
+        || addr == REG_HIST_ARM
+        || fast_ctrl_writable(addr);
 }
 
 static bool clock_from_buf(RtcClock *clk)
@@ -196,6 +208,9 @@ static void note_output_write(void)
 
 static void write_one_holding(uint16_t addr, uint16_t value, bool *rising)
 {
+    if (fast_ctrl_write_reg(addr, value)) {
+        return;
+    }
     if (addr >= REG_RTC_YEAR && addr < REG_RTC_SET) {
         g_setbuf[addr - REG_RTC_YEAR] = value;
         return;
@@ -397,9 +412,12 @@ int register_image_write_regs(uint16_t addr, uint16_t count, const uint16_t *src
     }
 
     image_lock();
+    /* Hela svepet blir synligt för snabbfunktionerna på en gång. */
+    fast_lock();
     for (i = 0; i < count; i++) {
         write_one_holding((uint16_t)(addr + i), src[i], &rising);
     }
+    fast_unlock();
     if (rising && clock_from_buf(&requested)) {
         g_clock_req = requested;
         g_clock_pending = true;

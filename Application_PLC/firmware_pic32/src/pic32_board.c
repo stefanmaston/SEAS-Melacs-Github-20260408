@@ -19,12 +19,37 @@ void delay_ms(uint32_t ms)
     }
 }
 
+static void (*g_yield_hook)(void);
+static int g_in_yield;
+
+void board_set_yield(void (*hook)(void))
+{
+    g_yield_hook = hook;
+}
+
+void board_yield(void)
+{
+    if (g_yield_hook == 0 || g_in_yield) {
+        return;
+    }
+    g_in_yield = 1;
+    g_yield_hook();
+    g_in_yield = 0;
+}
+
+/* Före tick_init räknas tiden från kärntimern, därefter från Timer1. */
 uint32_t board_millis(void)
 {
     static uint32_t last;
     static uint32_t ms;
-    uint32_t now = _CP0_GET_COUNT();
-    uint32_t step = (now - last) / 36000u;
+    uint32_t now;
+    uint32_t step;
+
+    if (tick_running()) {
+        return tick_millis();
+    }
+    now = _CP0_GET_COUNT();
+    step = (now - last) / 36000u;
 
     if (step > 0) {
         ms += step;
@@ -39,6 +64,7 @@ void board_init(void)
 
     io_init();
     spi_bus_init();
+    tick_init();
     (void)sd_start();
     if (enc_start(mac)) {
         net_init(mac);

@@ -1,20 +1,32 @@
 CC ?= cc
 CFLAGS ?= -std=c99 -Wall -Wextra -Iinclude -pthread
-SRC = src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c src/modbus_tcp.c src/plat_host.c src/host_main.c
+SRC = src/fast_ctrl.c src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c src/modbus_tcp.c src/plat_host.c src/host_main.c
 OUT = build/plc_host_test
 
 XC32 ?= /Applications/microchip/xc32/v6.00/bin/xc32-gcc
 XC32_HEX ?= /Applications/microchip/xc32/v6.00/bin/xc32-bin2hex
 XC32_CFLAGS = -mprocessor=32MX795F512L -mdfp=/Applications/microchip/mplabx/v6.35/packs/Microchip/PIC32MX_DFP/1.7.380 -O1 -std=gnu99 -Wall -Iinclude -ffunction-sections -fdata-sections
-PIC32_SRC = src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c \
+PIC32_SRC = src/fast_ctrl.c src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c \
 	src/plat_pic32.c src/pic32_config.c src/pic32_board.c src/pic32_spi.c src/pic32_io.c \
-	src/pic32_sd.c src/pic32_enc.c src/pic32_net.c src/pic32_main.c
+	src/pic32_sd.c src/pic32_enc.c src/pic32_net.c src/pic32_tick.c src/pic32_main.c
 PIC32_ELF = build/melacs_pic32.elf
 
-.PHONY: host-test pic32 clean
+.PHONY: host-test unit-test test pic32 clean
 
 host-test: $(OUT)
 	$(OUT)
+
+UNIT_OUT = build/unit_test
+UNIT_SRC = tests/fast_ctrl_test.c $(filter-out src/host_main.c,$(SRC))
+
+unit-test: $(UNIT_OUT)
+	$(UNIT_OUT)
+
+test: unit-test host-test
+
+$(UNIT_OUT): $(UNIT_SRC) $(PACK_C) include/fast_ctrl.h include/register_image.h
+	mkdir -p build
+	$(CC) $(CFLAGS) -o $@ $(UNIT_SRC) $(PACK_C)
 
 PACK_C = build/sd_pack_data.c
 PACK_IN = tools/pack_sd.py ../sd_pack/README.txt ../sd_pack/project.json \
@@ -26,14 +38,14 @@ $(PACK_C): $(PACK_IN)
 	mkdir -p build
 	python3 tools/pack_sd.py $@
 
-$(OUT): $(SRC) $(PACK_C) include/plc_runtime.h include/rtc.h include/logger.h include/register_image.h include/modbus_tcp.h include/modbus_pdu.h include/plat_host.h include/sd_pack.h
+$(OUT): $(SRC) $(PACK_C) include/fast_ctrl.h include/plc_runtime.h include/rtc.h include/logger.h include/register_image.h include/modbus_tcp.h include/modbus_pdu.h include/plat_host.h include/sd_pack.h
 	mkdir -p build
 	$(CC) $(CFLAGS) -o $@ $(SRC) $(PACK_C)
 
 pic32: $(PIC32_ELF)
 	$(XC32_HEX) $(PIC32_ELF)
 
-$(PIC32_ELF): $(PIC32_SRC) $(PACK_C) include/pin_map.h include/plc_runtime.h include/rtc.h include/logger.h include/register_image.h include/modbus_pdu.h include/sd_pack.h
+$(PIC32_ELF): $(PIC32_SRC) $(PACK_C) include/fast_ctrl.h include/pic32_board.h include/pin_map.h include/plc_runtime.h include/rtc.h include/logger.h include/register_image.h include/modbus_pdu.h include/sd_pack.h
 	mkdir -p build
 	$(XC32) $(XC32_CFLAGS) -Wl,--gc-sections -o $@ $(PIC32_SRC) $(PACK_C)
 

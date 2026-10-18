@@ -1,3 +1,4 @@
+#include "fast_ctrl.h"
 #include "pic32_board.h"
 #include "pin_map.h"
 
@@ -132,12 +133,12 @@ static uint16_t mcp3208(uint8_t channel)
 
     spi_hw_off();
     PIN_SPI_SCK_LAT = 0;
-    PIN_CS_AD_LAT = 0;
+    PIN_CS_AD_LO();
     delay_us(2);
     (void)bb_xfer((uint8_t)(0x06u | (channel >> 2)));
     hi = bb_xfer((uint8_t)((channel & 3u) << 6));
     lo = bb_xfer(0);
-    PIN_CS_AD_LAT = 1;
+    PIN_CS_AD_HI();
     spi_hw_on(0);
     return (uint16_t)(((hi & 0x0Fu) << 8) | lo);
 }
@@ -256,8 +257,17 @@ static uint16_t pwm_duty(uint16_t value)
 
 void io_write(const PlcOutputs *out)
 {
-    int h1_on = out->h1_dis ? 0 : 1;
-    int h2_on = out->h2_dis ? 0 : 1;
+    /* En förregling i avbrottet vinner alltid över PLC-kommandot. */
+    int h1_on = (out->h1_dis || fast_ctrl_blocked(0)) ? 0 : 1;
+    int h2_on = (out->h2_dis || fast_ctrl_blocked(1)) ? 0 : 1;
+    uint8_t owned;
+
+    /*
+     * Timer1 maskas medan portarna skrivs, så avbrottet inte kan sätta ett
+     * spärrben mitt i en läs-ändra-skriv-operation på samma port.
+     */
+    fast_lock();
+    owned = fast_ctrl_owned_pwm();
 
     PIN_DIO4_LAT = out->dio_out[0] ? 1 : 0;
     PIN_DIO5_LAT = out->dio_out[1] ? 1 : 0;
@@ -273,17 +283,103 @@ void io_write(const PlcOutputs *out)
     PIN_SIP6_LAT = out->sip[6] ? 1 : 0;
     PIN_SIP7_LAT = out->sip[7] ? 1 : 0;
 
+    /*
+     * När en PID äger en högsida hålls samma bens lågsida av, så PLC-kommandot
+     * inte kan slå på båda transistorerna i ett ben samtidigt.
+     */
     PIN_H1_DIS_LAT = h1_on ? 0 : 1;
-    PIN_H1_ALI_LAT = (h1_on && out->h1_ali) ? 1 : 0;
-    PIN_H1_BLI_LAT = (h1_on && out->h1_bli) ? 1 : 0;
+    PIN_H1_ALI_LAT = (h1_on && out->h1_ali && (owned & 1u) == 0) ? 1 : 0;
+    PIN_H1_BLI_LAT = (h1_on && out->h1_bli && (owned & 2u) == 0) ? 1 : 0;
     PIN_H2_DIS_LAT = h2_on ? 0 : 1;
-    PIN_H2_ALI_LAT = (h2_on && out->h2_ali) ? 1 : 0;
-    PIN_H2_BLI_LAT = (h2_on && out->h2_bli) ? 1 : 0;
+    PIN_H2_ALI_LAT = (h2_on && out->h2_ali && (owned & 4u) == 0) ? 1 : 0;
+    PIN_H2_BLI_LAT = (h2_on && out->h2_bli && (owned & 8u) == 0) ? 1 : 0;
 
-    OC1RS = h1_on ? pwm_duty(out->h1_ahi) : 0;
-    OC2RS = h1_on ? pwm_duty(out->h1_bhi) : 0;
-    OC3RS = h2_on ? pwm_duty(out->h2_ahi) : 0;
-    OC4RS = h2_on ? pwm_duty(out->h2_bhi) : 0;
+    /* Kanaler som en snabb PID äger skrivs bara av avbrottet. */
+    if ((owned & 1u) == 0) {
+        OC1RS = h1_on ? pwm_duty(out->h1_ahi) : 0;
+    }
+    if ((owned & 2u) == 0) {
+        OC2RS = h1_on ? pwm_duty(out->h1_bhi) : 0;
+    }
+    if ((owned & 4u) == 0) {
+        OC3RS = h2_on ? pwm_duty(out->h2_ahi) : 0;
+    }
+    if ((owned & 8u) == 0) {
+        OC4RS = h2_on ? pwm_duty(out->h2_bhi) : 0;
+    }
+    fast_unlock();
+}
+
+/* Körs i Timer1-avbrottet. Bara portläsning och inbyggd ADC, ingen SPI. */
+void io_fast_read(FastIn *in)
+{
+    int i;
+
+    in->dio_in[0] = PIN_DIO0_PORT ? true : false;
+    in->dio_in[1] = PIN_DIO1_PORT ? true : false;
+    in->dio_in[2] = PIN_DIO2_PORT ? true : false;
+    in->dio_in[3] = PIN_DIO3_PORT ? true : false;
+    for (i = 0; i < 6; i++) {
+        in->ai[i] = adc_sample(4 + i);
+    }
+}
+
+/*
+ * Körs i Timer1-avbrottet. Spärren sätts med odelbara SET/CLR-skrivningar
+ * och upprepas varje tick så länge förreglingen är utlöst.
+ */
+static void set_oc(int n, uint16_t duty)
+{
+    switch (n) {
+    case 0: OC1RS = duty; break;
+    case 1: OC2RS = duty; break;
+    case 2: OC3RS = duty; break;
+    default: OC4RS = duty; break;
+    }
+}
+
+static int low_side_on(int n)
+{
+    switch (n) {
+    case 0: return PIN_H1_ALI_LAT != 0;
+    case 1: return PIN_H1_BLI_LAT != 0;
+    case 2: return PIN_H2_ALI_LAT != 0;
+    default: return PIN_H2_BLI_LAT != 0;
+    }
+}
+
+void io_fast_apply(const FastOut *out)
+{
+    int n;
+
+    if (out->block[0]) {
+        PIN_H1_DIS_SET();
+        PIN_H1_ALI_CLR();
+        PIN_H1_BLI_CLR();
+        OC1RS = 0;
+        OC2RS = 0;
+    }
+    if (out->block[1]) {
+        PIN_H2_DIS_SET();
+        PIN_H2_ALI_CLR();
+        PIN_H2_BLI_CLR();
+        OC3RS = 0;
+        OC4RS = 0;
+    }
+    for (n = 0; n < FAST_N_PWM; n++) {
+        int bridge = n < 2 ? 0 : 1;
+        int enabled;
+
+        if ((out->pwm_owned & (1u << n)) == 0 || out->block[bridge]) {
+            continue;
+        }
+        enabled = bridge == 0 ? (PIN_H1_DIS_LAT == 0) : (PIN_H2_DIS_LAT == 0);
+        /* Driv aldrig en högsida medan samma bens lågsida är på. */
+        if (low_side_on(n)) {
+            enabled = 0;
+        }
+        set_oc(n, enabled ? pwm_duty(out->pwm[n]) : 0);
+    }
 }
 
 static void rtc_out_bit(int bit)
@@ -333,16 +429,16 @@ static void rtc_begin(uint8_t cmd)
 {
     spi_hw_off();
     PIN_SPI_SCK_LAT = 1;
-    PIN_CS_RTC_LAT = 1;
+    PIN_CS_RTC_HI();
     delay_us(2);
-    PIN_CS_RTC_LAT = 0;
+    PIN_CS_RTC_LO();
     delay_us(2);
     rtc_out_byte(cmd);
 }
 
 static void rtc_end(void)
 {
-    PIN_CS_RTC_LAT = 1;
+    PIN_CS_RTC_HI();
     PIN_SPI_SCK_LAT = 0;
     spi_hw_on(0);
 }

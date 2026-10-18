@@ -2,6 +2,7 @@
 #define PIC32_BOARD_H
 
 #include <xc.h>
+#include "fast_ctrl.h"
 #include "plc_runtime.h"
 #include "rtc.h"
 
@@ -12,6 +13,18 @@ void board_init(void);
 void delay_us(uint32_t us);
 void delay_ms(uint32_t ms);
 uint32_t board_millis(void);
+
+/* Timer1-tidbas, 1 kHz. Se pic32_tick.c. */
+void tick_init(void);
+uint32_t tick_millis(void);
+int tick_running(void);
+
+/*
+ * Långa väntelägen (SD-kortets programmering) anropar board_yield(), så att
+ * Ethernet kan betjänas medan bussen är ledig. Kroken körs aldrig nästlat.
+ */
+void board_set_yield(void (*hook)(void));
+void board_yield(void);
 
 void spi_bus_init(void);
 void spi_hw_on(int slow);
@@ -30,6 +43,8 @@ void buzzer_poll(void);
 void io_init(void);
 void io_read(PlcInputs *in);
 void io_write(const PlcOutputs *out);
+void io_fast_read(FastIn *in);
+void io_fast_apply(const FastOut *out);
 
 bool rtc_chip_read(RtcClock *clk);
 bool rtc_chip_write(const RtcClock *clk);

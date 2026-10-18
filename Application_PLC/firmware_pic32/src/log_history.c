@@ -239,12 +239,29 @@ static void read_file(void)
 }
 #endif
 
+#if defined(__PIC32MX__)
+/*
+ * På PIC32 kan en Modbus-skrivning komma medan SD-läsningen pågår, eftersom
+ * Ethernet betjänas under SD-kortets väntetid. Begäran sparas därför och
+ * startas först i nästa PLC-svep, när ingen SD-operation är halvvägs.
+ */
+static volatile int g_arm_pending;
+static uint16_t g_arm_minutes;
+static RtcClock g_arm_now;
+static int g_arm_have_now;
+#endif
+
 void log_history_arm(uint16_t minutes, const RtcClock *now)
 {
-    begin_scan(minutes, now);
 #if defined(__PIC32MX__)
-    sd_hist_start((uint32_t)g_minutes * 60u * 512u);
+    g_arm_minutes = minutes;
+    g_arm_have_now = now != NULL;
+    if (now != NULL) {
+        g_arm_now = *now;
+    }
+    g_arm_pending = 1;
 #else
+    begin_scan(minutes, now);
     read_file();
 #endif
 }
@@ -255,6 +272,11 @@ void log_history_poll(const RtcClock *now)
         g_now_sec = clock_sec(now);
     }
 #if defined(__PIC32MX__)
+    if (g_arm_pending) {
+        g_arm_pending = 0;
+        begin_scan(g_arm_minutes, g_arm_have_now ? &g_arm_now : now);
+        sd_hist_start((uint32_t)g_minutes * 60u * 512u);
+    }
     if (g_status == HIST_BUSY) {
         sd_hist_step();
     }
@@ -265,6 +287,12 @@ void log_history_poll(const RtcClock *now)
 
 uint16_t log_history_status(void)
 {
+#if defined(__PIC32MX__)
+    /* En väntande begäran visas som upptagen, så gamla data inte läses som klara. */
+    if (g_arm_pending) {
+        return HIST_BUSY;
+    }
+#endif
     return g_status;
 }
 
@@ -286,7 +314,7 @@ uint16_t log_history_reg(uint16_t addr)
     const HistPoint *point;
 
     if (addr == LOG_HIST_STATUS) {
-        return g_status;
+        return log_history_status();
     }
     if (addr == LOG_HIST_COUNT) {
         return g_count;

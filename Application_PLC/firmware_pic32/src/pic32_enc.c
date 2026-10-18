@@ -54,7 +54,11 @@ static uint16_t g_next = RX_START;
 
 static void cs(int on)
 {
-    PIN_CS_ETH_LAT = on ? 0 : 1;
+    if (on) {
+        PIN_CS_ETH_LO();
+    } else {
+        PIN_CS_ETH_HI();
+    }
 }
 
 static void enc_cmd(uint8_t op)
@@ -168,7 +172,7 @@ bool enc_start(uint8_t mac[6])
     g_tx_fail = 0;
     g_next = RX_START;
     spi_hw_on(0);
-    PIN_CS_ETH_LAT = 1;
+    PIN_CS_ETH_HI();
     for (i = 0; i < 8; i++) {
         enc_w16(REG_EUDAST, 0x1234);
         if (enc_r16(REG_EUDAST) == 0x1234) {

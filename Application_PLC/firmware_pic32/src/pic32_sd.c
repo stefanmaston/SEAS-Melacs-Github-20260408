@@ -28,6 +28,31 @@ static uint32_t g_file_size;
 static uint8_t g_sec[512];
 static uint8_t g_fat[512];
 
+/*
+ * g_fat håller en FAT-sektor. g_fat_cached säger vilken, så samma sektor
+ * inte läses om för varje klusteruppslag.
+ */
+#define FAT_NONE 0xFFFFFFFFu
+static uint32_t g_fat_cached = FAT_NONE;
+static uint32_t g_alloc_hint;
+
+/*
+ * Senaste klusteruppslag i den öppna filen. En loggrad hamnar i slutet av
+ * filen, så nästa uppslag börjar här i stället för vid filens första kluster.
+ * Utan detta växer tiden per rad med filens storlek.
+ */
+static int g_cc_valid;
+static uint32_t g_cc_first;
+static uint32_t g_cc_index;
+static uint32_t g_cc_cluster;
+
+static void sd_cache_reset(void)
+{
+    g_fat_cached = FAT_NONE;
+    g_alloc_hint = 0;
+    g_cc_valid = 0;
+}
+
 static uint8_t sd_command(uint8_t cmd, uint32_t arg, uint8_t crc)
 {
     int i;
@@ -73,6 +98,9 @@ bool sd_read(uint32_t lba, uint8_t *dest)
     int i;
     int ok = 0;
 
+    /* Bussen är ledig mellan två sektoroperationer. */
+    board_yield();
+    spi_hw_on(0);
     memled_sd(1);
     sd_select(1);
     if (sd_command(17, addr, 0xFF) == 0 && sd_wait_token(0xFE)) {
@@ -96,6 +124,8 @@ static bool sd_write(uint32_t lba, const uint8_t *src)
     uint8_t reply;
     int ok = 0;
 
+    board_yield();
+    spi_hw_on(0);
     memled_sd(1);
     sd_select(1);
     if (sd_command(24, addr, 0xFF) != 0) {
@@ -114,11 +144,20 @@ static bool sd_write(uint32_t lba, const uint8_t *src)
     if ((reply & 0x1Fu) == 0x05u) {
         start = board_millis();
         ok = 1;
+        /*
+         * Kortet programmerar nu sektorn (ofta 1–250 ms). Ett SD-kort fortsätter
+         * programmera med CS hög och håller DO låg igen när det väljs, så
+         * bussen släpps under väntan och Ethernet betjänas emellan.
+         */
         while (spi_xfer(0xFF) != 0xFF) {
             if (board_millis() - start > 500u) {
                 ok = 0;
                 break;
             }
+            sd_select(0);
+            board_yield();
+            spi_hw_on(0);
+            sd_select(1);
         }
     }
     sd_select(0);
@@ -136,6 +175,7 @@ bool sd_start(void)
     g_sd_ok = 0;
     g_mounted = 0;
     g_have_file = 0;
+    sd_cache_reset();
     memled_sd(1);
     spi_hw_on(1);
     sd_select(0);
@@ -230,13 +270,26 @@ static uint32_t cluster_lba(uint32_t cluster)
     return g_data_lba + (cluster - 2u) * g_spc;
 }
 
+static bool fat_load(uint32_t lba)
+{
+    if (g_fat_cached == lba) {
+        return true;
+    }
+    g_fat_cached = FAT_NONE;
+    if (!sd_read(lba, g_fat)) {
+        return false;
+    }
+    g_fat_cached = lba;
+    return true;
+}
+
 static uint32_t fat_read(uint32_t cluster)
 {
     uint32_t entries = g_fat32 ? 128u : 256u;
     uint32_t lba = g_fat_lba + cluster / entries;
     uint32_t index = cluster % entries;
 
-    if (!sd_read(lba, g_fat)) {
+    if (!fat_load(lba)) {
         return 0xFFFFFFFFu;
     }
     if (g_fat32) {
@@ -252,7 +305,7 @@ static bool fat_write_entry(uint32_t cluster, uint32_t value)
     uint32_t index = cluster % entries;
     int copy;
 
-    if (!sd_read(g_fat_lba + index_lba, g_fat)) {
+    if (!fat_load(g_fat_lba + index_lba)) {
         return false;
     }
     if (g_fat32) {
@@ -269,6 +322,7 @@ static bool fat_write_entry(uint32_t cluster, uint32_t value)
     }
     for (copy = 0; copy < g_fats; copy++) {
         if (!sd_write(g_fat_lba + (uint32_t)copy * g_fat_sectors + index_lba, g_fat)) {
+            g_fat_cached = FAT_NONE;
             return false;
         }
     }
@@ -278,11 +332,16 @@ static bool fat_write_entry(uint32_t cluster, uint32_t value)
 static uint32_t fat_alloc(void)
 {
     uint32_t entries = g_fat32 ? 128u : 256u;
-    uint32_t lba;
+    uint32_t scanned;
 
-    for (lba = 0; lba < g_fat_sectors; lba++) {
+    /* Börja där förra lediga klustret hittades, och gå varvet runt. */
+    if (g_alloc_hint >= g_fat_sectors) {
+        g_alloc_hint = 0;
+    }
+    for (scanned = 0; scanned < g_fat_sectors; scanned++) {
+        uint32_t lba = (g_alloc_hint + scanned) % g_fat_sectors;
         uint32_t i;
-        if (!sd_read(g_fat_lba + lba, g_fat)) {
+        if (!fat_load(g_fat_lba + lba)) {
             return 0;
         }
         for (i = 0; i < entries; i++) {
@@ -296,6 +355,7 @@ static uint32_t fat_alloc(void)
                 if (!fat_write_entry(cluster, 0x0FFFFFFFu)) {
                     return 0;
                 }
+                g_alloc_hint = lba;
                 return cluster;
             }
         }
@@ -507,16 +567,25 @@ static bool mount_fat(void)
     }
     data_sectors = total - (g_data_lba - g_part);
     g_clusters = data_sectors / g_spc;
+    sd_cache_reset();
     g_mounted = 1;
     g_have_file = 0;
     return true;
+}
+
+static void cc_store(uint32_t index, uint32_t cluster)
+{
+    g_cc_valid = 1;
+    g_cc_first = g_file_cluster;
+    g_cc_index = index;
+    g_cc_cluster = cluster;
 }
 
 static uint32_t cluster_at(uint32_t pos, int alloc_end)
 {
     uint32_t cluster = g_file_cluster;
     uint32_t step = pos / ((uint32_t)g_spc * 512u);
-    uint32_t i;
+    uint32_t i = 0;
 
     if (cluster < 2) {
         cluster = fat_alloc();
@@ -524,9 +593,14 @@ static uint32_t cluster_at(uint32_t pos, int alloc_end)
             return 0;
         }
         g_file_cluster = cluster;
+        cc_store(0, cluster);
         return cluster;
     }
-    for (i = 0; i < step; i++) {
+    if (g_cc_valid && g_cc_first == g_file_cluster && g_cc_index <= step) {
+        i = g_cc_index;
+        cluster = g_cc_cluster;
+    }
+    for (; i < step; i++) {
         uint32_t next = fat_read(cluster);
         if (next == 0xFFFFFFFFu) {
             return 0;
@@ -542,6 +616,7 @@ static uint32_t cluster_at(uint32_t pos, int alloc_end)
         }
         cluster = next;
     }
+    cc_store(step, cluster);
     return cluster;
 }
 
