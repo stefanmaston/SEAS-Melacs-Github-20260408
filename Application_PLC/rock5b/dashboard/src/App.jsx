@@ -9,7 +9,7 @@ import { usePlant } from "./usePlant.js";
 
 const VIEWS = [
   { id: "overview", label: "Översikt" },
-  { id: "fuxa", label: "FUXA" },
+  { id: "fuxa", label: "Scada" },
   { id: "controls", label: "Reglage" },
   { id: "logger", label: "Logger" },
   { id: "cockpit", label: "Cockpit" },
@@ -222,7 +222,7 @@ function FuxaFrame() {
   return (
     <iframe
       className="cockpit-frame"
-      title="FUXA"
+      title="Scada"
       src="/fuxa/"
       onLoad={(event) => keepFuxa(event.currentTarget)}
     />

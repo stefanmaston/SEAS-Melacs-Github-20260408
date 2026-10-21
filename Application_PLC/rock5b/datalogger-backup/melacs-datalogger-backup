@@ -1,0 +1,67 @@
+#!/bin/sh
+# En kopia per dygn av varje lokalt anslutet Melacs-korts datalogger.
+# Källan är MELACS.BAK i kortets katalog, annars MELACS.CSV.
+# Lokal kopia: /var/lib/melacs/Datalogger_backup/<kort>/<datum>.csv
+# Extra kopia, när Kingston är monterad:
+#   /media/kingston/Datalogger_backup/<dietpi>/<kort>/<datum>.csv
+set -eu
+
+day=$(date +%Y-%m-%d)
+host=$(hostname)
+local_root=/var/lib/melacs/Datalogger_backup
+king_root=/media/kingston/Datalogger_backup
+conf=/etc/melacs/datalogger-cards
+
+mkdir -p "$local_root"
+
+king_ok=0
+if findmnt -n /media/kingston >/dev/null 2>&1; then
+  king_ok=1
+  mkdir -p "$king_root/$host"
+fi
+
+copy_file() {
+  name=$1
+  src=$2
+  if [ ! -f "$src" ]; then
+    return 0
+  fi
+  local_dir=$local_root/$name
+  local_file=$local_dir/$day.csv
+  mkdir -p "$local_dir"
+  if [ ! -f "$local_file" ]; then
+    cp -a "$src" "$local_file"
+    logger -t melacs-datalogger "sparade $name $day"
+  fi
+  if [ "$king_ok" -eq 1 ]; then
+    king_dir=$king_root/$host/$name
+    king_file=$king_dir/$day.csv
+    mkdir -p "$king_dir"
+    if [ ! -f "$king_file" ]; then
+      cp -a "$local_file" "$king_file"
+    fi
+  fi
+}
+
+if [ ! -f "$conf" ]; then
+  exit 0
+fi
+
+while read -r name path extra || [ -n "${name:-}" ]; do
+  case $name in
+    ""|\#*) continue ;;
+  esac
+  if [ -n "${extra:-}" ]; then
+    logger -t melacs-datalogger "hoppar över felaktig rad: $name"
+    continue
+  fi
+  if [ -d "$path" ]; then
+    if [ -f "$path/MELACS.BAK" ]; then
+      copy_file "$name" "$path/MELACS.BAK"
+    elif [ -f "$path/MELACS.CSV" ]; then
+      copy_file "$name" "$path/MELACS.CSV"
+    fi
+  else
+    copy_file "$name" "$path"
+  fi
+done < "$conf"

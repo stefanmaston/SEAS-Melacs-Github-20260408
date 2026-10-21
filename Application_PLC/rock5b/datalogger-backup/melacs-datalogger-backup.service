@@ -1,0 +1,7 @@
+[Unit]
+Description=Daglig kopia av Melacs-dataloggen
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/melacs-datalogger-backup

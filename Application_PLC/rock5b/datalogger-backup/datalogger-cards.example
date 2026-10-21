@@ -1,0 +1,3 @@
+# Ett Melacs-kort per rad: namn och katalog där kortets MELACS.BAK ligger.
+# Fler kort på samma DietPi är fler rader.
+kort-1 /var/lib/melacs/cards/kort-1

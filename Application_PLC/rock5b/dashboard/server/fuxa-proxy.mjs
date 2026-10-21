@@ -71,7 +71,7 @@ function unavailable(res) {
   if (res.headersSent || res.writableEnded) return;
   res.statusCode = 502;
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
-  res.end("FUXA svarade inte på port 1881.");
+  res.end("Scada svarade inte på port 1881.");
 }
 
 function sendUpstream(res, pres) {

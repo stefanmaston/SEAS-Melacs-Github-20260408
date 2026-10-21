@@ -34,7 +34,7 @@ Hur lådan ska användas, med lokal inloggning, licens och SEAS-webben, står i 
 
 Sidan körs på DietPi. Öppna lådans adress i nätverket. Hemmalådan är `http://192.168.50.60/`. Kontorslådan på Deco-nätet är `http://192.168.68.61/`. Ingen tunnel och ingen lokal Vite-process behövs. Sidan och OpenPLC delar Modbus-sessionen genom `melacs-modbus-proxy` på `127.0.0.1` port 1502.
 
-Menyn är Översikt, FUXA, Reglage, Logger, Cockpit och PLC editor. PLC editor är sidan för användare, licens och anslutning av OpenPLC. Cockpit och PLC editor syns för administratör och service.
+Menyn är Översikt, Scada, Reglage, Logger, Cockpit och PLC editor. PLC editor är sidan för användare, licens och anslutning av OpenPLC. Cockpit och PLC editor syns för administratör och service.
 
 Tjänsten är `melacs-dashboard.service`. Den startar med DietPi och läser `MELACS_HOST` och `MELACS_PORT`. Filer ligger i `/opt/melacs-dashboard` (`dist/`, `server/`, `shared/columns.js`).
 
@@ -58,9 +58,9 @@ MELACS_PORT=1506 npm run dev -- --host
 
 `MELACS_MODE=sim` ger simulerad data. `MELACS_HOST` är `127.0.0.1` om den inte sätts.
 
-## FUXA
+## Scada
 
-Processbilden är fliken FUXA. Dashboarden tar emot `/fuxa` och skickar det till FUXA på `127.0.0.1` port 1881, utan prefixet `/fuxa`. FUXA själv svarar på roten. Sätt inte `BASE_PATH`. Anrop till `/api` från den fliken går till FUXA. Dashboardens egna `/api/live`, `/api/log` och `/api/command` är oförändrade.
+Processbilden är fliken Scada. Dashboarden tar emot `/fuxa` och skickar det till FUXA på `127.0.0.1` port 1881, utan prefixet `/fuxa`. FUXA själv svarar på roten. Sätt inte `BASE_PATH`. Anrop till `/api` från den fliken går till FUXA. Dashboardens egna `/api/live`, `/api/log` och `/api/command` är oförändrade.
 
 På Rock, bara nåbar från lådan själv:
 
@@ -71,3 +71,11 @@ docker run -d --name melacs-fuxa --restart unless-stopped \
 ```
 
 `MELACS_FUXA_HOST` och `MELACS_FUXA_PORT` ändrar målet. Förval är `127.0.0.1` och `1881`.
+
+## Datalogger, en kopia per dygn
+
+Varje DietPi sparar dataloggen från de Melacs-kort som sitter på just den lådan. Ett kort är en rad i `/etc/melacs/datalogger-cards`. Källan är `MELACS.BAK` i kortets katalog, annars `MELACS.CSV`. Filen kopieras en gång per dygn, klockan 00:10. Samma dygn skrivs inte om.
+
+Den lokala kopian ligger i `/var/lib/melacs/Datalogger_backup/<kort>/`. När Kingston är monterad läggs samma fil också i `/media/kingston/Datalogger_backup/<dietpi>/<kort>/`. Fler kort är fler rader, till exempel `kort-2 /var/lib/melacs/cards/kort-2`.
+
+Skript och timer ligger i `datalogger-backup/`. På lådan heter tjänsten `melacs-datalogger-backup.timer`.
