@@ -36,6 +36,11 @@ void plat_beep(void)
     buzzer_pulse();
 }
 
+uint32_t plat_millis(void)
+{
+    return tick_millis();
+}
+
 void plat_read_rtc(RtcClock *clk)
 {
     if (rtc_chip_read(clk)) {
@@ -61,6 +66,16 @@ void plat_write_rtc(const RtcClock *clk)
 bool plat_log_append(const char *path, const char *text)
 {
     return sd_append_line(path, text);
+}
+
+bool plat_log_size(const char *path, uint32_t *size)
+{
+    return sd_file_size(path, size);
+}
+
+bool plat_log_repair(const char *path)
+{
+    return sd_repair_tail(path);
 }
 
 void plat_seed_pack(void)

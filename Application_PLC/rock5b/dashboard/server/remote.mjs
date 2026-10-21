@@ -1,4 +1,5 @@
 import { LOG_KEYS } from "../shared/columns.js";
+import { sharedSafetyLog } from "./safety-log.mjs";
 
 function bools(values) {
   return values.map((value) => value === true || value === 1 || value === "1");
@@ -147,6 +148,27 @@ export function createRemotePlant(modbus) {
     };
   }
 
+  async function drainSafety() {
+    const safety = sharedSafetyLog();
+    for (let n = 0; n < 8; n += 1) {
+      const regs = await modbus.readRegs(4, 350, 11);
+      const seq = regs[0];
+      if (!seq) return;
+      const ack = safety.store({
+        seq,
+        code: regs[1],
+        detail: regs[2],
+        year: regs[5],
+        month: regs[6],
+        day: regs[7],
+        hour: regs[8],
+        minute: regs[9],
+        second: regs[10],
+      });
+      if (ack) await modbus.writeReg(381, ack);
+    }
+  }
+
   function remember(snap) {
     const period = (snap.holding.log_period_s || 6) * 1000;
     const now = Date.now();
@@ -225,6 +247,11 @@ export function createRemotePlant(modbus) {
             try {
               const snap = await readSnap();
               remember(snap);
+              try {
+                await drainSafety();
+              } catch {
+                /* Kön ligger kvar i kortet tills nästa lyckade läsning. */
+              }
               return snap;
             } catch (err) {
               lastError = err;

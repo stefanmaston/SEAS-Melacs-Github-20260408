@@ -19,8 +19,20 @@ TRUE betyder att H-bryggorna JP18 och JP19 är av.
 Släpp spärren bara när drivningen ska vara på.
 
 Kortet lämnar de fysiska utgångarna av tills en master har skrivit
-och safe_mode (%MW0) är 0. 1 betyder säkra utgångar.
+inom de senaste 50 PLC-svepen, safe_mode (%MW0) är 0 och en giltig
+skyddsbild ligger i PIC32. 1 i safe_mode betyder säkra utgångar.
 
-MELACS.CSV på det här kortet är dataloggen. Låt den ligga kvar.
+Säkerhetsrelaterad POU
+  Kryssa i Melacs skyddsmärkning (Application_PLC/editor).
+  Märket är kommentaren (* @MELACS SAFETY *) överst i POU-filen
+  och namnet i project.json under melacs.safetyRelated.
+  guard är märkt. main är vanlig styrning.
+  Bygg bilden med tools/compile_protect.py och lägg den i PIC32
+  via --upload. Bilden kan bara spärra utgångar.
+  Nödstopp och tryckvakt är hårdkopplade, se docs/Sakerhetskrets.md.
+
+MELACS.CSV på det här kortet är dataloggen. Nya rader läggs sist. Låt filen ligga kvar.
+MELACS.BAK är samma logg med en ny rad högst en gång i timmen. Den filen byts inte ut.
+MELACS.SAF är säkerhetshändelser. Rock 5B hämtar dem och kvitterar, så en nätglitch tappar dem inte.
 README.TXT och MELACS.ZIP skrivs bara om de saknas.
 Ta bort zip-filen och starta om kortet om paketet ska skrivas igen.

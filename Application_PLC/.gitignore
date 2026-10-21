@@ -1,4 +1,8 @@
 firmware_pic32/build/
+**/__pycache__/
+*.pyc
+editor/node_modules/
+editor/dist/
 rock5b/dashboard/node_modules/
 rock5b/dashboard/dist/
 rock5b/dashboard/.license/

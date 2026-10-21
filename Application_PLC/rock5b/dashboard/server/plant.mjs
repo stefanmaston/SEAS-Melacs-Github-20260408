@@ -1,6 +1,7 @@
 import { LOG_KEYS } from "../shared/columns.js";
 import { createModbus } from "./modbus.mjs";
 import { createRemotePlant } from "./remote.mjs";
+import { sharedSafetyLog } from "./safety-log.mjs";
 
 function pad(n) {
   return String(n).padStart(2, "0");
@@ -368,6 +369,10 @@ export function attachPlant(middlewares) {
       }).catch((err) => {
         send(res, 502, { error: err.message || "SD-loggen kunde inte läsas" });
       });
+      return;
+    }
+    if (url.startsWith("/api/safety") && req.method === "GET") {
+      send(res, 200, { rows: sharedSafetyLog().rows() });
       return;
     }
     if (url.startsWith("/api/log") && req.method === "GET") {

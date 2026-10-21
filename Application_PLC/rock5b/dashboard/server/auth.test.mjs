@@ -92,6 +92,19 @@ test("servicekonto loggar in och kan inte tas bort", async () => {
   assert.equal(command.res.status, 403);
 });
 
+test("inloggad användare når FUXA-fliken", async () => {
+  await ensureAuth();
+  const locked = await call("GET", "/fuxa/");
+  assert.equal(locked.res.status, 401);
+  assert.equal(locked.done, true);
+
+  const ok = await call("POST", "/api/session", JSON.stringify({ name: "Maston", password: "TEST-PASS-WORD-1234" }));
+  const cookie = ok.res.headers["set-cookie"].split(";")[0];
+  const open = await call("GET", "/fuxa/", "", cookie);
+  assert.equal(open.done, false);
+  assert.equal(open.res.status, 0);
+});
+
 test("licenskoden gäller bara den här anläggningen", async () => {
   const req = mockReq("GET", "/api/session");
   req.headers.cookie = (await call("POST", "/api/session", JSON.stringify({ name: "maston", password: "TEST-PASS-WORD-1234" }))).res.headers["set-cookie"].split(";")[0];

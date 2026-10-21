@@ -56,6 +56,7 @@ void plat_read_inputs(PlcInputs *in);
 void plat_write_outputs(const PlcOutputs *out);
 void plat_beep(void);
 void plat_seed_pack(void);
+uint32_t plat_millis(void);
 
 void safe_outputs(PlcOutputs *out);
 

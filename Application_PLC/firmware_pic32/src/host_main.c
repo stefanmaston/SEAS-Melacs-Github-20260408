@@ -3,6 +3,8 @@
 #include "modbus_tcp.h"
 #include "plat_host.h"
 #include "plc_runtime.h"
+#include "protect.h"
+#include "register_image.h"
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -23,6 +25,22 @@ static void expect(int cond, const char *what)
         fprintf(stderr, "FAIL: %s\n", what);
         g_fails++;
     }
+}
+
+static int file_has(const char *path, const char *needle)
+{
+    FILE *fp;
+    char buf[65536];
+    size_t n;
+
+    fp = fopen(path, "rb");
+    if (fp == NULL) {
+        return 0;
+    }
+    n = fread(buf, 1, sizeof(buf) - 1u, fp);
+    fclose(fp);
+    buf[n] = '\0';
+    return strstr(buf, needle) != NULL;
 }
 
 static int mb_exchange(const uint8_t *pdu, int pdu_len, uint8_t *resp, int resp_max)
@@ -142,6 +160,85 @@ static int write_coil(uint16_t addr, int on)
     pdu[4] = 0x00;
     n = mb_exchange(pdu, 5, resp, (int)sizeof(resp));
     return (n == 5 && resp[0] == 5) ? 0 : -1;
+}
+
+static int write_reg(uint16_t addr, uint16_t value);
+
+static int write_regs(uint16_t addr, uint16_t count, const uint16_t *values)
+{
+    uint8_t pdu[6 + 246];
+    uint8_t resp[8];
+    uint16_t i;
+    int n;
+
+    if (count == 0 || count > 123) {
+        return -1;
+    }
+    pdu[0] = 16;
+    pdu[1] = (uint8_t)(addr >> 8);
+    pdu[2] = (uint8_t)(addr & 0xff);
+    pdu[3] = (uint8_t)(count >> 8);
+    pdu[4] = (uint8_t)(count & 0xff);
+    pdu[5] = (uint8_t)(count * 2u);
+    for (i = 0; i < count; i++) {
+        pdu[6 + i * 2] = (uint8_t)(values[i] >> 8);
+        pdu[7 + i * 2] = (uint8_t)(values[i] & 0xff);
+    }
+    n = mb_exchange(pdu, (int)(6 + count * 2), resp, (int)sizeof(resp));
+    return (n == 5 && resp[0] == 16) ? 0 : -1;
+}
+
+static int commit_image(const uint8_t *img, uint16_t len)
+{
+    uint16_t off;
+
+    if (write_reg(PROT_REG_CTRL, 1) != 0 || write_reg(PROT_REG_LEN, len) != 0) {
+        return -1;
+    }
+    for (off = 0; off < len;) {
+        uint16_t chunk = (uint16_t)(len - off);
+        uint16_t words;
+        uint16_t w;
+        uint16_t regs[17];
+
+        if (chunk > 32u) {
+            chunk = 32u;
+        }
+        words = (uint16_t)((chunk + 1u) / 2u);
+        regs[0] = off;
+        for (w = 0; w < words; w++) {
+            uint16_t pos = (uint16_t)(off + w * 2u);
+            uint8_t hi = img[pos];
+            uint8_t lo = (uint16_t)(pos + 1u) < len ? img[pos + 1u] : 0;
+            regs[1u + w] = (uint16_t)(((uint16_t)hi << 8) | lo);
+        }
+        if (write_regs(PROT_REG_OFF, (uint16_t)(1u + words), regs) != 0) {
+            return -1;
+        }
+        off = (uint16_t)(off + chunk);
+    }
+    return write_reg(PROT_REG_CTRL, 2);
+}
+
+static uint16_t end_image(uint8_t *dst)
+{
+    uint32_t crc;
+
+    dst[0] = 'M';
+    dst[1] = 'P';
+    dst[2] = 'I';
+    dst[3] = '1';
+    dst[4] = 1;
+    dst[5] = 0;
+    dst[6] = 1;
+    dst[7] = 0;
+    dst[12] = PROT_OP_END;
+    crc = protect_crc32(dst + 12, 1);
+    dst[8] = (uint8_t)crc;
+    dst[9] = (uint8_t)(crc >> 8);
+    dst[10] = (uint8_t)(crc >> 16);
+    dst[11] = (uint8_t)(crc >> 24);
+    return 13;
 }
 
 static int write_reg(uint16_t addr, uint16_t value)
@@ -287,8 +384,17 @@ static int run_tests(void)
     start.weekday = 0;
 
     unlink(LOG_PATH);
+    unlink("build/MELACS.BAK");
+    unlink("build/MELACS.SAF");
     unlink("build/README.TXT");
     unlink("build/MELACS.ZIP");
+    {
+        FILE *torn = fopen(LOG_PATH, "wb");
+        if (torn != NULL) {
+            fputs("2020-01-01 00:00:00,intact\nTORN-TAIL", torn);
+            fclose(torn);
+        }
+    }
     plat_host_clock_step(&start);
     plc_runtime_init(LOG_PATH);
     g_mb_port = 1512;
@@ -310,6 +416,19 @@ static int run_tests(void)
     expect(outputs_are_safe(plc_outputs()), "utgångar i safe utan PLC");
     line = logger_last_line();
     expect(strncmp(line, "2026-09-27 21:00:05,", 20) == 0, "tidsstämpel i loggrad");
+    expect(file_has(LOG_PATH, "2020-01-01 00:00:00,intact\n"), "äldre rad ligger kvar");
+    expect(!file_has(LOG_PATH, "TORN-TAIL"), "avbruten svans tas bort");
+    expect(file_has("build/MELACS.BAK", "2026-09-27 21:00:05,"), "backup får första raden");
+    expect(file_has("build/MELACS.SAF", ",1,0\n"), "start hamnar i säkerhetsfilen");
+    {
+        uint16_t seq = 0;
+        uint16_t code = 0;
+        uint16_t next = 0;
+        expect(read_input(350, &seq) == 0 && seq != 0, "händelsen ligger i bufferten");
+        expect(read_input(351, &code) == 0 && code == 1, "buffertens första kod är start");
+        expect(write_reg(381, seq) == 0, "kvittera händelsen");
+        expect(read_input(350, &next) == 0 && next != 0 && next != seq, "nästa händelse ligger kvar");
+    }
     expect(write_reg(220, 10) == 0, "be om tio minuter från SD-loggen");
     expect(read_input(500, &board) == 0 && board == 2, "SD-fönstret är klart");
     expect(read_input(501, &board) == 0 && board >= 1, "SD-fönstret innehåller raden");
@@ -322,7 +441,15 @@ static int run_tests(void)
 
     expect(write_coil(16, 1) == 0, "skriv coil DIO4");
     plc_runtime_tick();
-    expect(plc_status()->plc_loaded && plc_status()->plc_running, "PLC kör efter Modbus-skrivning");
+    expect(plc_status()->plc_loaded && !plc_status()->plc_running,
+           "saknad skyddsbild håller safe");
+    expect(outputs_are_safe(plc_outputs()), "fysiska utgångar safe utan bild");
+    {
+        uint8_t image[16];
+        expect(commit_image(image, end_image(image)) == 0, "tom skyddsbild");
+    }
+    plc_runtime_tick();
+    expect(plc_status()->plc_loaded && plc_status()->plc_running, "PLC kör efter skyddsbild");
     expect(plc_outputs()->dio_out[0] && !plc_outputs()->dio_out[1], "DIO4 följer coil");
     expect(plc_outputs()->ao[0] == 0 && plc_outputs()->ao[2] == 0, "övriga utgångar orörda");
     for (i = 0; i < 5; i++) {
@@ -355,6 +482,9 @@ static int run_tests(void)
     }
     line = logger_last_line();
     expect(strncmp(line, "2026-01-02 03:04:", 17) == 0, "rtc_set uppdaterar klockan");
+    expect(file_has(LOG_PATH, "2026-09-27 21:00:05,"), "csv behåller den äldre timmen");
+    expect(file_has("build/MELACS.BAK", "2026-09-27 21:00:05,"), "backup behåller den äldre raden");
+    expect(file_has("build/MELACS.BAK", "2026-01-02 03:04:"), "backup utökas efter en timme");
 
     expect(write_reg(210, 1) == 0, "begär kort signal");
     plc_runtime_tick();
@@ -365,6 +495,74 @@ static int run_tests(void)
     expect(read_holding(301, 1, &year) == 0 && year == 0x8019u, "förreglingen läses tillbaka");
     expect(write_reg(305, 1) != 0, "lucka i snabbblocket är inte skrivbar");
     expect(read_input(300, &year) == 0 && year == 0, "ingen förregling utlöst på host");
+
+    expect(write_reg(200, 0) == 0, "släpp safe_mode");
+    expect(write_coil(16, 1) == 0, "fräscha mastern");
+    plc_runtime_tick();
+    expect(plc_status()->plc_running, "kör med färsk master");
+    for (i = 0; i < (int)MASTER_TIMEOUT_SCANS - 1; i++) {
+        plc_runtime_tick();
+    }
+    expect(plc_status()->plc_running, "master lever inom timeout");
+    plc_runtime_tick();
+    expect(!plc_status()->plc_running, "utebliven master ger safe");
+    expect(outputs_are_safe(plc_outputs()), "timeout lägger safe");
+
+    {
+        uint8_t image[16];
+        uint16_t bad_len;
+        bad_len = end_image(image);
+        image[12] ^= 0xFFu;
+        expect(write_reg(200, 0) == 0, "safe_mode av inför fel bild");
+        expect(write_coil(16, 1) == 0, "master fräsch inför fel bild");
+        expect(commit_image(image, bad_len) == 0, "felaktig bild skrivs");
+        plc_runtime_tick();
+        expect(!plc_status()->plc_running, "fel kontrollsumma håller safe");
+        expect(outputs_are_safe(plc_outputs()), "fel bild ger safe_outputs");
+    }
+    {
+        uint8_t body[8];
+        uint8_t image[24];
+        uint16_t n = 0;
+        uint32_t crc;
+        body[n++] = PROT_OP_LDC;
+        body[n++] = 1;
+        body[n++] = 0;
+        body[n++] = PROT_OP_INHIBIT;
+        body[n++] = (uint8_t)PROT_INH_H1;
+        body[n++] = 0;
+        body[n++] = PROT_OP_END;
+        image[0] = 'M';
+        image[1] = 'P';
+        image[2] = 'I';
+        image[3] = '1';
+        image[4] = 1;
+        image[5] = 0;
+        image[6] = (uint8_t)n;
+        image[7] = 0;
+        memcpy(image + 12, body, n);
+        crc = protect_crc32(body, n);
+        image[8] = (uint8_t)crc;
+        image[9] = (uint8_t)(crc >> 8);
+        image[10] = (uint8_t)(crc >> 16);
+        image[11] = (uint8_t)(crc >> 24);
+        expect(commit_image(image, (uint16_t)(12u + n)) == 0, "spärrbild");
+        expect(write_reg(200, 0) == 0, "safe_mode av för spärrprov");
+        expect(write_coil(16, 1) == 0, "DIO4 på under spärr");
+        expect(write_coil(40, 0) == 0, "kommando släpper H1");
+        plc_runtime_tick();
+        expect(plc_status()->plc_running, "styrningen kör under skyddsbilden");
+        expect(plc_outputs()->dio_out[0], "omarkerad utgång får vara på");
+        expect(plc_outputs()->h1_dis, "skyddsbilden håller H1 av");
+        expect(write_reg(301, 0) == 0, "driftförregling nollställs");
+        plc_runtime_tick();
+        expect(plc_outputs()->h1_dis, "nollställd förregling släpper inte H1");
+    }
+    expect(file_has("build/MELACS.SAF", ",3,0\n"), "saknad bild loggas");
+    expect(file_has("build/MELACS.SAF", ",2,0\n"), "giltig bild loggas");
+    expect(file_has("build/MELACS.SAF", ",4,0\n"), "fel bild loggas");
+    expect(file_has("build/MELACS.SAF", ",5,0\n"), "tappad master loggas");
+    expect(file_has("build/MELACS.SAF", ",9,1\n"), "spärren loggas");
 
     modbus_tcp_stop();
     if (g_fails != 0) {

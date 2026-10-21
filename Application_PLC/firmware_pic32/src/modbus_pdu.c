@@ -21,6 +21,7 @@ int modbus_pdu_handle(const uint8_t *pdu, int len, uint8_t *out)
     if (len < 1) {
         return 0;
     }
+    register_image_touch();
     fc = pdu[0];
 
     if (fc == 1 || fc == 2 || fc == 3 || fc == 4) {

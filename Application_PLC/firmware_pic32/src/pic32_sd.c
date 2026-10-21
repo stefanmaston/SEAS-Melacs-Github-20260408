@@ -20,6 +20,8 @@ static int g_fat32;
 static int g_fats;
 static int g_mounted;
 static int g_have_file;
+static int g_open_named;
+static uint8_t g_open_name[11];
 static int g_stop_dir;
 static uint32_t g_dir_lba;
 static int g_dir_off;
@@ -467,6 +469,8 @@ static bool open_file(const char *path)
     uint32_t guard;
 
     name_83(path, name);
+    memcpy(g_open_name, name, 11);
+    g_open_named = 1;
     g_stop_dir = 0;
     if (!g_fat32) {
         uint32_t s;
@@ -570,6 +574,7 @@ static bool mount_fat(void)
     sd_cache_reset();
     g_mounted = 1;
     g_have_file = 0;
+    g_open_named = 0;
     return true;
 }
 
@@ -639,13 +644,82 @@ static bool update_size(void)
     return sd_write(g_dir_lba, g_sec);
 }
 
-bool sd_append_line(const char *path, const char *text)
+static int file_is(const char *path)
 {
-    uint32_t pos;
-    const uint8_t *src;
-    uint32_t left;
+    uint8_t name[11];
 
-    if (!g_sd_ok) {
+    if (!g_have_file || !g_open_named || path == 0) {
+        return 0;
+    }
+    name_83(path, name);
+    return memcmp(g_open_name, name, 11) == 0;
+}
+
+/* En avbruten sista rad ligger efter senaste radslut. Storleken backas dit, äldre rader rörs inte. */
+static bool seal_tail(void)
+{
+    uint32_t size = g_file_size;
+    uint32_t window;
+    uint32_t pos;
+    uint32_t found = 0;
+    int have_nl = 0;
+    uint8_t last = 0;
+
+    if (size == 0) {
+        return true;
+    }
+    if (g_spc == 0) {
+        return false;
+    }
+    window = size > 512u ? size - 512u : 0u;
+    pos = window;
+    while (pos < size) {
+        uint32_t cluster_bytes = (uint32_t)g_spc * 512u;
+        uint32_t into = pos % cluster_bytes;
+        uint32_t cluster = cluster_at(pos, 0);
+        uint32_t off;
+        uint32_t chunk;
+        uint32_t i;
+
+        if (cluster < 2) {
+            return false;
+        }
+        off = into % 512u;
+        chunk = 512u - off;
+        if (chunk > size - pos) {
+            chunk = size - pos;
+        }
+        if (!sd_read(cluster_lba(cluster) + into / 512u, g_sec)) {
+            return false;
+        }
+        for (i = 0; i < chunk; i++) {
+            last = g_sec[off + i];
+            if (last == '\n') {
+                found = pos + i;
+                have_nl = 1;
+            }
+        }
+        pos += chunk;
+    }
+    if (last == '\n' || !have_nl) {
+        return true;
+    }
+    g_file_size = found + 1u;
+    return update_size();
+}
+
+static bool open_named(const char *path)
+{
+    if (!file_is(path)) {
+        g_have_file = 0;
+        g_cc_valid = 0;
+    }
+    return g_have_file || open_file(path);
+}
+
+bool sd_file_size(const char *path, uint32_t *size)
+{
+    if (size == 0 || path == 0 || !g_sd_ok) {
         return false;
     }
     spi_hw_on(0);
@@ -654,10 +728,59 @@ bool sd_append_line(const char *path, const char *text)
         g_sd_ok = 0;
         return false;
     }
-    if (!g_have_file && !open_file(path != 0 ? path : "MELACS.CSV")) {
+    if (!open_named(path)) {
         spi_hw_on(0);
         return false;
     }
+    *size = g_file_size;
+    spi_hw_on(0);
+    return true;
+}
+
+bool sd_repair_tail(const char *path)
+{
+    int ok;
+
+    if (path == 0 || !g_sd_ok) {
+        return false;
+    }
+    spi_hw_on(0);
+    if (!g_mounted && !mount_fat()) {
+        spi_hw_on(0);
+        g_sd_ok = 0;
+        return false;
+    }
+    if (!open_named(path)) {
+        spi_hw_on(0);
+        return false;
+    }
+    ok = seal_tail();
+    spi_hw_on(0);
+    return ok;
+}
+
+bool sd_append_line(const char *path, const char *text)
+{
+    uint32_t pos;
+    uint32_t start;
+    const uint8_t *src;
+    uint32_t left;
+    const char *use = path != 0 ? path : "MELACS.CSV";
+
+    if (!g_sd_ok || text == 0) {
+        return false;
+    }
+    spi_hw_on(0);
+    if (!g_mounted && !mount_fat()) {
+        spi_hw_on(0);
+        g_sd_ok = 0;
+        return false;
+    }
+    if (!open_named(use) || !seal_tail()) {
+        spi_hw_on(0);
+        return false;
+    }
+    start = g_file_size;
     pos = g_file_size;
     src = (const uint8_t *)text;
     left = (uint32_t)strlen(text);
@@ -669,6 +792,7 @@ bool sd_append_line(const char *path, const char *text)
         uint32_t chunk;
         uint32_t cluster = cluster_at(pos, 1);
         if (cluster < 2) {
+            g_file_size = start;
             spi_hw_on(0);
             return false;
         }
@@ -679,11 +803,13 @@ bool sd_append_line(const char *path, const char *text)
             chunk = left;
         }
         if (!sd_read(lba, g_sec)) {
+            g_file_size = start;
             spi_hw_on(0);
             return false;
         }
         memcpy(g_sec + off, src, chunk);
         if (!sd_write(lba, g_sec)) {
+            g_file_size = start;
             spi_hw_on(0);
             return false;
         }
@@ -693,6 +819,7 @@ bool sd_append_line(const char *path, const char *text)
     }
     g_file_size = pos;
     if (!update_size()) {
+        g_file_size = start;
         spi_hw_on(0);
         return false;
     }
@@ -700,13 +827,23 @@ bool sd_append_line(const char *path, const char *text)
     return true;
 }
 
-static void restore_file(int have, uint32_t cluster, uint32_t size, uint32_t lba, int off)
+static void restore_file(int have, uint32_t cluster, uint32_t size, uint32_t lba, int off,
+                         int named, const uint8_t name[11],
+                         int cc, uint32_t cc_first, uint32_t cc_index, uint32_t cc_cluster)
 {
     g_have_file = have;
     g_file_cluster = cluster;
     g_file_size = size;
     g_dir_lba = lba;
     g_dir_off = off;
+    g_open_named = named;
+    if (name != 0) {
+        memcpy(g_open_name, name, 11);
+    }
+    g_cc_valid = cc;
+    g_cc_first = cc_first;
+    g_cc_index = cc_index;
+    g_cc_cluster = cc_cluster;
 }
 
 static bool sd_write_if_absent(const char *path, const void *data, uint32_t len)
@@ -716,6 +853,12 @@ static bool sd_write_if_absent(const char *path, const void *data, uint32_t len)
     uint32_t saved_size;
     uint32_t saved_lba;
     int saved_off;
+    int saved_named;
+    uint8_t saved_name[11];
+    int saved_cc;
+    uint32_t saved_cc_first;
+    uint32_t saved_cc_index;
+    uint32_t saved_cc_cluster;
     const uint8_t *src;
     uint32_t left;
     uint32_t pos;
@@ -735,14 +878,23 @@ static bool sd_write_if_absent(const char *path, const void *data, uint32_t len)
     saved_size = g_file_size;
     saved_lba = g_dir_lba;
     saved_off = g_dir_off;
+    saved_named = g_open_named;
+    memcpy(saved_name, g_open_name, 11);
+    saved_cc = g_cc_valid;
+    saved_cc_first = g_cc_first;
+    saved_cc_index = g_cc_index;
+    saved_cc_cluster = g_cc_cluster;
     g_have_file = 0;
+    g_cc_valid = 0;
     if (!open_file(path)) {
-        restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off);
+        restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off,
+                     saved_named, saved_name, saved_cc, saved_cc_first, saved_cc_index, saved_cc_cluster);
         spi_hw_on(0);
         return false;
     }
     if (g_file_size > 0) {
-        restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off);
+        restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off,
+                     saved_named, saved_name, saved_cc, saved_cc_first, saved_cc_index, saved_cc_cluster);
         spi_hw_on(0);
         return true;
     }
@@ -781,7 +933,8 @@ static bool sd_write_if_absent(const char *path, const void *data, uint32_t len)
         g_file_size = pos;
         ok = update_size() ? 1 : 0;
     }
-    restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off);
+    restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off,
+                 saved_named, saved_name, saved_cc, saved_cc_first, saved_cc_index, saved_cc_cluster);
     spi_hw_on(0);
     return ok == 1;
 }
@@ -867,6 +1020,10 @@ void sd_hist_start(uint32_t budget_bytes)
         g_hist_state = 0;
         return;
     }
+    if (g_have_file && !file_is("MELACS.CSV")) {
+        g_have_file = 0;
+        g_cc_valid = 0;
+    }
     if (g_have_file) {
         hist_place(g_file_size);
     }
@@ -889,7 +1046,9 @@ void sd_hist_step(void)
             return;
         }
     }
-    if (!g_have_file) {
+    if (!file_is("MELACS.CSV")) {
+        g_have_file = 0;
+        g_cc_valid = 0;
         if (!open_file("MELACS.CSV")) {
             spi_hw_on(0);
             log_history_fail();

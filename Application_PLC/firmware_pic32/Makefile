@@ -1,12 +1,12 @@
 CC ?= cc
 CFLAGS ?= -std=c99 -Wall -Wextra -Iinclude -pthread
-SRC = src/fast_ctrl.c src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c src/modbus_tcp.c src/plat_host.c src/host_main.c
+SRC = src/fast_ctrl.c src/protect.c src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c src/modbus_tcp.c src/plat_host.c src/host_main.c
 OUT = build/plc_host_test
 
 XC32 ?= /Applications/microchip/xc32/v6.00/bin/xc32-gcc
 XC32_HEX ?= /Applications/microchip/xc32/v6.00/bin/xc32-bin2hex
 XC32_CFLAGS = -mprocessor=32MX795F512L -mdfp=/Applications/microchip/mplabx/v6.35/packs/Microchip/PIC32MX_DFP/1.7.380 -O1 -std=gnu99 -Wall -Iinclude -ffunction-sections -fdata-sections
-PIC32_SRC = src/fast_ctrl.c src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c \
+PIC32_SRC = src/fast_ctrl.c src/protect.c src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c \
 	src/plat_pic32.c src/pic32_config.c src/pic32_board.c src/pic32_spi.c src/pic32_io.c \
 	src/pic32_sd.c src/pic32_enc.c src/pic32_net.c src/pic32_tick.c src/pic32_main.c
 PIC32_ELF = build/melacs_pic32.elf
@@ -17,7 +17,7 @@ host-test: $(OUT)
 	$(OUT)
 
 UNIT_OUT = build/unit_test
-UNIT_SRC = tests/fast_ctrl_test.c $(filter-out src/host_main.c,$(SRC))
+UNIT_SRC = tests/fast_ctrl_test.c tests/protect_test.c $(filter-out src/host_main.c,$(SRC))
 
 unit-test: $(UNIT_OUT)
 	$(UNIT_OUT)
@@ -30,7 +30,8 @@ $(UNIT_OUT): $(UNIT_SRC) $(PACK_C) include/fast_ctrl.h include/register_image.h
 
 PACK_C = build/sd_pack_data.c
 PACK_IN = tools/pack_sd.py ../sd_pack/README.txt ../sd_pack/project.json \
-	../sd_pack/pous/programs/main.st ../sd_pack/devices/configuration.json \
+	../sd_pack/pous/programs/main.st ../sd_pack/pous/programs/guard.st \
+	../sd_pack/devices/configuration.json \
 	../sd_pack/devices/pin-mapping.json ../sd_pack/devices/remote/Melacs.json \
 	../rock5b/openplc/modbus_master.json ../shared/register_map.json
 

@@ -9,10 +9,11 @@ import { usePlant } from "./usePlant.js";
 
 const VIEWS = [
   { id: "overview", label: "Översikt" },
+  { id: "fuxa", label: "FUXA" },
   { id: "controls", label: "Reglage" },
   { id: "logger", label: "Logger" },
   { id: "cockpit", label: "Cockpit" },
-  { id: "access", label: "Åtkomst" },
+  { id: "access", label: "PLC editor" },
 ];
 
 function allowedViews(session) {
@@ -208,6 +209,26 @@ function CockpitFrame() {
   );
 }
 
+function keepFuxa(frame) {
+  try {
+    const path = frame.contentWindow.location.pathname || "/";
+    if (path !== "/fuxa" && !path.startsWith("/fuxa/")) frame.contentWindow.location.replace("/fuxa/");
+  } catch {
+    /* En sida på en annan adress går inte att styra. */
+  }
+}
+
+function FuxaFrame() {
+  return (
+    <iframe
+      className="cockpit-frame"
+      title="FUXA"
+      src="/fuxa/"
+      onLoad={(event) => keepFuxa(event.currentTarget)}
+    />
+  );
+}
+
 function PlantShell({ session, onSession, onLogout, theme, onTheme }) {
   const { plant, log, error, notice, busy, command } = usePlant(onLogout);
   const views = allowedViews(session);
@@ -284,6 +305,7 @@ function PlantShell({ session, onSession, onLogout, theme, onTheme }) {
           </div>
         </div>
         {view === "overview" ? <Overview plant={plant || emptyPlant} /> : null}
+        {view === "fuxa" ? <FuxaFrame /> : null}
         {view === "controls" ? (
           <ControlsView plant={plant || emptyPlant} busy={busy} onCommand={command} canControl={canControl} />
         ) : null}

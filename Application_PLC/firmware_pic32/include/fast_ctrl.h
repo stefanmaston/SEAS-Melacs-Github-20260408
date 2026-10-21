@@ -73,6 +73,17 @@ void fast_ctrl_init(void);
 /* Huvudloopen talar om ifall PLC-utgångarna är släppta (master finns, safe_mode 0). */
 void fast_ctrl_set_run(bool running);
 
+/* Spärr från skyddsbilden. Modbus kan inte nollställa den. */
+void fast_ctrl_set_guard(bool h1, bool h2);
+
+/*
+ * 1 kHz-avbrottet anropar note_time. Huvudloopen anropar sweep_kick varje svep.
+ * Dröjer svepet mer än FAST_SWEEP_LATE_MS spärras båda bryggorna.
+ */
+#define FAST_SWEEP_LATE_MS 100u
+void fast_ctrl_note_time(uint32_t now_ms);
+void fast_ctrl_sweep_kick(uint32_t now_ms);
+
 /* Anropas med FAST_TICK_HZ. Får inte använda SPI. */
 void fast_ctrl_step(const FastIn *in, FastOut *out);
 

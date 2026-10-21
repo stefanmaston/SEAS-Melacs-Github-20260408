@@ -229,6 +229,8 @@ static void test_modbus_map(void)
     expect(register_image_read_regs(false, 301, 1, &v) == 0, "tickräknare läsbar");
 }
 
+int test_protect(void);
+
 int main(void)
 {
     test_interlock();
@@ -236,6 +238,7 @@ int main(void)
     test_pid_i_and_windup();
     test_pid_gating();
     test_modbus_map();
+    g_fails += test_protect();
     if (g_fails) {
         fprintf(stderr, "%d av %d kontroller fel\n", g_fails, g_checks);
         return 1;

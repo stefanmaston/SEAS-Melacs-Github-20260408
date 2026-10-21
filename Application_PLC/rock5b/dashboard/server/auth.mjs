@@ -504,7 +504,7 @@ export async function routeProtected(req, res) {
     await handleSession(req, res);
     return true;
   }
-  const needsAuth = pathOnly.startsWith("/api/") || pathOnly.startsWith("/console") || pathOnly.startsWith("/cockpit/");
+  const needsAuth = pathOnly.startsWith("/api/") || pathOnly.startsWith("/console") || pathOnly.startsWith("/cockpit/") || pathOnly === "/fuxa" || pathOnly.startsWith("/fuxa/") || pathOnly === "/socket.io" || pathOnly.startsWith("/socket.io/");
   if (!needsAuth) return false;
   const session = readSession(req);
   if (!session) {
@@ -537,4 +537,8 @@ export async function routeProtected(req, res) {
 export function allowCockpitUpgrade(req) {
   const session = readSession(req);
   return Boolean(session && canAdmin(session));
+}
+
+export function allowFuxaUpgrade(req) {
+  return Boolean(readSession(req));
 }

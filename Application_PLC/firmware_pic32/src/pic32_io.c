@@ -193,6 +193,7 @@ void io_init(void)
     PIN_SIP6_TRIS = 0;
     PIN_SIP7_TRIS = 0;
 
+    /* Hög DIS = brygga av. Yttre 10 kΩ till 3,3 V håller av vid reset. */
     PIN_H1_DIS_LAT = 1;
     PIN_H1_ALI_LAT = 0;
     PIN_H1_BLI_LAT = 0;

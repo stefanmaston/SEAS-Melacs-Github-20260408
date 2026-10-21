@@ -1,13 +1,24 @@
 #include "logger.h"
 
+#include "image_lock.h"
+
 #include <stdio.h>
 #include <string.h>
 
+#define SAF_Q 32u
+
 static char g_path[256];
+static char g_bak[256];
+static char g_saf[256];
 static char g_last[1024];
 static uint32_t g_sample_ord;
+static uint32_t g_backup_ord;
 static bool g_have_sample;
+static bool g_backup_have;
 static bool g_header_done;
+static bool g_bak_header;
+static bool g_saf_header;
+static bool g_sealed;
 static bool g_fail;
 static uint16_t g_n;
 static uint64_t g_ad[8];
@@ -24,6 +35,27 @@ static bool g_loaded;
 static bool g_running;
 static PlcOutputs g_snap;
 
+static uint16_t g_seq;
+static uint8_t g_qh;
+static uint8_t g_qn;
+static int g_ovf;
+static int g_watch_ready;
+static int g_prev_ok;
+static int g_prev_fault;
+static int g_prev_master;
+static uint16_t g_prev_safe;
+static uint16_t g_prev_inh;
+static uint16_t g_prev_trip;
+
+typedef struct {
+    uint16_t seq;
+    uint16_t code;
+    uint16_t detail;
+    RtcClock clk;
+} SafEv;
+
+static SafEv g_q[SAF_Q];
+
 static const char *header =
     "TimeStamp,AD0,AD1,AD2,AD3,AD4,AD5,AD6,AD7,"
     "DIO0,DIO1,DIO2,DIO3,"
@@ -35,6 +67,29 @@ static const char *header =
     "H2_DIS,H2_ALI,H2_BLI,H2_AHI,H2_BHI,"
     "T_BOARD,P,T1,T2,VALUE,NOTE\n";
 
+static const char *saf_header = "TimeStamp,Seq,Code,Detail\n";
+
+static void sibling(char *dst, size_t n, const char *path, const char *name)
+{
+    const char *slash = NULL;
+    const char *scan;
+
+    dst[0] = '\0';
+    if (path == NULL || name == NULL || n == 0) {
+        return;
+    }
+    for (scan = path; *scan != '\0'; scan++) {
+        if (*scan == '/' || *scan == '\\') {
+            slash = scan;
+        }
+    }
+    if (slash == NULL) {
+        snprintf(dst, n, "%s", name);
+        return;
+    }
+    snprintf(dst, n, "%.*s/%s", (int)(slash - path), path, name);
+}
+
 const char *logger_path(void)
 {
     return g_path;
@@ -43,13 +98,26 @@ const char *logger_path(void)
 void logger_init(const char *path)
 {
     g_path[0] = '\0';
+    g_bak[0] = '\0';
+    g_saf[0] = '\0';
     g_last[0] = '\0';
     g_have_sample = false;
+    g_backup_have = false;
     g_header_done = false;
+    g_bak_header = false;
+    g_saf_header = false;
+    g_sealed = false;
     g_fail = false;
     g_n = 0;
+    g_seq = 0;
+    g_qh = 0;
+    g_qn = 0;
+    g_ovf = 0;
+    g_watch_ready = 0;
     if (path != NULL) {
         snprintf(g_path, sizeof(g_path), "%s", path);
+        sibling(g_bak, sizeof(g_bak), path, "MELACS.BAK");
+        sibling(g_saf, sizeof(g_saf), path, "MELACS.SAF");
     }
 }
 
@@ -87,6 +155,182 @@ static int mean_bit(uint16_t sum, uint16_t n)
     return sum * 2u >= n;
 }
 
+static void seal_logs(void)
+{
+    if (g_sealed || g_path[0] == '\0') {
+        return;
+    }
+    if (!plat_log_repair(g_path)) {
+        return;
+    }
+    if (g_bak[0] != '\0' && !plat_log_repair(g_bak)) {
+        return;
+    }
+    if (g_saf[0] != '\0' && !plat_log_repair(g_saf)) {
+        return;
+    }
+    g_sealed = true;
+}
+
+/* Rubriken skrivs bara när filen är tom, så en omstart inte lägger en ny rubrik mitt i serien. */
+static int ensure_header(const char *path, bool *done, const char *text)
+{
+    uint32_t size = 0;
+
+    if (*done) {
+        return 1;
+    }
+    if (!plat_log_size(path, &size)) {
+        return 0;
+    }
+    if (size > 0) {
+        *done = true;
+        return 1;
+    }
+    if (!plat_log_append(path, text)) {
+        return 0;
+    }
+    *done = true;
+    return 1;
+}
+
+static void queue_push(const RtcClock *clk, uint16_t seq, uint16_t code, uint16_t detail)
+{
+    SafEv *ev;
+
+    image_lock();
+    if (g_qn >= SAF_Q) {
+        g_ovf = 1;
+        image_unlock();
+        return;
+    }
+    ev = &g_q[(uint8_t)((g_qh + g_qn) % SAF_Q)];
+    ev->seq = seq;
+    ev->code = code;
+    ev->detail = detail;
+    ev->clk = *clk;
+    g_qn++;
+    image_unlock();
+}
+
+static void logger_event(const RtcClock *clk, uint16_t code, uint16_t detail)
+{
+    char ts[32];
+    char line[96];
+    uint16_t seq;
+    int n;
+
+    if (g_saf[0] == '\0' || clk == NULL) {
+        return;
+    }
+    seal_logs();
+    image_lock();
+    g_seq++;
+    if (g_seq == 0) {
+        g_seq = 1;
+    }
+    seq = g_seq;
+    image_unlock();
+
+    rtc_format(clk, ts, sizeof(ts));
+    n = snprintf(line, sizeof(line), "%s,%u,%u,%u\n", ts, (unsigned)seq, (unsigned)code, (unsigned)detail);
+    if (n > 0 && (size_t)n < sizeof(line)) {
+        if (ensure_header(g_saf, &g_saf_header, saf_header)) {
+            (void)plat_log_append(g_saf, line);
+        }
+    }
+    queue_push(clk, seq, code, detail);
+}
+
+void logger_watch(const RtcClock *clk, int image_ok, int image_fault,
+                  int master, uint16_t safe_mode, uint16_t inhibit, uint16_t trip)
+{
+    if (!g_watch_ready) {
+        logger_event(clk, SAF_BOOT, 0);
+        if (image_fault) {
+            logger_event(clk, SAF_IMAGE_FAULT, 0);
+        } else if (!image_ok) {
+            logger_event(clk, SAF_IMAGE_MISSING, 0);
+        } else {
+            logger_event(clk, SAF_IMAGE_OK, 0);
+        }
+        g_watch_ready = 1;
+        g_prev_ok = image_ok;
+        g_prev_fault = image_fault;
+        g_prev_master = master;
+        g_prev_safe = safe_mode;
+        g_prev_inh = inhibit;
+        g_prev_trip = trip;
+        return;
+    }
+    if (image_fault != g_prev_fault || image_ok != g_prev_ok) {
+        if (image_fault) {
+            logger_event(clk, SAF_IMAGE_FAULT, 0);
+        } else if (!image_ok) {
+            logger_event(clk, SAF_IMAGE_MISSING, 0);
+        } else {
+            logger_event(clk, SAF_IMAGE_OK, 0);
+        }
+    }
+    if (master != g_prev_master) {
+        logger_event(clk, master ? SAF_MASTER_OK : SAF_MASTER_LOST, 0);
+    }
+    if (safe_mode != g_prev_safe) {
+        logger_event(clk, SAF_SAFE_MODE, safe_mode);
+    }
+    if (inhibit != g_prev_inh) {
+        logger_event(clk, SAF_INHIBIT, inhibit);
+    }
+    if (trip != g_prev_trip) {
+        logger_event(clk, SAF_INTERLOCK, trip);
+    }
+    g_prev_ok = image_ok;
+    g_prev_fault = image_fault;
+    g_prev_master = master;
+    g_prev_safe = safe_mode;
+    g_prev_inh = inhibit;
+    g_prev_trip = trip;
+}
+
+bool logger_safety_is_input(uint16_t addr)
+{
+    return addr >= SAF_IN_SEQ && addr <= SAF_IN_SECOND;
+}
+
+uint16_t logger_safety_input(uint16_t addr)
+{
+    const SafEv *ev = g_qn > 0 ? &g_q[g_qh] : NULL;
+
+    switch (addr) {
+    case SAF_IN_SEQ: return ev != NULL ? ev->seq : 0;
+    case SAF_IN_CODE: return ev != NULL ? ev->code : 0;
+    case SAF_IN_DETAIL: return ev != NULL ? ev->detail : 0;
+    case SAF_IN_COUNT: return g_qn;
+    case SAF_IN_OVF: return g_ovf ? 1u : 0u;
+    case SAF_IN_YEAR: return ev != NULL ? ev->clk.year : 0;
+    case SAF_IN_MONTH: return ev != NULL ? ev->clk.month : 0;
+    case SAF_IN_DAY: return ev != NULL ? ev->clk.day : 0;
+    case SAF_IN_HOUR: return ev != NULL ? ev->clk.hour : 0;
+    case SAF_IN_MINUTE: return ev != NULL ? ev->clk.minute : 0;
+    case SAF_IN_SECOND: return ev != NULL ? ev->clk.second : 0;
+    default: return 0;
+    }
+}
+
+bool logger_safety_is_ack(uint16_t addr)
+{
+    return addr == SAF_ACK;
+}
+
+void logger_safety_ack(uint16_t seq)
+{
+    if (g_qn == 0 || g_q[g_qh].seq != seq) {
+        return;
+    }
+    g_qh = (uint8_t)((g_qh + 1u) % SAF_Q);
+    g_qn--;
+}
+
 bool logger_tick(const RtcClock *clk, uint16_t period_s,
                  const PlcInputs *in, const PlcOutputs *out, const PlcStatus *st)
 {
@@ -104,6 +348,7 @@ bool logger_tick(const RtcClock *clk, uint16_t period_s,
         period_s = MELACS_LOG_PERIOD_S;
     }
 
+    seal_logs();
     ord = rtc_ordinal(clk);
     if (g_have_sample && ord == g_sample_ord) {
         return false;
@@ -140,13 +385,10 @@ bool logger_tick(const RtcClock *clk, uint16_t period_s,
     }
 
     snap = &g_snap;
-    if (!g_header_done) {
-        if (!plat_log_append(g_path, header)) {
-            g_fail = true;
-            acc_clear();
-            return false;
-        }
-        g_header_done = true;
+    if (!ensure_header(g_path, &g_header_done, header)) {
+        g_fail = true;
+        acc_clear();
+        return false;
     }
 
     rtc_format(clk, ts, sizeof(ts));
@@ -191,6 +433,13 @@ bool logger_tick(const RtcClock *clk, uint16_t period_s,
         return false;
     }
     g_fail = false;
+
+    if (g_bak[0] != '\0' && (!g_backup_have || (uint32_t)(ord - g_backup_ord) >= MELACS_BACKUP_PERIOD_S)) {
+        if (ensure_header(g_bak, &g_bak_header, header) && plat_log_append(g_bak, line)) {
+            g_backup_ord = ord;
+            g_backup_have = true;
+        }
+    }
 
     snprintf(g_last, sizeof(g_last), "%s", line);
     acc_clear();

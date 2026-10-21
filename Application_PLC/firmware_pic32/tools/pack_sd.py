@@ -14,6 +14,7 @@ FILES = [
     (PACK / "README.txt", "README.txt"),
     (PACK / "project.json", "project.json"),
     (PACK / "pous/programs/main.st", "pous/programs/main.st"),
+    (PACK / "pous/programs/guard.st", "pous/programs/guard.st"),
     (PACK / "devices/configuration.json", "devices/configuration.json"),
     (PACK / "devices/pin-mapping.json", "devices/pin-mapping.json"),
     (PACK / "devices/remote/Melacs.json", "devices/remote/Melacs.json"),

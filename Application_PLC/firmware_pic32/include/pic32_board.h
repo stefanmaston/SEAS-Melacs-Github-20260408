@@ -53,6 +53,8 @@ bool rtc_chip_ok(void);
 bool sd_start(void);
 bool sd_ok(void);
 bool sd_append_line(const char *path, const char *text);
+bool sd_file_size(const char *path, uint32_t *size);
+bool sd_repair_tail(const char *path);
 bool sd_seed_pack(void);
 void sd_hist_start(uint32_t budget_bytes);
 void sd_hist_step(void);

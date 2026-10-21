@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -96,6 +97,11 @@ void plat_write_outputs(const PlcOutputs *out)
     (void)out;
 }
 
+uint32_t plat_millis(void)
+{
+    return 0;
+}
+
 void plat_beep(void)
 {
     g_beeps++;
@@ -110,10 +116,81 @@ bool plat_log_append(const char *path, const char *text)
 {
     FILE *fp = fopen(path, "a");
 
-    if (fp == NULL) {
+    if (fp == NULL || text == NULL) {
+        if (fp != NULL) {
+            fclose(fp);
+        }
         return false;
     }
-    if (fputs(text, fp) < 0) {
+    if (fputs(text, fp) < 0 || fflush(fp) != 0 || fsync(fileno(fp)) != 0) {
+        fclose(fp);
+        return false;
+    }
+    fclose(fp);
+    return true;
+}
+
+bool plat_log_size(const char *path, uint32_t *size)
+{
+    struct stat st;
+
+    if (size == NULL) {
+        return false;
+    }
+    if (path == NULL || stat(path, &st) != 0) {
+        *size = 0;
+        return true;
+    }
+    *size = (uint32_t)st.st_size;
+    return true;
+}
+
+bool plat_log_repair(const char *path)
+{
+    FILE *fp;
+    long size;
+    long window;
+    long found = -1;
+    unsigned char buf[512];
+    size_t n;
+    size_t i;
+
+    if (path == NULL) {
+        return false;
+    }
+    fp = fopen(path, "rb+");
+    if (fp == NULL) {
+        return true;
+    }
+    if (fseek(fp, 0, SEEK_END) != 0) {
+        fclose(fp);
+        return false;
+    }
+    size = ftell(fp);
+    if (size <= 0) {
+        fclose(fp);
+        return true;
+    }
+    if (fseek(fp, -1, SEEK_END) != 0) {
+        fclose(fp);
+        return false;
+    }
+    if (fgetc(fp) == '\n') {
+        fclose(fp);
+        return true;
+    }
+    window = size > 512 ? size - 512 : 0;
+    if (fseek(fp, window, SEEK_SET) != 0) {
+        fclose(fp);
+        return false;
+    }
+    n = fread(buf, 1, sizeof(buf), fp);
+    for (i = 0; i < n; i++) {
+        if (buf[i] == '\n') {
+            found = window + (long)i;
+        }
+    }
+    if (found >= 0 && ftruncate(fileno(fp), found + 1) != 0) {
         fclose(fp);
         return false;
     }

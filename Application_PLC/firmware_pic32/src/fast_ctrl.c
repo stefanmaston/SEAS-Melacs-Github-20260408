@@ -51,6 +51,9 @@ static volatile uint16_t g_isr_max_us;
 static volatile uint16_t g_status_out[FAST_N_PID];
 static volatile uint16_t g_status_fb[FAST_N_PID];
 static volatile int16_t g_status_err[FAST_N_PID];
+static volatile uint8_t g_guard;
+static volatile uint32_t g_now_ms;
+static volatile uint32_t g_sweep_ms;
 
 #if !defined(__PIC32MX__)
 #include <pthread.h>
@@ -95,6 +98,9 @@ void fast_ctrl_init(void)
     g_cfg_error = 0;
     g_ticks = 0;
     g_isr_max_us = 0;
+    g_guard = 0;
+    g_now_ms = 0;
+    g_sweep_ms = 0;
     for (c = 0; c < FAST_N_PID; c++) {
         g_status_out[c] = 0;
         g_status_fb[c] = 0;
@@ -106,6 +112,21 @@ void fast_ctrl_init(void)
 void fast_ctrl_set_run(bool running)
 {
     g_run = running;
+}
+
+void fast_ctrl_set_guard(bool h1, bool h2)
+{
+    g_guard = (uint8_t)((h1 ? 1u : 0u) | (h2 ? 2u : 0u));
+}
+
+void fast_ctrl_note_time(uint32_t now_ms)
+{
+    g_now_ms = now_ms;
+}
+
+void fast_ctrl_sweep_kick(uint32_t now_ms)
+{
+    g_sweep_ms = now_ms;
 }
 
 static int bridge_of(uint16_t pwm)
@@ -270,6 +291,10 @@ void fast_ctrl_step(const FastIn *in, FastOut *out)
     }
 
     step_interlocks(in, &block);
+    block |= g_guard;
+    if (g_now_ms != 0 && (uint32_t)(g_now_ms - g_sweep_ms) > FAST_SWEEP_LATE_MS) {
+        block |= 3u;
+    }
 
     memset(out, 0, sizeof(*out));
     for (c = 0; c < FAST_N_PID; c++) {

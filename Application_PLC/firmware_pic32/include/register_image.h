@@ -7,7 +7,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/* Svep utan Modbus-trafik efter så här många PLC-svep släpper mastern. */
+#define MASTER_TIMEOUT_SCANS 50u
+
 void register_image_init(void);
+
+/* Ett PLC-svep. Åldrar mastern. */
+void register_image_sweep(void);
+
+/* Modbus-trafik från en redan känd master håller timeouten fräsch. */
+void register_image_touch(void);
 
 void register_image_publish(const PlcInputs *in, const PlcOutputs *physical,
                             const PlcStatus *st, const RtcClock *clk);

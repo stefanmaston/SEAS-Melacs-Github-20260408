@@ -3,8 +3,9 @@ import http from "node:http";
 import https from "node:https";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { allowCockpitUpgrade, ensureAuth, routeProtected } from "./auth.mjs";
+import { allowCockpitUpgrade, allowFuxaUpgrade, ensureAuth, routeProtected } from "./auth.mjs";
 import { attachPlant } from "./plant.mjs";
+import { fuxaDelegated, proxyFuxa, proxyFuxaUpgrade, redirectFuxaRoot } from "./fuxa-proxy.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../dist");
@@ -434,6 +435,11 @@ const server = http.createServer((req, res) => {
         proxyCockpit(req, res);
         return;
       }
+      if (fuxaDelegated(req)) {
+        if (redirectFuxaRoot(req, res)) return;
+        proxyFuxa(req, res);
+        return;
+      }
       dispatch(0, req, res);
     })
     .catch((err) => {
@@ -446,6 +452,10 @@ const server = http.createServer((req, res) => {
 server.on("upgrade", (req, socket, head) => {
   if (cockpitPath(req.url) && allowCockpitUpgrade(req)) {
     proxyCockpitUpgrade(req, socket, head);
+    return;
+  }
+  if (fuxaDelegated(req) && allowFuxaUpgrade(req)) {
+    proxyFuxaUpgrade(req, socket, head);
     return;
   }
   socket.destroy();

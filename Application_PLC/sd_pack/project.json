@@ -1,4 +1,9 @@
 {
+  "melacs": {
+    "safetyRelated": [
+      "guard"
+    ]
+  },
   "meta": {
     "name": "Melacs SEAS",
     "type": "plc-project"

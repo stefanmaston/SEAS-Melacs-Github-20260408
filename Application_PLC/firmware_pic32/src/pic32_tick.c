@@ -1,5 +1,6 @@
 #include "fast_ctrl.h"
 #include "pic32_board.h"
+#include "protect.h"
 
 #include <sys/attribs.h>
 #include <xc.h>
@@ -71,6 +72,8 @@ void __ISR(_TIMER_1_VECTOR, IPL4SOFT) tick_isr(void)
 
     IFS0CLR = _IFS0_T1IF_MASK;
     g_ms++;
+    fast_ctrl_note_time(g_ms);
+    protect_kick_tick();
 
     io_fast_read(&in);
     fast_ctrl_step(&in, &out);

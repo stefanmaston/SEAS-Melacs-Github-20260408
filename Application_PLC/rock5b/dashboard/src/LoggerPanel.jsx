@@ -144,6 +144,79 @@ function enrich(row) {
   return next;
 }
 
+const SAFETY_TEXT = {
+  1: "Start",
+  2: "Skyddsbild giltig",
+  3: "Skyddsbild saknas",
+  4: "Skyddsbild fel",
+  5: "Master borta",
+  6: "Master tillbaka",
+  7: "Safe mode",
+  9: "Spärr",
+  10: "Förregling",
+};
+
+function SafetyList() {
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
+    let stop = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/safety", { cache: "no-store" });
+        const data = await res.json();
+        if (!stop && res.ok) setRows(data.rows || []);
+      } catch {
+        if (!stop) setRows([]);
+      }
+    };
+    const tick = async () => {
+      await load();
+      if (!stop) timer = setTimeout(tick, 5000);
+    };
+    let timer;
+    tick();
+    return () => {
+      stop = true;
+      clearTimeout(timer);
+    };
+  }, []);
+
+  const shown = rows.slice(-40).reverse();
+  return (
+    <section className="panel">
+      <div className="section-head">
+        <h2>Säkerhetshändelser</h2>
+      </div>
+      <p className="muted">Filen MELACS.SAF på Rock 5B. Händelserna ligger kvar i kortet tills de är skrivna här.</p>
+      {shown.length === 0 ? (
+        <p>Inga säkerhetshändelser ännu.</p>
+      ) : (
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tid</th>
+                <th>Händelse</th>
+                <th>Detalj</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shown.map((row) => (
+                <tr key={`${row.seq}-${row.TimeStamp}`}>
+                  <td>{row.TimeStamp}</td>
+                  <td>{row.text || SAFETY_TEXT[row.code] || row.code}</td>
+                  <td>{row.detail}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function LoggerPanel({ rows }) {
   const [full, setFull] = useState(false);
   const [minutes, setMinutes] = useState(10);
@@ -210,6 +283,7 @@ export function LoggerPanel({ rows }) {
 
   return (
     <div className="stack">
+      <SafetyList />
       <TrendChart
         title="Logg"
         note={chartNote}

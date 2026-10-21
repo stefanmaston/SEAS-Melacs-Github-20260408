@@ -4,6 +4,7 @@
 #include "image_lock.h"
 #include "log_history.h"
 #include "logger.h"
+#include "protect.h"
 
 #include <string.h>
 
@@ -47,6 +48,7 @@ static PlcOutputs g_cmd;
 static uint16_t g_safe_mode;
 static uint16_t g_log_period;
 static bool g_master;
+static uint16_t g_master_idle;
 static bool g_set_level;
 static bool g_clock_pending;
 static bool g_beep_pending;
@@ -131,6 +133,12 @@ static uint16_t read_input_reg(uint16_t addr)
         (void)fast_ctrl_read_input(addr, &value);
         return value;
     }
+    if (protect_is_input(addr)) {
+        return protect_read_input(addr);
+    }
+    if (logger_safety_is_input(addr)) {
+        return logger_safety_input(addr);
+    }
     if (addr >= LOG_HIST_STATUS) {
         return log_history_reg(addr);
     }
@@ -142,6 +150,11 @@ static uint16_t read_holding_reg(uint16_t addr)
     if (fast_ctrl_is_reg(addr)) {
         uint16_t value = 0;
         (void)fast_ctrl_read_holding(addr, &value);
+        return value;
+    }
+    if (protect_is_holding(addr)) {
+        uint16_t value = 0;
+        (void)protect_read_holding(addr, &value);
         return value;
     }
     switch (addr) {
@@ -175,7 +188,9 @@ static bool holding_writable(uint16_t addr)
         || (addr >= REG_H_PWM && addr <= REG_NOTE)
         || (addr >= REG_SAFE && addr <= REG_BEEP)
         || addr == REG_HIST_ARM
-        || fast_ctrl_writable(addr);
+        || fast_ctrl_writable(addr)
+        || protect_holding_writable(addr)
+        || logger_safety_is_ack(addr);
 }
 
 static bool clock_from_buf(RtcClock *clk)
@@ -204,11 +219,19 @@ static void seed_setbuf(void)
 static void note_output_write(void)
 {
     g_master = true;
+    g_master_idle = 0;
 }
 
 static void write_one_holding(uint16_t addr, uint16_t value, bool *rising)
 {
     if (fast_ctrl_write_reg(addr, value)) {
+        return;
+    }
+    if (protect_write_reg(addr, value)) {
+        return;
+    }
+    if (logger_safety_is_ack(addr)) {
+        logger_safety_ack(value);
         return;
     }
     if (addr >= REG_RTC_YEAR && addr < REG_RTC_SET) {
@@ -270,10 +293,33 @@ void register_image_init(void)
     g_safe_mode = 0;
     g_log_period = MELACS_LOG_PERIOD_S;
     g_master = false;
+    g_master_idle = 0;
     g_set_level = false;
     g_clock_pending = false;
     g_beep_pending = false;
     seed_setbuf();
+    protect_init();
+    image_unlock();
+}
+
+void register_image_sweep(void)
+{
+    image_lock();
+    if (g_master_idle < 0xFFFFu) {
+        g_master_idle++;
+    }
+    if (g_master && g_master_idle > MASTER_TIMEOUT_SCANS) {
+        g_master = false;
+    }
+    image_unlock();
+}
+
+void register_image_touch(void)
+{
+    image_lock();
+    if (g_master) {
+        g_master_idle = 0;
+    }
     image_unlock();
 }
 

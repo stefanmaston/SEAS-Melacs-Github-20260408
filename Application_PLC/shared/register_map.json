@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 5,
   "slave_id": 1,
   "comment": "Adresserna är oförändrade. Namnen är pin-nummer för PLC. Fysiska ben finns i firmware_pic32/include/pin_map.h.",
   "inputs": [
@@ -115,5 +115,28 @@
     { "name": "pid1_out", "modbus": 320, "type": "uint16", "space": "input", "comment": "Aktuell utsignal." },
     { "name": "pid1_fb", "modbus": 321, "type": "uint16", "space": "input", "comment": "Senaste återkoppling." },
     { "name": "pid1_err", "modbus": 322, "type": "int16", "space": "input", "comment": "Reglerfel, börvärde minus återkoppling." }
+  ],
+  "protect": [
+    { "name": "prot_status", "modbus": 340, "type": "uint16", "space": "input", "comment": "bit0 bild giltig, bit1 fel, bit2 puls-fas från 1 kHz, bit3 överföring pågår." },
+    { "name": "prot_ctrl", "modbus": 360, "type": "uint16", "space": "holding", "comment": "1=börja bild, 2=bekräfta, 3=avbryt. Läses som 0. Bekräftelse av en ogiltig bild ger safe." },
+    { "name": "prot_len", "modbus": 361, "type": "uint16", "space": "holding", "comment": "Bildens längd i byte, högst 256." },
+    { "name": "prot_crc_lo", "modbus": 362, "type": "uint16", "space": "holding", "comment": "CRC-32 av den aktiva kroppens låga ord. Skrivningar ignoreras." },
+    { "name": "prot_crc_hi", "modbus": 363, "type": "uint16", "space": "holding", "comment": "CRC-32 av den aktiva kroppens höga ord. Skrivningar ignoreras." },
+    { "name": "prot_off", "modbus": 364, "type": "uint16", "space": "holding", "comment": "Byte-offset för payload i 365–380." },
+    { "name": "prot_data", "modbus": 365, "type": "uint16", "space": "holding", "count": 16, "comment": "Sexton ord, big-endian per ord. Bilden själv är little-endian." }
+  ],
+  "safety_log": [
+    { "name": "saf_seq", "modbus": 350, "type": "uint16", "space": "input", "comment": "Äldsta okvitterade händelsen. 0 betyder tom kö." },
+    { "name": "saf_code", "modbus": 351, "type": "uint16", "space": "input", "comment": "1 start, 2 bild giltig, 3 bild saknas, 4 bild fel, 5 master borta, 6 master tillbaka, 7 safe mode, 9 spärr, 10 förregling." },
+    { "name": "saf_detail", "modbus": 352, "type": "uint16", "space": "input", "comment": "safe mode, spärr-mask eller förreglingsstatus." },
+    { "name": "saf_count", "modbus": 353, "type": "uint16", "space": "input", "comment": "Antal händelser som väntar på kvittens. Högst 32." },
+    { "name": "saf_overflow", "modbus": 354, "type": "uint16", "space": "input", "comment": "1 när kön varit full. De händelserna ligger ändå i MELACS.SAF på kortet." },
+    { "name": "saf_year", "modbus": 355, "type": "uint16", "space": "input" },
+    { "name": "saf_month", "modbus": 356, "type": "uint16", "space": "input" },
+    { "name": "saf_day", "modbus": 357, "type": "uint16", "space": "input" },
+    { "name": "saf_hour", "modbus": 358, "type": "uint16", "space": "input" },
+    { "name": "saf_minute", "modbus": 359, "type": "uint16", "space": "input" },
+    { "name": "saf_second", "modbus": 360, "type": "uint16", "space": "input" },
+    { "name": "saf_ack", "modbus": 381, "type": "uint16", "space": "holding", "comment": "Skriv seq från input 350 när raden är sparad på Rock 5B. Läses som 0." }
   ]
 }

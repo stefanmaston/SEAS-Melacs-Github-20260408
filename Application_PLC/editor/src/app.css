@@ -1,0 +1,89 @@
+:root {
+  color: #1c1915;
+  background: #f4f0e8;
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+}
+
+p {
+  line-height: 1.45;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1.25rem 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "check name kind"
+    "check path path";
+  gap: 0.15rem 0.75rem;
+  align-items: center;
+  padding: 0.75rem 0.9rem;
+  background: #fffdf8;
+  border: 1px solid #ddd4c4;
+}
+
+.row input {
+  grid-area: check;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.row label {
+  display: contents;
+}
+
+.name {
+  grid-area: name;
+  font-weight: 600;
+}
+
+.kind {
+  grid-area: kind;
+  color: #6d6458;
+  font-size: 0.85rem;
+}
+
+.path {
+  grid-area: path;
+  color: #6d6458;
+  font-size: 0.85rem;
+}
+
+button {
+  font: inherit;
+  padding: 0.55rem 0.9rem;
+  background: #243126;
+  color: #f4f0e8;
+  border: 0;
+  cursor: pointer;
+}
+
+.error {
+  color: #8c2f22;
+}
+
+.ok {
+  color: #243126;
+}
