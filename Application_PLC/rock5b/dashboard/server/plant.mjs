@@ -1,4 +1,5 @@
 import { LOG_KEYS } from "../shared/columns.js";
+import { challengerSystem } from "./challenger.mjs";
 import { createModbus } from "./modbus.mjs";
 import { createRemotePlant } from "./remote.mjs";
 import { sharedSafetyLog } from "./safety-log.mjs";
@@ -356,7 +357,7 @@ export function attachPlant(middlewares) {
     const url = req.url || "";
     if (url.startsWith("/api/live") && req.method === "GET") {
       Promise.resolve(plant.snapshot()).then((snap) => {
-        send(res, 200, snap);
+        send(res, 200, { ...snap, systems: [challengerSystem()] });
       }).catch((err) => {
         send(res, 502, { error: err.message || "Melacs svarade inte" });
       });

@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { handleBoards } from "./boards.mjs";
 import { openplcStart, openplcStatus } from "./openplc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -525,6 +526,10 @@ export async function routeProtected(req, res) {
   }
   if (pathOnly === "/api/openplc") {
     await handleOpenplc(req, res, session);
+    return true;
+  }
+  if (pathOnly === "/api/boards" || pathOnly.startsWith("/api/boards/")) {
+    await handleBoards(req, res, session);
     return true;
   }
   if (pathOnly.startsWith("/api/command") && !canControl(session)) {

@@ -4,11 +4,13 @@ import { Controls } from "./Controls.jsx";
 import { alarmText, downloadMelacsCsv, errorText, formatRtc } from "./format.js";
 import { LoggerPanel } from "./LoggerPanel.jsx";
 import { Login } from "./Login.jsx";
+import { NetworkMap } from "./NetworkMap.jsx";
 import { Schematic } from "./Schematic.jsx";
 import { usePlant } from "./usePlant.js";
 
 const VIEWS = [
   { id: "overview", label: "Översikt" },
+  { id: "io", label: "I/O boards" },
   { id: "fuxa", label: "Scada" },
   { id: "controls", label: "Reglage" },
   { id: "logger", label: "Logger" },
@@ -128,7 +130,65 @@ function Status({ plant }) {
   );
 }
 
-function Overview({ plant }) {
+function bits(values) {
+  if (!values || values.length === 0) return "—";
+  return values.map((on) => (on ? "1" : "0")).join("");
+}
+
+function challengerFault(code) {
+  if (code === 0) return "Inga fel";
+  if (code === 1) return "WiFi nere";
+  if (code === 2) return "Ingen master";
+  if (code === 3) return "Säkert läge";
+  if (code == null) return "—";
+  return `Fel ${code}`;
+}
+
+function Systems({ plant }) {
+  const challenger = (plant.systems || []).find((item) => item.id === "challenger");
+  const cards = [
+    {
+      id: "melacs",
+      name: "Melacs",
+      role: "PIC32",
+      host: plant.host || "—",
+      link: Boolean(plant.link),
+      line: plant.link ? errorText(plant.inputs.error_code) : "ingen länk",
+    },
+  ];
+  if (challenger) cards.push(challenger);
+  return (
+    <section className="systems">
+      <h2>System på anläggningen</h2>
+      <div className="system-grid">
+        {cards.map((card) => (
+          <article key={card.id} className={card.link ? "system-card on" : "system-card"}>
+            <header>
+              <div>
+                <h3>{card.name}</h3>
+                <p>{card.role} · {card.host}</p>
+              </div>
+              <span>{card.link ? "uppe" : "nere"}</span>
+            </header>
+            {card.id === "challenger" && card.link ? (
+              <dl>
+                <div><dt>Ingångar</dt><dd>{bits(card.dioIn)}</dd></div>
+                <div><dt>Utgångar</dt><dd>{bits(card.dioOut)}</dd></div>
+                <div><dt>AD</dt><dd>{card.ad.join(", ")}</dd></div>
+                <div><dt>Kort</dt><dd>{card.tBoard} °C</dd></div>
+                <div><dt>Fel</dt><dd>{challengerFault(card.error)}</dd></div>
+              </dl>
+            ) : (
+              <p>{card.line || card.note || "söker"}</p>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function IoBoards({ plant }) {
   const inp = plant.inputs;
   const live = Boolean(plant.source);
   const tiles = [
@@ -147,6 +207,7 @@ function Overview({ plant }) {
           Fysiska utgångar ligger i safe. De följer reglagen först när en master har skrivit och safe_mode är 0.
         </p>
       ) : null}
+      <Systems plant={plant} />
       <Status plant={plant} />
       <Schematic plant={plant} />
       <section className="tiles">
@@ -304,7 +365,10 @@ function PlantShell({ session, onSession, onLogout, theme, onTheme }) {
             </button>
           </div>
         </div>
-        {view === "overview" ? <Overview plant={plant || emptyPlant} /> : null}
+        {view === "overview" ? (
+          <NetworkMap plant={plant || emptyPlant} canControl={canControl} />
+        ) : null}
+        {view === "io" ? <IoBoards plant={plant || emptyPlant} /> : null}
         {view === "fuxa" ? <FuxaFrame /> : null}
         {view === "controls" ? (
           <ControlsView plant={plant || emptyPlant} busy={busy} onCommand={command} canControl={canControl} />

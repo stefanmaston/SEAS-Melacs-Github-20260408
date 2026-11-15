@@ -226,6 +226,7 @@ button, input, select {
 
 .viewbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
@@ -235,14 +236,47 @@ button, input, select {
 
 .nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.25rem;
   margin: 0;
   width: fit-content;
+  max-width: 100%;
   background: var(--card);
   border-radius: 12px;
   box-shadow: var(--shadow);
   padding: 0.25rem;
 }
+
+.netmap {
+  width: 100%;
+  height: auto;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.net-line { stroke: var(--pcb-line); stroke-width: 2; }
+.net-line.on { stroke: var(--ok); }
+.net-node { fill: var(--block); stroke: var(--block-line); stroke-width: 1.5; }
+.net-node.on { stroke: var(--ok); stroke-width: 2; }
+.net-title { fill: var(--ink); font-size: 15px; font-weight: 500; }
+.net-sub { fill: var(--muted); font-size: 12px; }
+.net-dot { fill: var(--hot); }
+.net-dot.on { fill: var(--ok); }
+
+.board-add, .board-edit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.7rem;
+  align-items: end;
+  margin-top: 0.8rem;
+}
+
+.board-edit { padding-top: 0.8rem; border-top: 1px solid var(--line); }
+
+.board-add label, .board-edit label { display: grid; gap: 0.3rem; color: var(--muted); font-size: 0.85rem; }
+
+.board-add .primary, .board-edit .actions { margin-bottom: 0.15rem; }
 
 .nav button, .actions button, .toggle, .primary, .danger {
   border: 0;
@@ -270,7 +304,59 @@ button, input, select {
 
 .stack { display: grid; gap: 0.85rem; }
 
-.panel, fieldset, .chart, .tiles article, .board-wrap {
+.systems h2 { margin-bottom: 0.7rem; }
+
+.system-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.75rem;
+}
+
+.system-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.system-card h3 { margin: 0; text-transform: none; letter-spacing: 0; font-size: 1rem; }
+
+.system-card header p,
+.system-card > p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+}
+
+.system-card header span {
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  background: var(--chip);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.system-card.on header span { color: var(--ok); }
+
+.system-card dl {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.8rem 0 0;
+}
+
+.system-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.system-card dt { color: var(--muted); }
+
+.system-card dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel, fieldset, .chart, .tiles article, .board-wrap, .system-card {
   background: var(--card);
   border: 0;
   border-radius: 12px;
