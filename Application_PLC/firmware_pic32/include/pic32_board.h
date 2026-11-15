@@ -56,6 +56,8 @@ bool sd_append_line(const char *path, const char *text);
 bool sd_file_size(const char *path, uint32_t *size);
 bool sd_repair_tail(const char *path);
 bool sd_seed_pack(void);
+bool sd_read_blob(const char *path, uint8_t *dest, uint16_t max_len, uint16_t *len);
+bool sd_replace_file(const char *path, const uint8_t *src, uint16_t len);
 void sd_hist_start(uint32_t budget_bytes);
 void sd_hist_step(void);
 

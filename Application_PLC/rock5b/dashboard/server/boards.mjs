@@ -5,6 +5,8 @@ import crypto from "node:crypto";
 
 const file = process.env.MELACS_BOARDS || "/var/lib/melacs/boards.json";
 
+// Kontorets DietPi (192.168.68.61) ska anpassas och bli SEAS central.
+// Tills dess visas Lilläng SEAS på hemmalådan i den rollen.
 const DEFAULTS = [
   {
     id: "seas-central",

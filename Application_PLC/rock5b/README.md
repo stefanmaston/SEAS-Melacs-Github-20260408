@@ -34,7 +34,11 @@ Hur lådan ska användas, med lokal inloggning, licens och SEAS-webben, står i 
 
 Sidan körs på DietPi och startar vid strömmen. På plats öppnar man `http://melacs.local/`. Hemmalådan är också `http://192.168.50.60/`. Kontorslådan på Deco-nätet är också `http://192.168.68.61/`. Ingen tunnel och ingen lokal Vite-process behövs. Sidan och OpenPLC delar Modbus-sessionen genom `melacs-modbus-proxy` på `127.0.0.1` port 1502.
 
-Menyn är Översikt, Scada, Reglage, Logger, Cockpit och PLC editor. PLC editor är sidan för användare, licens och anslutning av OpenPLC. Cockpit och PLC editor syns för administratör och service.
+Menyn är Översikt, I/O boards, Scada, Reglage, Logger, Cockpit och PLC editor. Översikten är systemschemat. I/O boards är den tidigare översikten med systemkort, status och processbild. PLC editor är sidan för användare, licens och anslutning av OpenPLC. Cockpit och PLC editor syns för administratör och service.
+
+## SEAS central
+
+SEAS central ska övervaka alla lokala nät. Kontorets DietPi, `192.168.68.61`, ska anpassas så att den blir den lådan. Tills det är gjort visas rollen på hemmalådan som Lilläng SEAS, `192.168.50.60`, ovanför den lokala SEAS på samma låda. Hemmalådan förblir den lokala SEAS när kontoret har tagit över centralen.
 
 Tjänsten är `melacs-dashboard.service`. Den startar med DietPi och läser `MELACS_HOST` och `MELACS_PORT`. Filer ligger i `/opt/melacs-dashboard` (`dist/`, `server/`, `shared/columns.js`).
 

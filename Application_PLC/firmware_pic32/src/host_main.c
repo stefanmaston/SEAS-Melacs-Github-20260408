@@ -1,5 +1,6 @@
 #define _DEFAULT_SOURCE
 #include "logger.h"
+#include "loc_runtime.h"
 #include "modbus_tcp.h"
 #include "plat_host.h"
 #include "plc_runtime.h"
@@ -220,6 +221,71 @@ static int commit_image(const uint8_t *img, uint16_t len)
     return write_reg(PROT_REG_CTRL, 2);
 }
 
+static int commit_loc(const uint8_t *img, uint16_t len)
+{
+    uint16_t off;
+
+    if (write_reg(LOC_REG_CTRL, 1) != 0 || write_reg(LOC_REG_LEN, len) != 0) {
+        return -1;
+    }
+    for (off = 0; off < len;) {
+        uint16_t chunk = (uint16_t)(len - off);
+        uint16_t words;
+        uint16_t w;
+        uint16_t regs[17];
+
+        if (chunk > 32u) {
+            chunk = 32u;
+        }
+        words = (uint16_t)((chunk + 1u) / 2u);
+        regs[0] = off;
+        for (w = 0; w < words; w++) {
+            uint16_t pos = (uint16_t)(off + w * 2u);
+            uint8_t hi = img[pos];
+            uint8_t lo = (uint16_t)(pos + 1u) < len ? img[pos + 1u] : 0;
+            regs[1u + w] = (uint16_t)(((uint16_t)hi << 8) | lo);
+        }
+        if (write_regs(LOC_REG_OFF, (uint16_t)(1u + words), regs) != 0) {
+            return -1;
+        }
+        off = (uint16_t)(off + chunk);
+    }
+    return write_reg(LOC_REG_CTRL, 2);
+}
+
+static uint16_t loc_true_dio4(uint8_t *dst)
+{
+    uint8_t body[12];
+    uint16_t n = 0;
+    uint32_t crc;
+
+    body[n++] = (uint8_t)LOC_OWN_DIO4;
+    body[n++] = 0;
+    body[n++] = 0;
+    body[n++] = 0;
+    body[n++] = LOC_OP_LDC;
+    body[n++] = 1;
+    body[n++] = 0;
+    body[n++] = LOC_OP_ST_Q_BOOL;
+    body[n++] = 0;
+    body[n++] = LOC_OP_END;
+    dst[0] = 'M';
+    dst[1] = 'P';
+    dst[2] = 'L';
+    dst[3] = '1';
+    dst[4] = 1;
+    dst[5] = 0;
+    dst[6] = (uint8_t)n;
+    dst[7] = 0;
+    crc = protect_crc32(body, n);
+    dst[8] = (uint8_t)crc;
+    dst[9] = (uint8_t)(crc >> 8);
+    dst[10] = (uint8_t)(crc >> 16);
+    dst[11] = (uint8_t)(crc >> 24);
+    memcpy(dst + 12, body, n);
+    return (uint16_t)(12u + n);
+}
+
 static uint16_t end_image(uint8_t *dst)
 {
     uint32_t crc;
@@ -388,6 +454,7 @@ static int run_tests(void)
     unlink("build/MELACS.SAF");
     unlink("build/README.TXT");
     unlink("build/MELACS.ZIP");
+    unlink("build/MELACS.LOC");
     {
         FILE *torn = fopen(LOG_PATH, "wb");
         if (torn != NULL) {
@@ -563,6 +630,33 @@ static int run_tests(void)
     expect(file_has("build/MELACS.SAF", ",4,0\n"), "fel bild loggas");
     expect(file_has("build/MELACS.SAF", ",5,0\n"), "tappad master loggas");
     expect(file_has("build/MELACS.SAF", ",9,1\n"), "spärren loggas");
+
+    for (i = 0; i < (int)MASTER_TIMEOUT_SCANS + 1; i++) {
+        plc_runtime_tick();
+    }
+    expect(!plc_status()->plc_loaded, "master släppt före lokal bild");
+    {
+        uint8_t image[32];
+        uint16_t loc_len = loc_true_dio4(image);
+        uint16_t own = 0;
+        expect(commit_loc(image, loc_len) == 0, "lokal bild skrivs");
+        expect(read_holding(421, 1, &own) == 0 && own == (uint16_t)LOC_OWN_DIO4,
+               "ägarmask syns i holding");
+        plc_runtime_tick();
+        expect(!plc_status()->plc_loaded && plc_status()->loc_loaded,
+               "lokal bild kör utan master");
+        expect(plc_status()->loc_running && plc_status()->plc_running,
+               "lokal körning släpper utgångar");
+        expect(plc_outputs()->dio_out[0], "DIO4 följer lokal bild");
+        expect(plc_outputs()->h1_dis, "skyddet håller H1 av under lokal körning");
+        expect(write_coil(16, 0) == 0, "OpenPLC skriver DIO4");
+        expect(write_coil(17, 1) == 0, "OpenPLC skriver DIO5");
+        expect(read_coil_on(16) == 0, "coil 16 echar OpenPLC");
+        plc_runtime_tick();
+        expect(plc_outputs()->dio_out[0], "ägd DIO4 följer inte OpenPLC");
+        expect(plc_outputs()->dio_out[1], "oägd DIO5 följer OpenPLC");
+        expect(file_has("build/MELACS.SAF", ",11,0\n"), "lokal bild loggas");
+    }
 
     modbus_tcp_stop();
     if (g_fails != 0) {

@@ -3,7 +3,15 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { isSafety, listPous, setSafety, setSafetyText } from "./pou.mjs";
+import {
+  isLocal,
+  isSafety,
+  listPous,
+  setLocal,
+  setLocalText,
+  setSafety,
+  setSafetyText,
+} from "./pou.mjs";
 
 test("märket sätts och tas bort i texten", () => {
   const marked = setSafetyText("PROGRAM main\nEND_PROGRAM\n", true);
@@ -12,6 +20,13 @@ test("märket sätts och tas bort i texten", () => {
   const cleared = setSafetyText(marked, false);
   assert.equal(isSafety(cleared), false);
   assert.equal(cleared.startsWith("PROGRAM"), true);
+});
+
+test("lokal märkning tar bort skyddsmärket", () => {
+  const safety = setSafetyText("PROGRAM local\nEND_PROGRAM\n", true);
+  const local = setLocalText(safety, true);
+  assert.equal(isLocal(local), true);
+  assert.equal(isSafety(local), false);
 });
 
 test("kryssrutan skriver pragma och projektfil", () => {
@@ -27,11 +42,19 @@ test("kryssrutan skriver pragma och projektfil", () => {
   const project = JSON.parse(fs.readFileSync(path.join(root, "project.json"), "utf8"));
   assert.deepEqual(project.melacs.safetyRelated, ["main"]);
 
-  pous = setSafety(root, "pous/programs/main.st", false);
+  pous = setLocal(root, "pous/programs/main.st", true);
+  assert.equal(pous[0].localRelated, true);
   assert.equal(pous[0].safetyRelated, false);
+  assert.deepEqual(
+    JSON.parse(fs.readFileSync(path.join(root, "project.json"), "utf8")).melacs.localRelated,
+    ["main"],
+  );
   assert.deepEqual(
     JSON.parse(fs.readFileSync(path.join(root, "project.json"), "utf8")).melacs.safetyRelated,
     [],
   );
+
+  pous = setSafety(root, "pous/programs/main.st", false);
+  assert.equal(pous[0].safetyRelated, false);
   assert.equal(listPous(root)[0].name, "main");
 });

@@ -33,10 +33,10 @@ p {
 
 .row {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto;
   grid-template-areas:
-    "check name kind"
-    "check path path";
+    "safe local name kind"
+    "safe local path path";
   gap: 0.15rem 0.75rem;
   align-items: center;
   padding: 0.75rem 0.9rem;
@@ -44,14 +44,32 @@ p {
   border: 1px solid #ddd4c4;
 }
 
+.mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.75rem;
+  color: #6d6458;
+}
+
+.mark:first-of-type {
+  grid-area: safe;
+}
+
+.mark:nth-of-type(2) {
+  grid-area: local;
+}
+
 .row input {
-  grid-area: check;
   width: 1.1rem;
   height: 1.1rem;
 }
 
-.row label {
-  display: contents;
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .name {

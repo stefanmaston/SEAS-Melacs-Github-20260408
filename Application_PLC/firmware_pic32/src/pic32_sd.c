@@ -460,7 +460,7 @@ static bool consider_sector(uint32_t lba, const uint8_t name[11], int create, ui
     return true;
 }
 
-static bool open_file(const char *path)
+static bool lookup_file(const char *path, int create)
 {
     uint8_t name[11];
     uint32_t free_lba = 0;
@@ -475,7 +475,7 @@ static bool open_file(const char *path)
     if (!g_fat32) {
         uint32_t s;
         for (s = 0; s < g_root_sectors && !g_stop_dir; s++) {
-            if (!consider_sector(g_root_lba + s, name, 1, &free_lba, &free_off)) {
+            if (!consider_sector(g_root_lba + s, name, create, &free_lba, &free_off)) {
                 return false;
             }
             if (g_have_file) {
@@ -488,7 +488,7 @@ static bool open_file(const char *path)
             uint32_t s;
             uint32_t next;
             for (s = 0; s < g_spc && !g_stop_dir; s++) {
-                if (!consider_sector(cluster_lba(cluster) + s, name, 1, &free_lba, &free_off)) {
+                if (!consider_sector(cluster_lba(cluster) + s, name, create, &free_lba, &free_off)) {
                     return false;
                 }
                 if (g_have_file) {
@@ -502,7 +502,7 @@ static bool open_file(const char *path)
             cluster = next;
         }
     }
-    if (free_off < 0) {
+    if (!create || free_off < 0) {
         return false;
     }
     if (!dir_store(free_lba, free_off, name, 0, 0)) {
@@ -514,6 +514,11 @@ static bool open_file(const char *path)
     g_file_size = 0;
     g_have_file = 1;
     return true;
+}
+
+static bool open_file(const char *path)
+{
+    return lookup_file(path, 1);
 }
 
 static bool mount_fat(void)
@@ -945,6 +950,174 @@ bool sd_seed_pack(void)
         return false;
     }
     return sd_write_if_absent("MELACS.ZIP", g_sd_pack_zip, g_sd_pack_zip_len);
+}
+
+bool sd_read_blob(const char *path, uint8_t *dest, uint16_t max_len, uint16_t *len)
+{
+    int saved_have;
+    uint32_t saved_cluster;
+    uint32_t saved_size;
+    uint32_t saved_lba;
+    int saved_off;
+    int saved_named;
+    uint8_t saved_name[11];
+    int saved_cc;
+    uint32_t saved_cc_first;
+    uint32_t saved_cc_index;
+    uint32_t saved_cc_cluster;
+    uint32_t left;
+    uint32_t pos;
+    int ok = 0;
+
+    if (!g_sd_ok || path == 0 || dest == 0 || len == 0) {
+        return false;
+    }
+    spi_hw_on(0);
+    if (!g_mounted && !mount_fat()) {
+        spi_hw_on(0);
+        g_sd_ok = 0;
+        return false;
+    }
+    saved_have = g_have_file;
+    saved_cluster = g_file_cluster;
+    saved_size = g_file_size;
+    saved_lba = g_dir_lba;
+    saved_off = g_dir_off;
+    saved_named = g_open_named;
+    memcpy(saved_name, g_open_name, 11);
+    saved_cc = g_cc_valid;
+    saved_cc_first = g_cc_first;
+    saved_cc_index = g_cc_index;
+    saved_cc_cluster = g_cc_cluster;
+    g_have_file = 0;
+    g_cc_valid = 0;
+    if (!lookup_file(path, 0) || g_file_size == 0 || g_file_size > max_len) {
+        restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off,
+                     saved_named, saved_name, saved_cc, saved_cc_first, saved_cc_index, saved_cc_cluster);
+        spi_hw_on(0);
+        return false;
+    }
+    pos = 0;
+    left = g_file_size;
+    while (left > 0) {
+        uint32_t cluster_bytes = (uint32_t)g_spc * 512u;
+        uint32_t into = pos % cluster_bytes;
+        uint32_t chunk;
+        uint32_t cluster = cluster_at(pos, 0);
+        uint32_t lba;
+        uint32_t off;
+
+        if (cluster < 2) {
+            break;
+        }
+        lba = cluster_lba(cluster) + into / 512u;
+        off = into % 512u;
+        chunk = 512u - off;
+        if (chunk > left) {
+            chunk = left;
+        }
+        if (!sd_read(lba, g_sec)) {
+            break;
+        }
+        memcpy(dest + pos, g_sec + off, chunk);
+        left -= chunk;
+        pos += chunk;
+    }
+    if (left == 0) {
+        *len = (uint16_t)g_file_size;
+        ok = 1;
+    }
+    restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off,
+                 saved_named, saved_name, saved_cc, saved_cc_first, saved_cc_index, saved_cc_cluster);
+    spi_hw_on(0);
+    return ok == 1;
+}
+
+bool sd_replace_file(const char *path, const uint8_t *src, uint16_t len)
+{
+    int saved_have;
+    uint32_t saved_cluster;
+    uint32_t saved_size;
+    uint32_t saved_lba;
+    int saved_off;
+    int saved_named;
+    uint8_t saved_name[11];
+    int saved_cc;
+    uint32_t saved_cc_first;
+    uint32_t saved_cc_index;
+    uint32_t saved_cc_cluster;
+    const uint8_t *p;
+    uint32_t left;
+    uint32_t pos;
+    int ok = 0;
+
+    if (!g_sd_ok || path == 0 || src == 0) {
+        return false;
+    }
+    spi_hw_on(0);
+    if (!g_mounted && !mount_fat()) {
+        spi_hw_on(0);
+        g_sd_ok = 0;
+        return false;
+    }
+    saved_have = g_have_file;
+    saved_cluster = g_file_cluster;
+    saved_size = g_file_size;
+    saved_lba = g_dir_lba;
+    saved_off = g_dir_off;
+    saved_named = g_open_named;
+    memcpy(saved_name, g_open_name, 11);
+    saved_cc = g_cc_valid;
+    saved_cc_first = g_cc_first;
+    saved_cc_index = g_cc_index;
+    saved_cc_cluster = g_cc_cluster;
+    g_have_file = 0;
+    g_cc_valid = 0;
+    if (!lookup_file(path, 1)) {
+        restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off,
+                     saved_named, saved_name, saved_cc, saved_cc_first, saved_cc_index, saved_cc_cluster);
+        spi_hw_on(0);
+        return false;
+    }
+    pos = 0;
+    p = src;
+    left = len;
+    while (left > 0) {
+        uint32_t cluster_bytes = (uint32_t)g_spc * 512u;
+        uint32_t into = pos % cluster_bytes;
+        uint32_t chunk;
+        uint32_t cluster = cluster_at(pos, 1);
+        uint32_t lba;
+        uint32_t off;
+
+        if (cluster < 2) {
+            break;
+        }
+        lba = cluster_lba(cluster) + into / 512u;
+        off = into % 512u;
+        chunk = 512u - off;
+        if (chunk > left) {
+            chunk = left;
+        }
+        if (!sd_read(lba, g_sec)) {
+            break;
+        }
+        memcpy(g_sec + off, p, chunk);
+        if (!sd_write(lba, g_sec)) {
+            break;
+        }
+        p += chunk;
+        left -= chunk;
+        pos += chunk;
+    }
+    if (left == 0) {
+        g_file_size = pos;
+        ok = update_size() ? 1 : 0;
+    }
+    restore_file(saved_have, saved_cluster, saved_size, saved_lba, saved_off,
+                 saved_named, saved_name, saved_cc, saved_cc_first, saved_cc_index, saved_cc_cluster);
+    spi_hw_on(0);
+    return ok == 1;
 }
 
 enum {

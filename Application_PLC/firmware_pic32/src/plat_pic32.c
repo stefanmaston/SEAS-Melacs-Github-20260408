@@ -89,3 +89,13 @@ void plat_seed_pack(void)
         done = 1;
     }
 }
+
+bool plat_blob_read(const char *name, uint8_t *dest, uint16_t max_len, uint16_t *len)
+{
+    return sd_read_blob(name, dest, max_len, len);
+}
+
+bool plat_blob_write(const char *name, const uint8_t *src, uint16_t len)
+{
+    return sd_replace_file(name, src, len);
+}

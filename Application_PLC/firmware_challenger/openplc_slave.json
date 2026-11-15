@@ -1,0 +1,85 @@
+{
+  "name": "Challenger RP2350",
+  "protocol": "modbus-tcp",
+  "comment": "OpenPLC-slav på iLabs Challenger+ RP2350 WiFi6/BLE5. Adresserna är desamma som Melacs för de signaler kortet faktiskt har. Kortet sitter på Solgården och svarar som egen slav, vid sidan av PIC32.",
+  "modbusTcpConfig": {
+    "host": "192.168.50.22",
+    "port": 502,
+    "timeout": 1000,
+    "slaveId": 1,
+    "ioGroups": [
+      {
+        "id": "dio-in",
+        "name": "DIO0-DIO3",
+        "functionCode": "2",
+        "cycleTime": 100,
+        "offset": "0",
+        "length": 4
+      },
+      {
+        "id": "status-in",
+        "name": "Status",
+        "functionCode": "2",
+        "cycleTime": 100,
+        "offset": "8",
+        "length": 4
+      },
+      {
+        "id": "ad",
+        "name": "AD0-AD3",
+        "functionCode": "4",
+        "cycleTime": 100,
+        "offset": "0",
+        "length": 4
+      },
+      {
+        "id": "ai",
+        "name": "AI10-AI13",
+        "functionCode": "4",
+        "cycleTime": 100,
+        "offset": "10",
+        "length": 4
+      },
+      {
+        "id": "error",
+        "name": "error_code",
+        "functionCode": "4",
+        "cycleTime": 100,
+        "offset": "20",
+        "length": 1
+      },
+      {
+        "id": "tboard",
+        "name": "T_BOARD",
+        "functionCode": "4",
+        "cycleTime": 500,
+        "offset": "30",
+        "length": 1
+      },
+      {
+        "id": "dio-out",
+        "name": "DIO4-DIO7",
+        "functionCode": "15",
+        "cycleTime": 100,
+        "offset": "16",
+        "length": 4
+      },
+      {
+        "id": "ao",
+        "name": "AO0-AO2",
+        "functionCode": "16",
+        "cycleTime": 100,
+        "offset": "100",
+        "length": 3
+      },
+      {
+        "id": "safe",
+        "name": "safe_mode",
+        "functionCode": "16",
+        "cycleTime": 100,
+        "offset": "200",
+        "length": 1
+      }
+    ]
+  }
+}

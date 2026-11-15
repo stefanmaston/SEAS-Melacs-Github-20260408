@@ -249,3 +249,50 @@ void plat_seed_pack(void)
     }
     done = 1;
 }
+
+bool plat_blob_read(const char *name, uint8_t *dest, uint16_t max_len, uint16_t *len)
+{
+    char path[320];
+    FILE *fp;
+    size_t n;
+    const char *log_path = logger_path();
+
+    if (name == NULL || dest == NULL || len == NULL || log_path == NULL) {
+        return false;
+    }
+    sibling_path(log_path, name, path, sizeof(path));
+    fp = fopen(path, "rb");
+    if (fp == NULL) {
+        return false;
+    }
+    n = fread(dest, 1, max_len, fp);
+    fclose(fp);
+    if (n == 0 || n > max_len) {
+        return false;
+    }
+    *len = (uint16_t)n;
+    return true;
+}
+
+bool plat_blob_write(const char *name, const uint8_t *src, uint16_t len)
+{
+    char path[320];
+    FILE *fp;
+    const char *log_path = logger_path();
+
+    if (name == NULL || src == NULL || log_path == NULL) {
+        return false;
+    }
+    sibling_path(log_path, name, path, sizeof(path));
+    fp = fopen(path, "wb");
+    if (fp == NULL) {
+        return false;
+    }
+    if (fwrite(src, 1, len, fp) != len) {
+        fclose(fp);
+        remove(path);
+        return false;
+    }
+    fclose(fp);
+    return true;
+}

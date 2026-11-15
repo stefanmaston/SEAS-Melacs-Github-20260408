@@ -46,6 +46,8 @@ static int g_prev_master;
 static uint16_t g_prev_safe;
 static uint16_t g_prev_inh;
 static uint16_t g_prev_trip;
+static int g_prev_loc_ok;
+static int g_prev_loc_fault;
 
 typedef struct {
     uint16_t seq;
@@ -243,7 +245,8 @@ static void logger_event(const RtcClock *clk, uint16_t code, uint16_t detail)
 }
 
 void logger_watch(const RtcClock *clk, int image_ok, int image_fault,
-                  int master, uint16_t safe_mode, uint16_t inhibit, uint16_t trip)
+                  int master, uint16_t safe_mode, uint16_t inhibit, uint16_t trip,
+                  int loc_ok, int loc_fault)
 {
     if (!g_watch_ready) {
         logger_event(clk, SAF_BOOT, 0);
@@ -254,6 +257,13 @@ void logger_watch(const RtcClock *clk, int image_ok, int image_fault,
         } else {
             logger_event(clk, SAF_IMAGE_OK, 0);
         }
+        if (loc_fault) {
+            logger_event(clk, SAF_LOC_FAULT, 0);
+        } else if (!loc_ok) {
+            logger_event(clk, SAF_LOC_MISSING, 0);
+        } else {
+            logger_event(clk, SAF_LOC_OK, 0);
+        }
         g_watch_ready = 1;
         g_prev_ok = image_ok;
         g_prev_fault = image_fault;
@@ -261,6 +271,8 @@ void logger_watch(const RtcClock *clk, int image_ok, int image_fault,
         g_prev_safe = safe_mode;
         g_prev_inh = inhibit;
         g_prev_trip = trip;
+        g_prev_loc_ok = loc_ok;
+        g_prev_loc_fault = loc_fault;
         return;
     }
     if (image_fault != g_prev_fault || image_ok != g_prev_ok) {
@@ -284,12 +296,23 @@ void logger_watch(const RtcClock *clk, int image_ok, int image_fault,
     if (trip != g_prev_trip) {
         logger_event(clk, SAF_INTERLOCK, trip);
     }
+    if (loc_fault != g_prev_loc_fault || loc_ok != g_prev_loc_ok) {
+        if (loc_fault) {
+            logger_event(clk, SAF_LOC_FAULT, 0);
+        } else if (!loc_ok) {
+            logger_event(clk, SAF_LOC_MISSING, 0);
+        } else {
+            logger_event(clk, SAF_LOC_OK, 0);
+        }
+    }
     g_prev_ok = image_ok;
     g_prev_fault = image_fault;
     g_prev_master = master;
     g_prev_safe = safe_mode;
     g_prev_inh = inhibit;
     g_prev_trip = trip;
+    g_prev_loc_ok = loc_ok;
+    g_prev_loc_fault = loc_fault;
 }
 
 bool logger_safety_is_input(uint16_t addr)

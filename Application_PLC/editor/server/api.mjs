@@ -1,10 +1,11 @@
 import { spawn } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
-import { listPous, setSafety } from "../pou.mjs";
+import { listPous, setLocal, setSafety } from "../pou.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../sd_pack");
-const compiler = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../tools/compile_protect.py");
+const protectCompiler = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../tools/compile_protect.py");
+const localCompiler = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../tools/compile_local.py");
 
 function send(res, status, body) {
   const raw = JSON.stringify(body);
@@ -24,6 +25,26 @@ async function readJson(req) {
   return JSON.parse(Buffer.concat(chunks).toString("utf8"));
 }
 
+function runCompiler(compiler, res, countMarked) {
+  const child = spawn("python3", [compiler, root], { stdio: ["ignore", "pipe", "pipe"] });
+  let out = "";
+  let err = "";
+  child.stdout.on("data", (chunk) => {
+    out += chunk;
+  });
+  child.stderr.on("data", (chunk) => {
+    err += chunk;
+  });
+  child.on("close", (code) => {
+    if (code !== 0) {
+      send(res, 400, { error: err.trim() || "kompileringen misslyckades" });
+      return;
+    }
+    const hex = out.trim();
+    send(res, 200, { bytes: hex.length / 2, marked: countMarked(), hex });
+  });
+}
+
 export function attachEditor(middlewares) {
   middlewares.use(async (req, res, next) => {
     const url = new URL(req.url, "http://editor.local");
@@ -34,7 +55,12 @@ export function attachEditor(middlewares) {
     if (url.pathname === "/api/pous" && req.method === "POST") {
       try {
         const body = await readJson(req);
-        const pous = setSafety(root, body.path, Boolean(body.safetyRelated));
+        let pous;
+        if (Object.prototype.hasOwnProperty.call(body, "localRelated")) {
+          pous = setLocal(root, body.path, Boolean(body.localRelated));
+        } else {
+          pous = setSafety(root, body.path, Boolean(body.safetyRelated));
+        }
         send(res, 200, pous);
       } catch (error) {
         send(res, 400, { error: error.message });
@@ -42,24 +68,11 @@ export function attachEditor(middlewares) {
       return;
     }
     if (url.pathname === "/api/compile" && req.method === "POST") {
-      const child = spawn("python3", [compiler, root], { stdio: ["ignore", "pipe", "pipe"] });
-      let out = "";
-      let err = "";
-      child.stdout.on("data", (chunk) => {
-        out += chunk;
-      });
-      child.stderr.on("data", (chunk) => {
-        err += chunk;
-      });
-      child.on("close", (code) => {
-        if (code !== 0) {
-          send(res, 400, { error: err.trim() || "kompileringen misslyckades" });
-          return;
-        }
-        const hex = out.trim();
-        const marked = listPous(root).filter((pou) => pou.safetyRelated).length;
-        send(res, 200, { bytes: hex.length / 2, marked, hex });
-      });
+      runCompiler(protectCompiler, res, () => listPous(root).filter((pou) => pou.safetyRelated).length);
+      return;
+    }
+    if (url.pathname === "/api/compile-local" && req.method === "POST") {
+      runCompiler(localCompiler, res, () => listPous(root).filter((pou) => pou.localRelated).length);
       return;
     }
     next();

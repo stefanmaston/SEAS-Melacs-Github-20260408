@@ -2,6 +2,7 @@
 
 #include "fast_ctrl.h"
 #include "image_lock.h"
+#include "loc_runtime.h"
 #include "log_history.h"
 #include "logger.h"
 #include "protect.h"
@@ -82,6 +83,8 @@ static int read_discrete(uint16_t addr)
     case 9: return g_st.logger_ok;
     case 10: return g_st.plc_loaded;
     case 11: return g_st.plc_running;
+    case 12: return g_st.loc_loaded;
+    case 13: return g_st.loc_running;
     default: return 0;
     }
 }
@@ -136,6 +139,13 @@ static uint16_t read_input_reg(uint16_t addr)
     if (protect_is_input(addr)) {
         return protect_read_input(addr);
     }
+    if (loc_is_input(addr)) {
+        uint16_t value = loc_read_input(addr);
+        if (addr == LOC_IN_STATUS && g_st.loc_running) {
+            value = (uint16_t)(value | 4u);
+        }
+        return value;
+    }
     if (logger_safety_is_input(addr)) {
         return logger_safety_input(addr);
     }
@@ -155,6 +165,11 @@ static uint16_t read_holding_reg(uint16_t addr)
     if (protect_is_holding(addr)) {
         uint16_t value = 0;
         (void)protect_read_holding(addr, &value);
+        return value;
+    }
+    if (loc_is_holding(addr)) {
+        uint16_t value = 0;
+        (void)loc_read_holding(addr, &value);
         return value;
     }
     switch (addr) {
@@ -190,6 +205,7 @@ static bool holding_writable(uint16_t addr)
         || addr == REG_HIST_ARM
         || fast_ctrl_writable(addr)
         || protect_holding_writable(addr)
+        || loc_holding_writable(addr)
         || logger_safety_is_ack(addr);
 }
 
@@ -228,6 +244,9 @@ static void write_one_holding(uint16_t addr, uint16_t value, bool *rising)
         return;
     }
     if (protect_write_reg(addr, value)) {
+        return;
+    }
+    if (loc_write_reg(addr, value)) {
         return;
     }
     if (logger_safety_is_ack(addr)) {
@@ -299,6 +318,7 @@ void register_image_init(void)
     g_beep_pending = false;
     seed_setbuf();
     protect_init();
+    loc_init();
     image_unlock();
 }
 

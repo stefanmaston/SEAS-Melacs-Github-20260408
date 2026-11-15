@@ -25,6 +25,9 @@
 #define SAF_SAFE_MODE 7u
 #define SAF_INHIBIT 9u
 #define SAF_INTERLOCK 10u
+#define SAF_LOC_OK 11u
+#define SAF_LOC_MISSING 12u
+#define SAF_LOC_FAULT 13u
 
 #define SAF_IN_SEQ 350u
 #define SAF_IN_CODE 351u
@@ -45,7 +48,8 @@ void plat_sample_mark(void);
 bool logger_tick(const RtcClock *clk, uint16_t period_s,
                  const PlcInputs *in, const PlcOutputs *out, const PlcStatus *st);
 void logger_watch(const RtcClock *clk, int image_ok, int image_fault,
-                  int master, uint16_t safe_mode, uint16_t inhibit, uint16_t trip);
+                  int master, uint16_t safe_mode, uint16_t inhibit, uint16_t trip,
+                  int loc_ok, int loc_fault);
 bool logger_failed(void);
 const char *logger_last_line(void);
 

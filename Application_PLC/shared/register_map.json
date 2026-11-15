@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "slave_id": 1,
   "comment": "Adresserna är oförändrade. Namnen är pin-nummer för PLC. Fysiska ben finns i firmware_pic32/include/pin_map.h.",
   "inputs": [
@@ -25,6 +25,8 @@
     { "name": "logger_ok", "iec": "%IX1.1", "modbus_coil": 9, "type": "bool" },
     { "name": "plc_loaded", "iec": "%IX1.2", "modbus_coil": 10, "type": "bool" },
     { "name": "plc_running", "iec": "%IX1.3", "modbus_coil": 11, "type": "bool" },
+    { "name": "loc_loaded", "iec": "%IX1.4", "modbus_coil": 12, "type": "bool", "comment": "Lokal styrbild giltig. OpenPLC pollar inte den här biten." },
+    { "name": "loc_running", "iec": "%IX1.5", "modbus_coil": 13, "type": "bool", "comment": "Lokal styrning kör i PIC32. OpenPLC pollar inte den här biten." },
     { "name": "error_code", "iec": "%IW20", "modbus": 20, "type": "uint16" },
     { "name": "T_BOARD", "iec": "%IW30", "modbus": 30, "type": "uint16" },
     { "name": "P", "iec": "%IW31", "modbus": 31, "type": "uint16" },
@@ -127,7 +129,7 @@
   ],
   "safety_log": [
     { "name": "saf_seq", "modbus": 350, "type": "uint16", "space": "input", "comment": "Äldsta okvitterade händelsen. 0 betyder tom kö." },
-    { "name": "saf_code", "modbus": 351, "type": "uint16", "space": "input", "comment": "1 start, 2 bild giltig, 3 bild saknas, 4 bild fel, 5 master borta, 6 master tillbaka, 7 safe mode, 9 spärr, 10 förregling." },
+    { "name": "saf_code", "modbus": 351, "type": "uint16", "space": "input", "comment": "1 start, 2 bild giltig, 3 bild saknas, 4 bild fel, 5 master borta, 6 master tillbaka, 7 safe mode, 9 spärr, 10 förregling, 11 lokal bild giltig, 12 lokal bild saknas, 13 lokal bild fel." },
     { "name": "saf_detail", "modbus": 352, "type": "uint16", "space": "input", "comment": "safe mode, spärr-mask eller förreglingsstatus." },
     { "name": "saf_count", "modbus": 353, "type": "uint16", "space": "input", "comment": "Antal händelser som väntar på kvittens. Högst 32." },
     { "name": "saf_overflow", "modbus": 354, "type": "uint16", "space": "input", "comment": "1 när kön varit full. De händelserna ligger ändå i MELACS.SAF på kortet." },
@@ -138,5 +140,20 @@
     { "name": "saf_minute", "modbus": 359, "type": "uint16", "space": "input" },
     { "name": "saf_second", "modbus": 360, "type": "uint16", "space": "input" },
     { "name": "saf_ack", "modbus": 381, "type": "uint16", "space": "holding", "comment": "Skriv seq från input 350 när raden är sparad på Rock 5B. Läses som 0." }
+  ],
+  "local": [
+    { "name": "loc_status", "modbus": 370, "type": "uint16", "space": "input", "comment": "bit0 bild giltig, bit1 fel, bit2 kör, bit3 överföring, bit4 oberoende av master." },
+    { "name": "loc_steps", "modbus": 371, "type": "uint16", "space": "input", "comment": "Instruktioner i senaste svepet." },
+    { "name": "loc_crc_lo", "modbus": 372, "type": "uint16", "space": "input" },
+    { "name": "loc_crc_hi", "modbus": 373, "type": "uint16", "space": "input" },
+    { "name": "loc_fault", "modbus": 374, "type": "uint16", "space": "input", "comment": "1 ogiltig, 2 för lång, 3 stack, 4 okänd op." },
+    { "name": "loc_ctrl", "modbus": 400, "type": "uint16", "space": "holding", "comment": "1=börja bild, 2=bekräfta, 3=avbryt, 4=spara MELACS.LOC. Läses som 0. Sätter inte mastern." },
+    { "name": "loc_len", "modbus": 401, "type": "uint16", "space": "holding", "comment": "Bildens längd i byte, högst 1024." },
+    { "name": "loc_crc_lo_h", "modbus": 402, "type": "uint16", "space": "holding", "comment": "CRC-32 av den aktiva kroppens låga ord. Skrivningar ignoreras." },
+    { "name": "loc_crc_hi_h", "modbus": 403, "type": "uint16", "space": "holding", "comment": "CRC-32 av den aktiva kroppens höga ord. Skrivningar ignoreras." },
+    { "name": "loc_off", "modbus": 404, "type": "uint16", "space": "holding", "comment": "Byte-offset för payload i 405–420." },
+    { "name": "loc_data", "modbus": 405, "type": "uint16", "space": "holding", "count": 16, "comment": "Sexton ord, big-endian per ord. Bilden själv är little-endian." },
+    { "name": "own_mask_lo", "modbus": 421, "type": "uint16", "space": "holding", "comment": "Ägarmask, låg. Skrivningar ignoreras. Bit0=DIO4." },
+    { "name": "own_mask_hi", "modbus": 422, "type": "uint16", "space": "holding", "comment": "Ägarmask, hög. Skrivningar ignoreras." }
   ]
 }

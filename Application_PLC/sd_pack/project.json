@@ -2,6 +2,9 @@
   "melacs": {
     "safetyRelated": [
       "guard"
+    ],
+    "localRelated": [
+      "local"
     ]
   },
   "meta": {

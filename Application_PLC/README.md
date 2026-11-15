@@ -4,8 +4,8 @@ Ny, generell Melacs-linje. **Rör inte** `Application_OEM/` — den gamla OEM-fi
 
 | Del | Roll |
 |---|---|
-| PIC32 (`firmware_pic32`) | Alltid RTC, datalogger, I/O och Modbus-slav. Kör inte Structured Text. |
-| Rock 5B (`rock5b`) | OpenPLC Runtime v4. Styrningen programmeras i webbeditorn. |
+| PIC32 (`firmware_pic32`) | Alltid RTC, datalogger, I/O och Modbus-slav. Kör skyddsbild och valfri lokal styrbild (`MELACS.LOC`). Kör inte Structured Text direkt. |
+| Rock 5B (`rock5b`) | OpenPLC Runtime v4. Den övergripande styrningen programmeras i OpenPLC Editor. |
 | Kontrakt (`shared`) | Samma Modbus/IEC-register för firmware, OpenPLC och dashboard. |
 
 Utan PLC-program ligger utgångarna i safe: DIO av, AO0–AO2 är 0. Loggern skriver ändå CSV med tidsstämpel.
@@ -15,7 +15,7 @@ Utan PLC-program ligger utgångarna i safe: DIO av, AO0–AO2 är 0. Loggern skr
 1. Läs RTCC och ingångar
 2. Åldra mastern. Utebliven Modbus-trafik i 50 PLC-svep släpper den
 3. Kör skyddsbilden. Saknas den, är den ogiltig eller tar varvet mer än 64 instruktioner: `safe_outputs()`
-4. Om mastern är färsk, `safe_mode` är 0 och skyddsbilden är giltig: använd OpenPLC-bilden, sedan skyddsbildens spärrar
+4. Om `safe_mode` är 0 och skyddsbilden är giltig: ta OpenPLC-bilden för oägda utgångar när mastern är färsk, lägg den lokala bilden ovanpå ägda utgångar, sedan skyddsbildens spärrar
 5. Annars: `safe_outputs()`
 6. `logger_tick()` — sampel varje sekund, medelvärde sparas var `log_period_s` (förval 6). Raden läggs sist i filen. `MELACS.BAK` får samma rad högst en gång i timmen. Säkerhetshändelser skrivs till `MELACS.SAF` och ligger i en buffert tills Rock 5B kvitterar dem.
 7. Skriv fysiska utgångar och publicera Modbus
@@ -48,7 +48,7 @@ Fyra förreglingar och två PID-kanaler körs i 1 kHz-avbrottet. Hela kartan st�
 - **PID** (holding 310–319 och 320–329): återkoppling från AI10–AI15, utsignal till en av H-bryggornas PWM-kanaler. Kanalen ägs då av avbrottet och Modbus-värdet i 110–113 för den kanalen används inte. PID:en driver bara när PLC-utgångarna är släppta och bryggans DIS är låg. Samma bens lågsida (ALI/BLI) hålls av så länge PID:en äger högsidan. `out_max` är 0 från start.
 - **Status** (input 300–303, 310–312, 320–322): utlösta förreglingar, tickräknare, längsta avbrottstid i µs, utsignal, återkoppling och reglerfel.
 
-Förreglingen är en snabb driftfunktion. Nödstopp, tryckvakt och saknad-puls sitter i hårdslingan, se [docs/Sakerhetskrets.md](docs/Sakerhetskrets.md). POU:er som märks säkerhetsrelaterade i OpenPLC-projektet körs som skyddsbild i PIC32 och kan inte stängas av via holding 301–304. Märkningen görs i `editor/` och bilden byggs med `tools/compile_protect.py`.
+Förreglingen är en snabb driftfunktion. Nödstopp, tryckvakt och saknad-puls sitter i hårdslingan, se [docs/Sakerhetskrets.md](docs/Sakerhetskrets.md). POU:er som märks säkerhetsrelaterade i OpenPLC-projektet körs som skyddsbild i PIC32 och kan inte stängas av via holding 301–304. POU:er märkta `@MELACS LOCAL` kompileras till `MELACS.LOC` och körs i PIC32 oberoende av OpenPLC Runtime. De får bara skriva de `%Q`-adresser de äger. Märkningen görs i `editor/` eller OpenPLC Editor. Skyddsbilden byggs med `tools/compile_protect.py`, den lokala med `tools/compile_local.py`.
 
 ```bash
 cd Application_PLC/editor
@@ -57,7 +57,7 @@ npm test
 npm run dev
 ```
 
-Editorn läser POU:erna i `sd_pack/` och skriver märkningen `@MELACS SAFETY`. Bilden till PIC32 byggs sedan med `python3 tools/compile_protect.py sd_pack`. OpenPLC Editor på datorn är fortfarande verktyget för själva styrprogrammet. Displaykonceptet för två skärmar ligger i [docs/Melacs_Display_Koncept.md](docs/Melacs_Display_Koncept.md).
+Editorn läser POU:erna i `sd_pack/` och skriver märkningen `@MELACS SAFETY` eller `@MELACS LOCAL`. Skyddsbilden byggs med `python3 tools/compile_protect.py sd_pack`. Den lokala bilden byggs med `python3 tools/compile_local.py sd_pack -o MELACS.LOC`. Lägg `MELACS.LOC` på Melacs SD-kort. OpenPLC Editor på datorn är verktyget för Structured Text. Displaykonceptet för två skärmar ligger i [docs/Melacs_Display_Koncept.md](docs/Melacs_Display_Koncept.md).
 
 ## Bygg host-test (utan XC32)
 
@@ -76,7 +76,7 @@ Port 1502, slav-id 1. Loggfil: `build/melacs_log.csv`.
 
 ## Bygg PIC32 (XC32)
 
-Kortet är PIC32MX795F512L, 16 MHz kristall, 72 MHz systemklocka. Firmwaren är bar-metal: samma registerkarta, logger och safe-utgångar som host-testet. Den kör inte Structured Text.
+Kortet är PIC32MX795F512L, 16 MHz kristall, 72 MHz systemklocka. Firmwaren är bar-metal: samma registerkarta, logger och safe-utgångar som host-testet. Structured Text kompileras på datorn; PIC32 kör bytecode (skydd och valfri lokal bild).
 
 ```bash
 cd Application_PLC/firmware_pic32

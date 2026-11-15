@@ -38,6 +38,8 @@ typedef struct {
 typedef struct {
     bool plc_loaded;
     bool plc_running;
+    bool loc_loaded;
+    bool loc_running;
     bool logger_ok;
     uint16_t safe_mode;
     uint16_t log_period_s; /* Sekunder mellan CSV-rader. Sampel tas varje sekund. */
@@ -56,6 +58,8 @@ void plat_read_inputs(PlcInputs *in);
 void plat_write_outputs(const PlcOutputs *out);
 void plat_beep(void);
 void plat_seed_pack(void);
+bool plat_blob_read(const char *name, uint8_t *dest, uint16_t max_len, uint16_t *len);
+bool plat_blob_write(const char *name, const uint8_t *src, uint16_t len);
 uint32_t plat_millis(void);
 
 void safe_outputs(PlcOutputs *out);

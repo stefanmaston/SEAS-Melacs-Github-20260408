@@ -36,6 +36,7 @@ OP_LD_LOCAL = 0x51
 SCAN_MS = 10
 MAX_IMAGE = 256
 MARK = re.compile(r"@MELACS\s+SAFETY")
+MARK_LOCAL = re.compile(r"@MELACS\s+LOCAL")
 
 INHIBIT = {
     "MELACS_INHIBIT_H1": 0x0001,
@@ -335,6 +336,8 @@ def parse_address(lex):
 
 
 def compile_pou(text: str, alloc: Alloc) -> bytes:
+    if MARK_LOCAL.search(text):
+        raise CompileError("en lokal styr-POU kan inte vara skyddsfunktion")
     if not MARK.search(text):
         raise CompileError("POU:n är inte märkt säkerhetsrelaterad")
     lex = Lexer(strip_comments(text))

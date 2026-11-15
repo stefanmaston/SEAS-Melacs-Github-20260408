@@ -1,6 +1,7 @@
 #include "plc_runtime.h"
 
 #include "fast_ctrl.h"
+#include "loc_runtime.h"
 #include "log_history.h"
 #include "logger.h"
 #include "protect.h"
@@ -33,8 +34,11 @@ void plc_runtime_init(const char *log_path)
     g_st.log_count = 0;
     g_st.plc_loaded = false;
     g_st.plc_running = false;
+    g_st.loc_loaded = false;
+    g_st.loc_running = false;
     g_st.logger_ok = false;
     safe_outputs(&g_out);
+    loc_load_sd();
 }
 
 void plc_runtime_tick(void)
@@ -79,13 +83,31 @@ void plc_runtime_tick(void)
         protect_step(&pin, &pout);
 
         g_st.plc_loaded = master;
-        if (master && g_st.safe_mode == 0 && protect_ok()) {
-            g_out = cmd;
+        g_st.loc_loaded = loc_ok();
+        g_st.plc_running = false;
+        g_st.loc_running = false;
+        safe_outputs(&g_out);
+        if (g_st.safe_mode == 0 && protect_ok()) {
+            if (master) {
+                g_out = cmd;
+                g_st.plc_running = true;
+            }
+            if (loc_ok()) {
+                PlcOutputs local;
+
+                loc_step(&g_in, &local);
+                loc_apply(loc_own_mask(), &local, &g_out);
+                if (loc_ok()) {
+                    g_st.loc_running = true;
+                    g_st.plc_running = true;
+                }
+            }
             protect_apply(pout.mask, &g_out);
-            g_st.plc_running = true;
         } else {
             safe_outputs(&g_out);
-            g_st.plc_running = false;
+        }
+        if (loc_take_save()) {
+            loc_save_sd();
         }
         /* Snabba PID-kanaler får bara driva när PLC-utgångarna är släppta. */
         fast_ctrl_set_run(g_st.plc_running);
@@ -96,7 +118,8 @@ void plc_runtime_tick(void)
             uint16_t trip = 0;
             (void)fast_ctrl_read_input(300u, &trip);
             logger_watch(&clk, protect_ok(), protect_fault(), master ? 1 : 0,
-                         g_st.safe_mode, pout.mask, trip);
+                         g_st.safe_mode, pout.mask, trip,
+                         loc_ok() ? 1 : 0, loc_fault() ? 1 : 0);
         }
     }
 
