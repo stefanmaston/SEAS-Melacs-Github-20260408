@@ -1,4 +1,5 @@
 import net from "node:net";
+import { CONNECT_MS, REPLY_MS } from "./patience.mjs";
 
 const upstreamHost = process.env.MELACS_UPSTREAM_HOST || "192.168.1.160";
 const upstreamPort = Number(process.env.MELACS_UPSTREAM_PORT || 502);
@@ -59,7 +60,7 @@ function ensureUpstream() {
       socket.destroy();
       connecting = null;
       reject(new Error("Melacs gick inte att nå"));
-    }, 2000);
+    }, CONNECT_MS);
     socket.once("connect", () => {
       clearTimeout(timer);
       upstream = socket;
@@ -87,7 +88,7 @@ function exchange(frame) {
       waiter = null;
       dropUpstream();
       reject(new Error("Melacs svarade inte"));
-    }, 1500);
+    }, REPLY_MS);
     waiter = {
       resolve: (value) => {
         clearTimeout(timer);

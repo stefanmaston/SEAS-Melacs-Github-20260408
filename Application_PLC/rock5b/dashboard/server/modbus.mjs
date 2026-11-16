@@ -1,4 +1,5 @@
 import net from "node:net";
+import { CONNECT_MS, REPLY_MS } from "./patience.mjs";
 
 export function createModbus(host, port) {
   let socket = null;
@@ -41,7 +42,7 @@ export function createModbus(host, port) {
           settled = true;
           reject(new Error("Melacs gick inte att nå"));
         }
-      }, 2000);
+      }, CONNECT_MS);
       next.once("connect", () => {
         clearTimeout(timer);
         socket = next;
@@ -85,7 +86,7 @@ export function createModbus(host, port) {
         const timer = setTimeout(() => {
           if (waiter && waiter.id === id) waiter = null;
           reject(new Error("Melacs svarade inte"));
-        }, 700);
+        }, REPLY_MS);
         waiter = {
           id,
           socket,

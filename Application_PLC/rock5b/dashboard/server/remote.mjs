@@ -1,4 +1,5 @@
 import { LOG_KEYS } from "../shared/columns.js";
+import { HOLD_MS } from "./patience.mjs";
 import { sharedSafetyLog } from "./safety-log.mjs";
 
 function bools(values) {
@@ -180,6 +181,8 @@ export function createRemotePlant(modbus) {
 
   let pending = null;
   let historyChain = Promise.resolve();
+  let lastSnap = null;
+  let lastOk = 0;
 
   async function readHistory(span) {
     const arm = modbus.lease();
@@ -252,11 +255,16 @@ export function createRemotePlant(modbus) {
               } catch {
                 /* Kön ligger kvar i kortet tills nästa lyckade läsning. */
               }
+              lastSnap = snap;
+              lastOk = Date.now();
               return snap;
             } catch (err) {
               lastError = err;
               modbus.reset();
             }
+          }
+          if (lastSnap && Date.now() - lastOk < HOLD_MS) {
+            return { ...lastSnap, link: true };
           }
           throw lastError;
         } finally {

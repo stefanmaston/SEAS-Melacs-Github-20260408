@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import net from "node:net";
+import { CONNECT_MS } from "./patience.mjs";
 import path from "node:path";
 import crypto from "node:crypto";
 
@@ -128,7 +129,7 @@ function probe(host, port) {
     const timer = setTimeout(() => {
       socket.destroy();
       resolve(false);
-    }, 700);
+    }, CONNECT_MS);
     socket.once("connect", () => {
       clearTimeout(timer);
       socket.end();

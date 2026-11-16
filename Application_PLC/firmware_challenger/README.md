@@ -4,7 +4,9 @@ iLabs Challenger+ RP2350 WiFi6/BLE5 mäter analoga ingångar, läser digitala in
 
 Radiolänken är WiFi. ESP32-C6 kan BLE, men OpenPLC Runtime talar Modbus TCP och Modbus RTU, inte BLE. Därför är slaven WiFi.
 
-Utan en färsk master, utan WiFi, eller när holding 200 inte är 0, ligger utgångarna av. En master räknas som färsk i 2 sekunder efter senaste giltiga Modbus-fråga.
+Hur samma kort ska sitta i ett solfält, med mesh, platsnummer och scada, står i [docs/Solfalt_Challenger.md](../docs/Solfalt_Challenger.md). Det är inte byggt i den här slaven.
+
+Utan en färsk master, utan WiFi, eller när holding 200 inte är 0, ligger utgångarna av. En master räknas som färsk i 30 sekunder efter senaste giltiga Modbus-fråga. Det ger tid att hitta varandra igen när nätet tappar enstaka paket.
 
 ## Nät
 

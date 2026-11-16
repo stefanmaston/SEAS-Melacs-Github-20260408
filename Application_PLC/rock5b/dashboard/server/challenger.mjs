@@ -1,5 +1,6 @@
 import { challengerEndpoint } from "./boards.mjs";
 import { createModbus } from "./modbus.mjs";
+import { HOLD_MS } from "./patience.mjs";
 
 function endpoint() {
   try {
@@ -37,6 +38,7 @@ function blank(note) {
 
 let current = blank("söker");
 let modbus = createModbus(host, port);
+let lastGoodAt = 0;
 
 function localNote(err) {
   return String(err?.message || "Challenger svarade inte").replaceAll("Melacs", "Challenger");
@@ -73,8 +75,13 @@ async function poll() {
       tBoard: temp[0],
       note: "",
     };
+    lastGoodAt = Date.now();
   } catch (err) {
     modbus.reset();
+    if (lastGoodAt && Date.now() - lastGoodAt < HOLD_MS) {
+      current = { ...current, link: true, note: "söker" };
+      return;
+    }
     current = blank(localNote(err));
   }
 }
