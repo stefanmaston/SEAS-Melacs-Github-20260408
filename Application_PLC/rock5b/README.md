@@ -40,6 +40,8 @@ Menyn är Översikt, I/O boards, Scada, Reglage, Logger, Cockpit och PLC editor.
 
 SEAS central ska övervaka alla lokala nät. Kontorets DietPi, `192.168.68.61`, ska anpassas så att den blir den lådan. Tills det är gjort visas rollen på hemmalådan som Lilläng SEAS, `192.168.50.60`, ovanför den lokala SEAS på samma låda. Hemmalådan förblir den lokala SEAS när kontoret har tagit över centralen.
 
+Planen för Challenger-noder i ett solfält, med hektar, sträng, rad och mesh, står i [docs/Solfalt_Challenger.md](../docs/Solfalt_Challenger.md).
+
 Tjänsten är `melacs-dashboard.service`. Den startar med DietPi och läser `MELACS_HOST` och `MELACS_PORT`. Filer ligger i `/opt/melacs-dashboard` (`dist/`, `server/`, `shared/columns.js`).
 
 `melacs-net.service` lägger `192.168.1.10/24` på `eth0` vid uppstart, så Rocken når kortet på `192.168.1.160` även efter omstart. OpenPLC-containern `openplc-runtime` startar med `unless-stopped`.
