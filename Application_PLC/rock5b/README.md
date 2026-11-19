@@ -46,13 +46,23 @@ Tjänsten är `melacs-dashboard.service`. Den startar med DietPi och läser `MEL
 
 `melacs-net.service` lägger `192.168.1.10/24` på `eth0` vid uppstart, så Rocken når kortet på `192.168.1.160` även efter omstart. OpenPLC-containern `openplc-runtime` startar med `unless-stopped`.
 
-Installera eller lägg upp en ny version på DietPi, som root, i den här katalogen:
+Installera Melacs efter DietPi:s vanliga första start. Flasha avbildningen med Balena Etcher, gör klart DietPi, och kör som root:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/stefanmaston/SEAS-Melacs-Github-20260408/main/Application_PLC/rock5b/melacs-install.sh | bash
+```
+
+Kommandot hämtar den senaste publicerade Melacs-releasen och installerar Node, Docker, OpenPLC Runtime, FUXA, Cockpit, RustDesk-klienten, dashboard, Modbus-proxy och datalogger. Samma kommando är uppdateringen. Är lådan redan på den releasen skrivs versionen ut och inget byggs om. På lådan heter det också `melacs-update`.
+
+Logg, lösenord, licens och OpenPLC-programmet ligger kvar vid en uppdatering. DietPi själv uppdateras med `dietpi-update`.
+
+När källträdet redan finns kan tjänsterna läggas in igen från den här katalogen:
 
 ```bash
 ./install.sh
 ```
 
-Skriptet lägger dashboard, Modbus-proxy och datalogger som tjänster, stänger DietPi:s egen webbserver om den tar port 80, och släpper in TCP 80 från lokala nät om brandväggen annars spärrar. Saknas `dashboard/dist` bygger skriptet den när `npm` finns. RustDesk ställs mot kontorets server, se [RustDesk.md](RustDesk.md).
+Skriptet lägger dashboard, Modbus-proxy och datalogger som tjänster, stänger DietPi:s egen webbserver om den tar port 80, och släpper in TCP 80 från lokala nät om brandväggen annars spärrar. Saknas `dashboard/dist` bygger skriptet den när `npm` finns. FUXA hämtas som den bild som står i `versions.env`. En FUXA-container som redan finns startas om och byts inte ut. RustDesk ställs mot kontorets server, se [RustDesk.md](RustDesk.md).
 
 Utveckling på datorn, mot en tunnel till kortet:
 

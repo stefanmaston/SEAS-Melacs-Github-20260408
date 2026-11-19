@@ -4,6 +4,11 @@
 set -eu
 
 HERE=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+if [ -f "$HERE/versions.env" ]; then
+  # shellcheck disable=SC1091
+  . "$HERE/versions.env"
+fi
+: "${FUXA_IMAGE:=frangoteam/fuxa:1.3.5}"
 HUB_HOST=194.103.95.171
 HUB_KEY='OvhWAmGh3TvGgrQ7ZGq3+bvm0wa1HJc2gOL7jo4qov4='
 OPT=/opt/melacs-dashboard
@@ -145,7 +150,7 @@ if command -v docker >/dev/null 2>&1; then
     docker start melacs-fuxa >/dev/null 2>&1 || true
   else
     if ! docker run -d --name melacs-fuxa --restart unless-stopped \
-      -p 127.0.0.1:1881:1881 frangoteam/fuxa:latest; then
+      -p 127.0.0.1:1881:1881 "$FUXA_IMAGE"; then
       echo "FUXA startade inte. Dashboarden svarar ändå på port 80."
     fi
   fi
