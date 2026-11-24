@@ -231,6 +231,7 @@ static void test_modbus_map(void)
 
 int test_protect(void);
 int test_loc(void);
+int test_node_bus(void);
 
 int main(void)
 {
@@ -241,6 +242,7 @@ int main(void)
     test_modbus_map();
     g_fails += test_protect();
     g_fails += test_loc();
+    g_fails += test_node_bus();
     if (g_fails) {
         fprintf(stderr, "%d av %d kontroller fel\n", g_fails, g_checks);
         return 1;

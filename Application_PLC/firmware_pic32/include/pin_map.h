@@ -139,6 +139,17 @@
 #define PIN_H2_BLI_CLR()  (LATECLR = 1u << 3)
 
 /*
+ * Modbus RTU mot mätpunkten. UART5 sitter fast på RF13 (TX, ben 39) och
+ * RF12 (RX, ben 40). DE på RG6 (ben 10) driver transceivern. RG13 är
+ * H1:s lågsida, så riktningsbenet skrivs med LATGSET/LATGCLR.
+ */
+#define PIN_NODE_TX_TRIS TRISFbits.TRISF13
+#define PIN_NODE_RX_TRIS TRISFbits.TRISF12
+#define PIN_NODE_DE_SET() (LATGSET = 1u << 6)
+#define PIN_NODE_DE_CLR() (LATGCLR = 1u << 6)
+#define PIN_NODE_DE_TRIS TRISGbits.TRISG6
+
+/*
  * Inbyggd ADC, samma skanningsordning som på kortet:
  * AN0 RB0, AN1 RB1, AN2 RB2, AN3 RB3, AN4 RB4, AN5 RB5,
  * AN10 RB10, AN13 RB13, AN14 RB14, AN15 RB15.

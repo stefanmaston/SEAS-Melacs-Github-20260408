@@ -1,0 +1,35 @@
+qty,ref,value,part
+1,U1,RP2350A,MCU med fyra ADC-ingångar GPIO26–GPIO29
+1,U2,W25Q16,QSPI-flash
+1,U3,SSD1306-modul,OLED 128x64 I2C 0x3C
+1,U4,THVD1400,RS-485 en åttondels last
+1,U5,MAX31856,termoelement typ K SPI
+1,U6,MAX31865,PT1000 SPI
+1,U7,MCP4822,DAC två kanaler intern referens
+1,U8,LM358,0–10 V från DAC-kanal A
+1,U9,XTR111,0–20 mA från DAC-kanal B
+2,U10,ISO1212,fyra isolerade 24 V-ingångar
+4,U11,PC817,isolator för utgång
+4,Q1,2N7002,lågsidesutgång mot 24 V
+1,U12,buck 24 V till 5 V,matning till logiken
+1,U13,3.3 V LDO,MCU OLED transceiver och DAC
+1,U14,78L12,12 V till operationsförstärkaren
+1,Y1,12 MHz,kristall till RP2350
+1,J1,4-pol,24 V GND A B ingående kedja
+1,J2,4-pol,24 V GND A B utgående kedja
+1,JP1,bygel,120 ohm mellan A och B bara på ändnoden
+1,Rset,2.05 kΩ 0.1%,XTR111 full skala 20 mA
+1,Rg,10.0 kΩ 0.1%,DAC-förstärkare mot jord
+1,Rf,14.4 kΩ 0.1%,DAC-förstärkare återkoppling
+2,Rdiv_hi,75 kΩ,0–10 V delare ovansida GPIO27 och GPIO29
+2,Rdiv_lo,33 kΩ,0–10 V delare undersida
+1,Rburden,150 Ω 0.1%,4–20 mA börda GPIO28
+4,Rser,1 kΩ,seriemotstånd på ADC-ingångarna
+4,TVS,3.3 V,skydd på ADC-ingångarna
+1,Rpull,4.7 kΩ,1-wire pull-up till 3.3 V
+2,Ri2c,4.7 kΩ,I2C pull-up till 3.3 V
+4,Rin,1 kΩ 0.5 W,ISO1212 fältmotstånd
+4,Rled,1 kΩ,PC817 lysdiod från GPIO
+4,Rgate,10 kΩ,MOSFET-gate mot fältjord
+4,Dz,12 V,gate-zener så 2N7002 inte får 24 V
+1,Rterm,120 Ω,bussavslutning via JP1

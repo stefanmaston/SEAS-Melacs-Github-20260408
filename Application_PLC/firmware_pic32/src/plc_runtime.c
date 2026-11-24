@@ -4,6 +4,7 @@
 #include "loc_runtime.h"
 #include "log_history.h"
 #include "logger.h"
+#include "node_bus.h"
 #include "protect.h"
 #include "register_image.h"
 #include "rtc.h"
@@ -39,6 +40,7 @@ void plc_runtime_init(const char *log_path)
     g_st.logger_ok = false;
     safe_outputs(&g_out);
     loc_load_sd();
+    node_uart_init();
 }
 
 void plc_runtime_tick(void)
@@ -134,6 +136,7 @@ void plc_runtime_tick(void)
     plat_write_outputs(&g_out);
     register_image_publish(&g_in, &g_out, &g_st, &clk);
     log_history_poll(&clk);
+    node_bus_poll(plat_millis());
     g_st.scan_count++;
 }
 

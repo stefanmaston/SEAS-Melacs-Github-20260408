@@ -1,14 +1,15 @@
 CC ?= cc
-CFLAGS ?= -std=c99 -Wall -Wextra -Iinclude -pthread
-SRC = src/fast_ctrl.c src/protect.c src/loc_runtime.c src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c src/modbus_tcp.c src/plat_host.c src/host_main.c
+CFLAGS ?= -std=c99 -Wall -Wextra -Iinclude -I../shared -pthread
+SRC = src/fast_ctrl.c src/protect.c src/loc_runtime.c src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c src/modbus_tcp.c src/plat_host.c src/host_main.c src/node_bus.c src/node_uart_host.c ../shared/modbus_rtu.c
 OUT = build/plc_host_test
 
 XC32 ?= /Applications/microchip/xc32/v6.00/bin/xc32-gcc
 XC32_HEX ?= /Applications/microchip/xc32/v6.00/bin/xc32-bin2hex
-XC32_CFLAGS = -mprocessor=32MX795F512L -mdfp=/Applications/microchip/mplabx/v6.35/packs/Microchip/PIC32MX_DFP/1.7.380 -O1 -std=gnu99 -Wall -Iinclude -ffunction-sections -fdata-sections
+XC32_CFLAGS = -mprocessor=32MX795F512L -mdfp=/Applications/microchip/mplabx/v6.35/packs/Microchip/PIC32MX_DFP/1.7.380 -O1 -std=gnu99 -Wall -Iinclude -I../shared -ffunction-sections -fdata-sections
 PIC32_SRC = src/fast_ctrl.c src/protect.c src/loc_runtime.c src/plc_runtime.c src/rtc.c src/logger.c src/log_history.c src/register_image.c src/modbus_pdu.c \
 	src/plat_pic32.c src/pic32_config.c src/pic32_board.c src/pic32_spi.c src/pic32_io.c \
-	src/pic32_sd.c src/pic32_enc.c src/pic32_net.c src/pic32_tick.c src/pic32_main.c
+	src/pic32_sd.c src/pic32_enc.c src/pic32_net.c src/pic32_tick.c src/pic32_main.c \
+	src/node_bus.c src/node_uart_pic32.c ../shared/modbus_rtu.c
 PIC32_ELF = build/melacs_pic32.elf
 
 .PHONY: host-test unit-test test pic32 clean
@@ -17,7 +18,7 @@ host-test: $(OUT)
 	$(OUT)
 
 UNIT_OUT = build/unit_test
-UNIT_SRC = tests/fast_ctrl_test.c tests/protect_test.c tests/loc_test.c $(filter-out src/host_main.c,$(SRC))
+UNIT_SRC = tests/fast_ctrl_test.c tests/protect_test.c tests/loc_test.c tests/node_bus_test.c $(filter-out src/host_main.c,$(SRC))
 
 unit-test: $(UNIT_OUT)
 	$(UNIT_OUT)

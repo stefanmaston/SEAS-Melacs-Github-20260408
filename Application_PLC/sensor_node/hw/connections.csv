@@ -1,0 +1,72 @@
+ref,pin,net,note
+J1,1,+24V,fältmatning in
+J1,2,GND,gemensam jord in
+J1,3,A,RS-485 A in
+J1,4,B,RS-485 B in
+J2,1,+24V,fältmatning ut till nästa nod
+J2,2,GND,jord ut
+J2,3,A,RS-485 A ut
+J2,4,B,RS-485 B ut
+JP1,1,A,ändnodens avslutning
+JP1,2,B,120 ohm bara när bygeln sitter
+U4,A,A,THVD1400
+U4,B,B,THVD1400
+U4,DE,/RE,GPIO8 båda riktningarna på samma ben
+U4,D,GPIO0,UART0 TX
+U4,R,GPIO1,UART0 RX
+U4,VCC,3V3,logikmatning
+U3,SDA,GPIO10,I2C1 OLED 0x3C
+U3,SCL,GPIO11,I2C1
+U3,VCC,3V3,modulen
+U5,CS,GPIO5,MAX31856
+U5,SCK,GPIO2,gemensam SPI0
+U5,SDI,GPIO3,MOSI
+U5,SDO,GPIO4,MISO
+U5,T+ ,TC+,termoelement typ K
+U5,T-,TC-,termoelement typ K
+U6,CS,GPIO6,MAX31865
+U6,SCK,GPIO2,samma SPI0
+U6,SDI,GPIO3,MOSI
+U6,SDO,GPIO4,MISO
+U6,RTDIN+,PT1000+,tretråd som grund
+U6,FORCE+,PT1000-matning,tretråd
+U6,RTDIN-,PT1000-,
+U6,RREF,4000 ohm,referens mot PT1000
+U7,CS,GPIO7,MCP4822
+U7,SCK,GPIO2,SPI-läge 0 till skillnad från MAX-kretsarna
+U7,SDI,GPIO3,MOSI
+U7,LDAC,GND,uppdateras direkt ingen GPIO
+U7,VOUTA,AMP_IN,kanal A till operationsförstärkaren
+U7,VOUTB,XTR_IN,kanal B till XTR111
+U8,+,12V,78L12
+U8,IN,AMP_IN,förstärkning 2.44
+U8,OUT,AO_V,0–10 V ut
+U9,VIN,XTR_IN,XTR111
+U9,VSP,+24V,strömgränssnittet
+U9,IOUT,AO_MA,0–20 mA ut
+U9,RSET,2.05 kΩ,mot jord
+GPIO26,ADC,LM35,direkt 10 mV per grad plus seriemotstånd och TVS
+GPIO27,ADC,V0,0–10 V via 75 kΩ och 33 kΩ
+GPIO28,ADC,MA,4–20 mA över 150 Ω
+GPIO29,ADC,V1,andra 0–10 V-ingången samma delare
+GPIO9,OD,1-wire,öppen kollektor 4.7 kΩ till 3.3 V kort kabel
+U10A,OUT1,GPIO12,ISO1212 ingång 0
+U10A,OUT2,GPIO13,ISO1212 ingång 1
+U10B,OUT1,GPIO14,ISO1212 ingång 2
+U10B,OUT2,GPIO15,ISO1212 ingång 3
+U10,IN,24V_FÄLT,1 kΩ inget fält-Vcc på ingången
+GPIO16,LED,DO0,PC817 sedan 2N7002 lågsida
+GPIO17,LED,DO1,samma kedja
+GPIO18,LED,DO2,samma kedja
+GPIO19,LED,DO3,samma kedja
+Q1,DRAIN,DO_LAST,last mellan +24V och drain
+Q1,GATE,12V_ZENER,10 kΩ mot fältjord
+GPIO20,ledig,,kan bli en extra isolerad in- eller utgång
+GPIO21,ledig,,
+GPIO22,ledig,,
+GPIO23,ledig,,
+GPIO24,ledig,,
+GPIO25,ledig,,
+U1,SWD,SWCLK SWDIO,programmering vid sidan av GPIO
+U1,QSPI,U2,flash vid sidan av GPIO
+U1,USB,USB,vid sidan av GPIO
