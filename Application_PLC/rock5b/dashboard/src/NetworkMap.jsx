@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const KINDS = ["Rock 5B", "Melacs7", "Challenger", "Annan"];
+const KINDS = ["Rock 5B", "Melacs7", "Challenger", "NAS", "PC", "Annan"];
 
 const CHAIN = ["seas-central", "seas-edge", "melacs7", "challenger"];
 

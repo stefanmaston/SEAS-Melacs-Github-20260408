@@ -1,0 +1,7 @@
+[Unit]
+Description=Håll lokala Melacs-tjänster igång
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/melacs-guard

@@ -87,9 +87,18 @@ rm -rf "$OPT/dist"
 cp -a "$HERE/dashboard/dist" "$OPT/dist"
 cp -a "$HERE/dashboard/server/." "$OPT/server/"
 cp -a "$HERE/dashboard/shared/columns.js" "$OPT/shared/columns.js"
+install -m 755 "$HERE/dashboard/melacs-plc-net" /usr/local/sbin/melacs-plc-net
+install -m 755 "$HERE/dashboard/melacs-guard" /usr/local/sbin/melacs-guard
 install -m 644 "$HERE/dashboard/melacs-net.service" /etc/systemd/system/melacs-net.service
 install -m 644 "$HERE/dashboard/melacs-modbus-proxy.service" /etc/systemd/system/melacs-modbus-proxy.service
 install -m 644 "$HERE/dashboard/melacs-dashboard.service" /etc/systemd/system/melacs-dashboard.service
+install -m 644 "$HERE/dashboard/melacs-guard.service" /etc/systemd/system/melacs-guard.service
+install -m 644 "$HERE/dashboard/melacs-guard.timer" /etc/systemd/system/melacs-guard.timer
+install -m 644 "$HERE/dashboard/melacs-discover.service" /etc/systemd/system/melacs-discover.service
+install -m 644 "$HERE/dashboard/melacs-discover.timer" /etc/systemd/system/melacs-discover.timer
+if [ ! -f /etc/melacs/discover.allow ]; then
+  install -m 644 "$HERE/dashboard/discover.allow.example" /etc/melacs/discover.allow
+fi
 install -m 755 "$HERE/datalogger-backup/melacs-datalogger-backup" /usr/local/sbin/melacs-datalogger-backup
 install -m 644 "$HERE/datalogger-backup/melacs-datalogger-backup.service" /etc/systemd/system/melacs-datalogger-backup.service
 install -m 644 "$HERE/datalogger-backup/melacs-datalogger-backup.timer" /etc/systemd/system/melacs-datalogger-backup.timer
@@ -98,9 +107,41 @@ if [ ! -f /etc/melacs/datalogger-cards ]; then
   mkdir -p /var/lib/melacs/cards/kort-1
 fi
 
+mkdir -p /etc/systemd/system.conf.d
+cat > /etc/systemd/system.conf.d/melacs-watchdog.conf << 'EOF'
+[Manager]
+RuntimeWatchdogSec=60s
+RebootWatchdogSec=10min
+EOF
+
 systemctl daemon-reload
 systemctl enable --now melacs-net.service melacs-modbus-proxy.service melacs-dashboard.service
 systemctl enable --now melacs-datalogger-backup.timer
+systemctl enable --now melacs-guard.timer
+systemctl enable --now melacs-discover.timer
+systemctl daemon-reexec || true
+
+python3 - << 'PY'
+from pathlib import Path
+path = Path("/etc/fstab")
+if not path.exists():
+    raise SystemExit(0)
+out = []
+for line in path.read_text().splitlines():
+    if not line.strip() or line.lstrip().startswith("#") or "nofail" not in line:
+        out.append(line)
+        continue
+    if "x-systemd.mount-timeout=" in line:
+        out.append(line)
+        continue
+    parts = line.split()
+    if len(parts) < 4:
+        out.append(line)
+        continue
+    parts[3] = parts[3] + ",x-systemd.device-timeout=10,x-systemd.mount-timeout=15"
+    out.append(" ".join(parts))
+path.write_text("\n".join(out) + "\n")
+PY
 
 python3 - << 'PY'
 from pathlib import Path
@@ -135,6 +176,44 @@ if not seen:
     out = rewritten
 path.parent.mkdir(parents=True, exist_ok=True)
 path.write_text("\n".join(out) + "\n")
+PY
+
+python3 - << 'PY'
+from pathlib import Path
+path = Path("/etc/avahi/avahi-daemon.conf")
+text = path.read_text() if path.exists() else "[server]\n"
+lines = text.splitlines()
+out = []
+in_server = False
+seen = False
+for line in lines:
+    if line.startswith("["):
+        if in_server and not seen:
+            out.append("deny-interfaces=plc0")
+            seen = True
+        in_server = line.strip() == "[server]"
+    if in_server and (line.startswith("deny-interfaces=") or line.startswith("#deny-interfaces=")):
+        if not seen:
+            out.append("deny-interfaces=plc0")
+            seen = True
+        continue
+    out.append(line)
+if not seen:
+    if not any(line.strip() == "[server]" for line in out):
+        out.insert(0, "[server]")
+    rewritten = []
+    inserted = False
+    for line in out:
+        rewritten.append(line)
+        if not inserted and line.strip() == "[server]":
+            rewritten.append("deny-interfaces=plc0")
+            inserted = True
+    out = rewritten
+path.write_text("\n".join(out) + "\n")
+hosts = Path("/etc/avahi/hosts")
+if hosts.exists():
+    kept = [line for line in hosts.read_text().splitlines() if "dietpi-share.local" not in line]
+    hosts.write_text("\n".join(kept) + ("\n" if kept else ""))
 PY
 
 if ! command -v avahi-daemon >/dev/null 2>&1; then

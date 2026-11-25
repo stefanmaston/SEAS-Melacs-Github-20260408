@@ -47,7 +47,7 @@ const DEFAULTS = [
   },
 ];
 
-const KINDS = ["Rock 5B", "Melacs7", "Challenger", "Annan"];
+const KINDS = ["Rock 5B", "Melacs7", "Challenger", "NAS", "PC", "Annan"];
 
 function cleanText(value, max) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
@@ -68,6 +68,12 @@ function cleanPort(value, fallback) {
   return n;
 }
 
+function cleanMac(value) {
+  const text = String(value || "").trim().toLowerCase();
+  if (!/^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/.test(text)) return "";
+  return text;
+}
+
 function load() {
   let saved = [];
   try {
@@ -84,6 +90,7 @@ function load() {
     const detail = edited.detail === undefined
       ? board.detail
       : (cleanText(edited.detail, 48) || board.detail);
+    const mac = cleanMac(edited.mac);
     return {
       ...board,
       name,
@@ -91,6 +98,7 @@ function load() {
       host: cleanHost(edited.host) || board.host,
       port: cleanPort(edited.port, board.port),
       builtin: true,
+      ...(mac ? { mac } : {}),
     };
   });
   const custom = saved
@@ -103,6 +111,7 @@ function load() {
       host: cleanHost(item.host),
       port: cleanPort(item.port, 502),
       builtin: false,
+      ...(cleanMac(item.mac) ? { mac: cleanMac(item.mac) } : {}),
     }))
     .filter((item) => item.name && item.host);
   return [...builtins, ...custom];
@@ -160,7 +169,7 @@ export function addBoard(body) {
   if (!kind) return { error: "Välj en typ." };
   if (!host) return { error: "Ange en adress, till exempel 192.168.50.30." };
   const boards = load();
-  if (boards.length >= 24) return { error: "Högst 24 kretskort i schemat." };
+  if (boards.length >= 64) return { error: "Högst 64 enheter i schemat." };
   const board = {
     id: `b${crypto.randomBytes(4).toString("hex")}`,
     name,
@@ -190,6 +199,77 @@ export function updateBoard(id, body) {
   boards[index] = { ...current, name, host, detail, port };
   save(boards);
   return { board: boards[index] };
+}
+
+function rememberSelf(board, host, mac) {
+  if (!board || !host) return false;
+  const owns = board.id === "seas-edge" || board.mac === mac || board.host === host;
+  if (!owns) return false;
+  const changed = board.host !== host || (mac && board.mac !== mac);
+  board.host = host;
+  if (mac) board.mac = mac;
+  return changed;
+}
+
+function placeFound(boards, item) {
+  const mac = cleanMac(item.mac);
+  const host = cleanHost(item.host);
+  const kind = KINDS.includes(item.kind) ? item.kind : "";
+  const name = cleanText(item.name, 48);
+  const detail = cleanText(item.detail, 48);
+  const port = cleanPort(item.port, 0);
+  if (!mac || !host || !kind || !name || !port) return false;
+  const existing = boards.find((board) => !board.builtin && board.mac === mac);
+  if (existing) {
+    const changed = existing.host !== host || existing.port !== port;
+    existing.host = host;
+    existing.port = port;
+    return changed;
+  }
+  const builtin = item.builtinId
+    ? boards.find((board) => board.builtin && board.id === item.builtinId)
+    : null;
+  if (builtin && (!builtin.mac || builtin.mac === mac)) {
+    const changed = builtin.host !== host || builtin.port !== port || builtin.mac !== mac;
+    builtin.host = host;
+    builtin.port = port;
+    builtin.mac = mac;
+    if (detail && (builtin.host === host) && (!builtin.detail || builtin.detail === "ingen nod här")) {
+      builtin.detail = detail;
+    }
+    return changed;
+  }
+  if (boards.length >= 64) return false;
+  boards.push({
+    id: `found-${mac.replaceAll(":", "")}`,
+    name,
+    kind,
+    detail,
+    host,
+    port,
+    builtin: false,
+    mac,
+  });
+  return true;
+}
+
+export function applyDiscovery({ selfHost, selfMac, found }) {
+  const boards = load();
+  let changed = rememberSelf(
+    boards.find((board) => board.id === "seas-edge"),
+    cleanHost(selfHost),
+    cleanMac(selfMac),
+  );
+  changed = rememberSelf(
+    boards.find((board) => board.id === "seas-central"),
+    cleanHost(selfHost),
+    cleanMac(selfMac),
+  ) || changed;
+  for (const item of found || []) {
+    if (placeFound(boards, item)) changed = true;
+  }
+  if (changed) save(boards);
+  return changed;
 }
 
 export function removeBoard(id) {

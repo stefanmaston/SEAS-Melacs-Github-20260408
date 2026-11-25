@@ -1,0 +1,6 @@
+# Maskiner som hör till anläggningen men inte annonserar sig själva.
+# En rad: mac-adress eller ip, roll, namn
+# Roll är pc eller nas. Skrivare, teve och främmande datorer skrivs inte in här.
+#
+# 3c:22:fb:aa:bb:cc pc Kontorsdator
+# 192.168.68.40 nas Arkiv

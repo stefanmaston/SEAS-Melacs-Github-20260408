@@ -1,0 +1,30 @@
+#!/bin/sh
+# Kortlänken 192.168.1.10 ska inte ligga på samma gränssnitt som platsens adress.
+# Annars publicerar Avahi båda, och melacs.local pekar på ett nät som kontoret inte når.
+set -eu
+
+start() {
+  modprobe macvlan 2>/dev/null || true
+  if ! ip link show plc0 >/dev/null 2>&1; then
+    if ! ip link add plc0 link eth0 type macvlan mode bridge; then
+      ip addr replace 192.168.1.10/24 dev eth0
+      exit 0
+    fi
+  fi
+  ip link set plc0 up
+  ip addr replace 192.168.1.10/24 dev plc0
+  ip addr del 192.168.1.10/24 dev eth0 2>/dev/null || true
+}
+
+stop() {
+  ip link del plc0 2>/dev/null || true
+}
+
+case "${1:-start}" in
+  start) start ;;
+  stop) stop ;;
+  *)
+    echo "Använd: melacs-plc-net start|stop" >&2
+    exit 1
+    ;;
+esac

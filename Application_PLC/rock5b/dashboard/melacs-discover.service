@@ -1,0 +1,8 @@
+[Unit]
+Description=Sök SEAS-utrustning på de lokala näten
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/node /opt/melacs-dashboard/server/discover.mjs
+Nice=10

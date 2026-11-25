@@ -1,0 +1,78 @@
+#!/bin/sh
+# Startar om en lokal tjänst som har dött. En fältenhet som inte svarar
+# är inte ett fel på lådan och får inte starta om något annat.
+set -u
+
+log=/var/lib/melacs/guard.log
+mkdir -p /var/lib/melacs
+
+note() {
+  printf '%s %s\n' "$(date -Is)" "$*" >>"$log"
+}
+
+restart_if_down() {
+  unit=$1
+  systemctl is-enabled --quiet "$unit" 2>/dev/null || return 0
+  state=$(systemctl is-active "$unit" 2>/dev/null || true)
+  # Tomt svar betyder att systemd inte hann svara. Rör inte tjänsten då.
+  if [ -z "$state" ]; then
+    return 0
+  fi
+  case $state in
+    active|activating|reloading) return 0 ;;
+  esac
+  note "startar om $unit ($state)"
+  systemctl restart "$unit" || note "kunde inte starta $unit"
+}
+
+port_open() {
+  timeout 3 bash -c "echo >/dev/tcp/127.0.0.1/$1" 2>/dev/null
+}
+
+for unit in \
+  melacs-net.service \
+  melacs-modbus-proxy.service \
+  melacs-dashboard.service \
+  docker.service \
+  avahi-daemon.service \
+  smbd.service \
+  nmbd.service \
+  rustdesksignal.service \
+  rustdeskrelay.service \
+  rustdesk.service \
+  melacs-discover.timer
+do
+  restart_if_down "$unit"
+done
+
+if systemctl is-active --quiet melacs-dashboard.service; then
+  if ! port_open 80; then
+    note "port 80 svarar inte, startar om melacs-dashboard"
+    systemctl restart melacs-dashboard.service || note "kunde inte starta melacs-dashboard"
+  fi
+fi
+
+if systemctl is-active --quiet melacs-modbus-proxy.service; then
+  if ! port_open 1502; then
+    note "port 1502 svarar inte, startar om melacs-modbus-proxy"
+    systemctl restart melacs-modbus-proxy.service || note "kunde inte starta melacs-modbus-proxy"
+  fi
+fi
+
+if command -v docker >/dev/null 2>&1 && systemctl is-active --quiet docker.service; then
+  docker ps -aq --filter status=exited --filter status=dead 2>/dev/null | while read -r id; do
+    [ -n "$id" ] || continue
+    name=$(docker inspect -f '{{.Name}}' "$id" 2>/dev/null | sed 's#^/##')
+    policy=$(docker inspect -f '{{.HostConfig.RestartPolicy.Name}}' "$id" 2>/dev/null || true)
+    case $policy in
+      unless-stopped|always)
+        note "startar container $name"
+        docker start "$id" >/dev/null 2>&1 || note "kunde inte starta $name"
+        ;;
+    esac
+  done
+fi
+
+if [ -f "$log" ]; then
+  tail -n 200 "$log" >"$log.tmp" && mv "$log.tmp" "$log"
+fi
